@@ -9,4 +9,6 @@ __pycache__
 *.pywz
 *.pyzz
 env/
+artigos/
+backup/
 
