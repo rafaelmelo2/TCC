@@ -1,0 +1,1685 @@
+Universidade Federal de Goiás
+Regional Catalão
+Unidade Acadêmica Especial de Biotecnologia
+Curso de Bacharelado em Ciências da Computação
+Predição Automática de Indicativos Financeiros
+para Bolsa de Valores Considerando o Aspecto
+Temporal
+Rafael da Silva Melo
+Catalão – GO
+2025Rafael da Silva Melo
+Predição Automática de Indicativos Financeiros para
+Bolsa de Valores Considerando o Aspecto Temporal
+Monografia apresentada ao Curso de
+Bacharelado em Ciências da Computação da
+Universidade Federal de Goiás – Regional Catalão,
+como parte dos requisitos para obtenção do
+grau de Bacharel em Ciências da Computação.
+EXEMPLAR DE DEFESA I
+Orientador: Prof. Dr. Márcio de Souza Dias
+Catalão – GO
+2025Ficha de identificação da obra elaborada pelo autor, através do
+Programa de Geração Automática do Sistema de Bibliotecas da UFG.
+Melo, Rafael da Silva
+Predição Automática de Indicativos Financeiros para Bolsa de
+Valores Considerando o Aspecto Temporal [manuscrito] / Rafael
+da Silva Melo. – 2025.
+53 p.: il.
+Orientador: Prof. Dr. Márcio de Souza Dias
+Monografia (Graduação) – Universidade Federal de Goiás, Uni-
+dade Acadêmica Especial de Biotecnologia, Ciências da Computa-
+ção, 2025.
+Bibliografia.
+1. predição. 2. indicadores financeiros. 3. séries temporais.
+4. bolsa de valores. 5. aprendizado profundo. I. Dias, Márcio de
+Souza, orient. II. Título.
+CDU 004Rafael da Silva Melo
+Predição Automática de Indicativos Financeiros para
+Bolsa de Valores Considerando o Aspecto Temporal
+Monografia apresentada ao curso de
+Bacharelado em Ciências da Computação da
+Universidade Federal de Goiás – Regional
+Catalão.
+Trabalho aprovado em 01 de Agosto de 2025.
+Márcio de Souza Dias
+Orientador
+Marcio Antonio Duarte
+Universidade Federal de Catalão
+Thiago Jabur Bittar
+Universidade Federal de Catalão
+Catalão – GO
+2025RESUMO
+MELO, R. S.. Predição Automática de Indicativos Financeiros para Bolsa de Valores Con-
+siderando o Aspecto Temporal . 2025. 53 p. Monograﬁa (Graduação) – Unidade Acadêmica
+Especial de Biotecnologia, Universidade Federal de Goiás – Regional Catalão, Catalão – GO.
+O trabalho introduz um modelo híbrido de aprendizado profundo, utilizando uma combinação de
+redes neurais LSTM + CNN para prever indicadores ﬁnanceiros da bolsa brasileira B3 — Brasil,
+Bolsa, Balcão — com base em dados de séries temporais intradiárias.
+A análise incorpora dados de liquidez, volatilidade e volume negociado, juntamente com en-
+genharia de características e uma metodologia de validação cruzada temporalmente consciente
+para melhorar a robustez e a repetibilidade dos resultados.
+Sua arquitetura foi construída para inferir cenários de estresse e choques de mercado, algo fora
+do alcance de métodos clássicos como ARIMA ou Prophet. Um importante marco é que produz
+valores muito precisos, o que importa muito mais para negociantes da bolsa e gerentes de risco.
+Um pipeline baseado em Python será construído para ser usado na reprodução e geração de
+dados, além da agregação de dados e análise subsequente na qual este estudo se baseia. Essas
+contribuições implicam em uma maior estabilidade em ambientes voláteis e insights que podem
+ser transferidos para vários ativos ﬁnanceiros.
+Palavras-chave: predição, indicadores ﬁnanceiros, séries temporais, bolsa de valores, aprendi-
+zado profundo.ABSTRACT
+MELO, R. S.. Predição Automática de Indicativos Financeiros para Bolsa de Valores Con-
+siderando o Aspecto Temporal . 2025. 53 p. Monograﬁa (Graduação) – Unidade Acadêmica
+Especial de Biotecnologia, Universidade Federal de Goiás – Regional Catalão, Catalão – GO.
+The paper introduces a hybrid deep learning model that combines LSTM and CNN neural
+networks to predict ﬁnancial indicators of the Brazilian exchange B3 — Brasil, Bolsa, Balcão —
+based on intraday time-series data.
+The analysis incorporates liquidity, volatility, and traded volume data, together with feature
+engineering and a time-aware cross-validation methodology to improve the robustness and
+replicability of the results.
+Its architecture was designed to infer stress scenarios and market shocks, something beyond
+the reach of classical methods such as ARIMA or Prophet. A key advantage is that it produces
+highly accurate values, which matters much more to stock traders and risk managers.
+A Python-based pipeline will be built to support reproducibility and data generation, as well as
+data aggregation and the subsequent analysis on which this study relies. These contributions
+imply greater stability in volatile environments and insights that can be transferred to multiple
+ﬁnancial assets.
+Keywords: prediction, ﬁnancial indicators, time series, stock exchange, deep learning.SUMÁRIO
+Lista de ilustrações . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+Lista de tabelas. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+1 INTRODUÇÃO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+1.1 Contextualização . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+1.2 Limitações dos modelos clássicos . . . . . . . . . . . . . . . . . . . . . 7
+1.3 Problema de Pesquisa . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+1.3.1 Justificativa . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+1.4 Objetivos . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+1.4.1 Objetivo geral . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+1.4.2 Objetivos específicos . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+1.4.3 Contribuição Esperada . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2 FUNDAMENTAÇÃO TEÓRICA . . . . . . . . . . . . . . . . . . . . 13
+2.1 Mercado financeiro em geral . . . . . . . . . . . . . . . . . . . . . . . 13
+2.1.1 Regulação e Estrutura da B3 como Infraestrutura de Mercado . . .13
+2.1.2 Conectividade e Ambientes de Negociação . . . . . . . . . . . . . . . 14
+2.1.3 Ativos . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+2.1.4 Principais conceitos utilizados no mercado financeiro . . . . . . . . . 15
+2.1.5 Indicadores técnicos . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+2.1.6 Preço real, o que acontece . . . . . . . . . . . . . . . . . . . . . . . . 16
+2.1.6.1 Representação dos preços em Candlesticks . . . . . . . . . . . . . . . . . . 17
+2.2 Estacionariedade e transformações usuais . . . . . . . . . . . . . . . . 18
+2.2.1 Volatilidade e Liquidez Intradiária . . . . . . . . . . . . . . . . . . . . 18
+2.2.2 Componente Temporal em Predição de Séries Financeiras . . . . . . 19
+2.2.3 Séries Temporais e a Aplicação de Deep Learning em Finanças . .20
+2.2.3.1 Redes Recorrentes Long Short-Term Memory (LSTM) . . . . . . . . . . . 21
+2.2.3.2 Arquitetura Transformer e o Mecanismo de Atenção . . . . . . . . . . . . . 22
+3 TRABALHOS RELACIONADOS . . . . . . . . . . . . . . . . . . . . 25
+3.1 Modelos Clássicos e Estatísticos . . . . . . . . . . . . . . . . . . . . . 25
+3.2 Aprendizado de Máquina e Modelos Híbridos . . . . . . . . . . . . . 25
+3.3 Redes Neurais Profundas . . . . . . . . . . . . . . . . . . . . . . . . . . 273.4 Transformers para Séries Temporais . . . . . . . . . . . . . . . . . . . 28
+3.5 LLMs atuais aplicados a Séries Temporais Financeiras . . . . . . . . 29
+3.6 Síntese Crítica . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+4 PRÓXIMOS PASSOS . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+4.1 Aquisição e Descrição dos Dados . . . . . . . . . . . . . . . . . . . . . 36
+4.2 Pré-processamento e Engenharia de Atributos . . . . . . . . . . . . . 36
+4.3 Arquitetura dos Modelos . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+4.4 Desenho Experimental e Treinamento . . . . . . . . . . . . . . . . . . 37
+4.5 Métricas de Avaliação . . . . . . . . . . . . . . . . . . . . . . . . . . . 37
+4.5.1 Backtests e Custos de Transação . . . . . . . . . . . . . . . . . . . . . 38
+4.5.2 Testes de Robustez e Significância . . . . . . . . . . . . . . . . . . . . 38
+4.5.3 Reprodutibilidade . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+4.6 Ameaças à Validade . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+4.7 Cronograma PFC2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+5 CONSIDERAÇÕES FINAIS . . . . . . . . . . . . . . . . . . . . . . . 41
+REFERÊNCIAS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+6 GLOSSÁRIO . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+7 SIGLAS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 53LISTA DE ILUSTRAÇÕES
+Figura 1 – Explicação visual sobre cada serie temporal. Fonte: (LEONUNESBIO, 2014). 6
+Figura 2 – Delimitação da tarefa: previsão direcional intradiária (+1 barra, 15 min).
+Fonte: autor. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+Figura 3 – Mini-chart de 15 minutos da ação PETR4 (Petrobras), com candles, Médias
+Móveis de 9, 21 e 50 períodos, Bandas de Bollinger (20x2) e RSI de 9, 21 e
+50. Fonte: Yahoo Finance, adaptado pelo autor. . . . . . . . . . . . . . . . . 16
+Figura 4 – Candlesticks. Fonte: Giacomel (2016). . . . . . . . . . . . . . . . . . . . . 18
+Figura 5 – Trade-off do tamanho da janela. Fonte: o autor . . . . . . . . . . . . . . . . 20
+Figura 6 – Arquitetura de uma célula de memória LSTM, ilustrando o estado de célula
+e os três portões (esquecimento, entrada e saída) que regulam o ﬂuxo de
+informação. Fonte: Adaptado de (OLAH, 2015). . . . . . . . . . . . . . . . 22
+Figura 7 – A arquitetura do modelo Transformer, destacando os blocos de codiﬁcador e
+decodiﬁcador, as camadas de atenção multi-cabeças e as redes feed-forward.
+Fonte: Adaptado de Vaswani et al. (2017) (V ASWANI et al. , 2017). . . . . . 23
+Figura 8 – Validação temporal walk-forward com seleção bayesiana de hiperparâmetros.
+Fonte: autor. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+Figura 9 – Guia adotado para construção de modelo. Fonte: o autor. . . . . . . . . . . 35
+LISTA DE TABELAS
+Tabela 1 – Exemplo de Série Temporal Multivariada da Ação PETR4 (intervalo de 15
+minutos) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+Tabela 2 – Método vs. Dados exigidos. Fonte: o autor. . . . . . . . . . . . . . . . . . . 32
+Tabela 3 – Método vs. Custo computacional. Fonte: o autor. . . . . . . . . . . . . . . . 32
+Tabela 4 – Método vs. Pontos fortes. Fonte: o autor. . . . . . . . . . . . . . . . . . . . 32
+Tabela 5 – Método vs. Fragilidades. Fonte: o autor. . . . . . . . . . . . . . . . . . . . 33
+Tabela 6 – Cronograma de Execução do PFC2 (Set/2025–Jan/2026) . . . . . . . . . . 393
+LISTA DE ALGORITMOS5
+CAPÍTULO
+1
+INTRODUÇÃO
+1.1 Contextualização
+As bolsas de valores são infraestruturas de mercado onde compradores e vendedores
+negociam valores mobiliários sob regras claras e supervisão, promovendo formação de preços,
+liquidez e alocação eﬁciente de recursos (MISHKIN; EAKINS, 2018; FABOZZI; MODIGLIANI,
+2009). No Brasil, esse papel é desempenhado pela B3 — Brasil, Bolsa, Balcão —, que integra
+ambientes de negociação, registro, compensação e liquidação, operando sob marcos legais como
+a Lei do Mercado de Valores Mobiliários e a Lei das Sociedades por Ações (B3, 2025b; BRASIL,
+1976a; BRASIL, 1976b). Em mercados acionários, os preços reﬂetem expectativas sobre ﬂuxos
+de caixa futuros e risco, mas também exibem forte volatilidade e variação de liquidez (BODIE;
+KANE; MARCUS, 2021).
+No horizonte intradiário, emergem problemas clássicos de microestrutura — periodici-
+dades sistemáticas ao longo do dia, espaçamento irregular entre negócios e impacto de ordens
+(inclusive via spread1e custo de imediatismo) — que condicionam a dinâmica de preços e a
+interpretação de sinais de curto prazo (ANDERSEN; BOLLERSLEV, 1997; ENGLE; RUSSELL,
+1998; HASBROUCK, 2007; AMIHUD, 2002; DUFOUR; ENGLE, 2000). Além disso, choques
+macroeconômicos e eventos exógenos podem deslocar rapidamente as cotações, elevando a
+incerteza (BANK, 2020). Esse contexto motiva a investigação de métodos preditivos sensíveis
+ao tempo e às nuances operacionais do ambiente de negociação brasileiro.
+Com os avanços da tecnologia, a complexidade e a volatilidade dos ativos negociados
+em bolsa de valores aumentaram de forma signiﬁcativa. Embora o mercado de ações não seja
+teoricamente previsível, muitos investidores identiﬁcam padrões que motivam a busca por
+estratégias de previsão(LO, 2017). No mundo, ativos fortemente correlacionados com mercados
+internacionais e ﬂuxo de notícias, bem como a crescente participação de investidores individuais
+e institucionais, reforçam a necessidade de ferramentas que esclareçam sinais de curto, médio e
+longo prazo.
+Neste estudo, considera-se explicitamente um modelo híbrido baseado em redes recorren-
+tes do tipo LSTM combinadas a convoluções unidimensionais (CNN+LSTM), visando capturar
+simultaneamente dependências de longo prazo e padrões locais em séries intradiárias da B3.
+Essa escolha se apoia em evidências de que LSTMs representam melhor relações não lineares
+e dependências temporais prolongadas, enquanto camadas convolucionais extraem motivos de
+1Diferença entre o preço de compra (bid) e o de venda (ask) de um ativo.6 Capítulo 1. Introdução
+curto prazo a partir de janelas deslizantes; em conjunto, busca-se maior robustez frente a ruído e
+a mudanças de regime de mercado. Para assegurar comparabilidade, os resultados serão confron-
+tados com baselines estatísticos (ARIMA, Prophet) e com variantes baseadas em Transformers
+reportadas nas literaturas (DING; QIN, 2020; NASCIMENTO; SANTOS; FERREIRA, 2023;
+ZENG et al. , 2022; WEN et al. , 2022).
+No entanto, como Zvi Bodie and Alex Kane and Alan J. Marcus (BODIE; KANE; MAR-
+CUS, 2021) dizem em seu livro, o mercado de ações é impulsionado por variáveis econômicas
+(taxas de juros, taxas de câmbio, indicadores de inﬂação), fatores corporativos (demonstrações
+ﬁnanceiras da empresa e mudanças na governança) e também eventos externos (crises políticas,
+pandemias, choques de oferta) como diz (BANK, 2020). Estes quesitos permitem que, em cada
+série temporal, sejam produzidas componentes como tendência, sazonalidade e ciclos, con-
+forme a decomposição tradicional proposta em Box e Jenkins (BOX et al. , 2015) e amplamente
+discutida em Hyndman e Athanasopoulos (HYNDMAN; ATHANASOPOULOS, 2018):
+∙Tendência: deﬁne se os preços atuais estão subindo ou caindo a curto prazo.
+∙Sazonalidade: é qualquer tipo de padrão repetitivo entre ciclos diários a anuais.
+∙Ciclos: um movimento de oscilação de médio a longo prazo, que não segue um calendário
+ﬁxo, mas decorre de condições econômicas, corporativas e externas.
+∙Ruído aleatório: variações imprevisíveis, que não podem ser explicadas por tendência,
+sazonalidade ou ciclos, geralmente decorrentes de choques ou ﬂutuações aleatórias.
+A ﬁgura 1 apresenta diferentes combinações dos componentes básicos de uma série
+temporal: tendência, ciclos e ruído. Cada gráﬁco mostra isoladamente ou em conjunto esses
+elementos, evidenciando como eles moldam o comportamento dos dados ao longo do tempo.
+A tendência representa o movimento de longo prazo (aumento ou queda contínua), os ciclos
+mostram padrões repetitivos de médio prazo ligados a fatores econômicos ou sazonais, e o ruído
+corresponde a ﬂutuações aleatórias sem padrão deﬁnido. Assim, ao combinar esses elementos,
+observamos séries mais complexas e realistas, aproximando-se do que ocorre em dados empíricos.
+Figura 1 – Explicação visual sobre cada serie temporal. Fonte: (LEONUNESBIO, 2014).1.2. Limitações dos modelos clássicos 7
+É aqui que avanços arquitetônicos recentes entram em cena — como o Temporal Fusion
+Transformer (TFT) (LIM; ZOHREN; ROBERTS, 2021), variantes Transformers voltadas à não-
+estacionaridade (LIU et al. , 2022), mecanismos de atenção por “patches” (PatchTST) (NIE et al. ,
+2023) e redes temporais dedicadas como o TimesNet (WU et al. , 2023). Além disso, modelos
+fundacionais e abordagens baseadas em Grandes Modelos de Linguagem (LLMs) vêm sendo
+aplicados a séries temporais, como o TimesFM (GOEL et al. , 2025) e o TimeGPT (LATHUILèRE
+et al. , 2024), juntamente com métodos que alinham LLMs à tarefa de previsão (LLM4TS; Time-
+LLM) (CHANG et al. , 2023; JIN et al. , 2023) e aplicações no domínio ﬁnanceiro (ALONSO;
+FRANKLIN, 2024). Há também um debate quanto à efetividade prática dos Transformers em
+séries temporais (ZENG et al. , 2022; WEN et al. , 2022). Para cenários com dados multimodais,
+destacam-se propostas como o Hidformer (LIANG et al. , 2025). Apesar desses avanços, contextos
+intradiários permanecem desaﬁadores — periodicidade intradiária e efeitos de microestrutura
+(ANDERSEN; BOLLERSLEV, 1997; HASBROUCK, 2007), irregularidade temporal/duração
+entre negócios (ENGLE; RUSSELL, 1998) e custo computacional — tema que será retomado na
+seção de Trabalhos Relacionados.
+A própria natureza do comércio, marcada por negociações frequentes e pelo uso de
+estratégias algorítmicas — isto é, sistemas automatizados que executam ordens de compra
+e venda com base em regras predeﬁnidas, muitas vezes em alta frequência —, enfatiza a
+importância de modelos capazes de capturar rapidamente padrões transitórios sem perder de
+vista o horizonte de médio prazo de maneira rigorosa (SUNKI et al. , 2024).
+Outras pesquisas já propuseram modelos híbridos para previsão de preços de ações —
+por exemplo, o modelo proposto por (JUNIOR, 2013), que combina redes neurais, técnicas
+estatísticas e indicadores técnicos via comitê de aprendizado. Entretanto, tais propostas, em
+geral, não exploram esquemas de agregação mais soﬁsticados (como metaclassiﬁcação em dois
+estágios) nem avaliam de forma sistemática a robustez a mudanças súbitas de regime (SOUZA
+et al. , 2022; TSAY, 2010).
+Coerente com o título desta monograﬁa, explicitamos os alvos preditivos (indicativos
+ﬁnanceiros) a serem modelados: direção do return na próxima barra, medida de volatilidade
+intradiária (p.ex., amplitude/variância realizada) e sinais de liquidez, como volume negociado
+e spread efetivo (TSAY, 2010; DACOROGNA et al. , 2001; WOOD; MCINISH; ORD, 1985;
+MISHKIN; EAKINS, 2018; JR; OUTROS, 2014; NASCIMENTO; SANTOS; FERREIRA,
+2023).
+Portanto, este trabalho avança a linha dos híbridos ao empregar um modelo CNN+LSTM
+com camadas convolucionais para padrões locais, validação temporal walk-forward e uma
+avaliação realista pós-custos no contexto da B3, com foco em estabilidade e reprodutibilidade
+dos resultados.
+1.2 Limitações dos modelos clássicos
+Métodos estatísticos tradicionais, como ARIMA e seus desdobramentos sazonais, ofere-
+cem boa interpretabilidade e desempenho em séries estacionárias ou de baixa não linearidade.
+Todavia, como demonstram estudos recentes, esses modelos tendem a perder eﬁcácia quando
+confrontados com mercados “barulhentos”, em que pequenos choques(notícias inesperadas,
+decisões judiciais, compras ou vendas grandes em pouco tempo) podem alterar radicalmente as
+projeções (SUNKI et al. , 2024).
+Ding e Qin (DING; QIN, 2020) demonstraram o modelo associado de rede baseada em8 Capítulo 1. Introdução
+Long Short-Term Memory - LSTM2é capaz de predizer simultaneamente preço de abertura,
+mínima e máxima, alcançando acurácia superior a 95% em dados históricos de bolsa. (NAS-
+CIMENTO; SANTOS; FERREIRA, 2023) compararam modelos ARIMA, Prophet e LSTM
+para séries ﬁnanceiras, mostraram que arquiteturas baseadas em redes recorrentes capturam
+melhor dependências de tempo mais longas. Já propostas de ensembles híbridos (por exemplo,
+um comitê que combina múltiplas LSTMs paralelas) sugerem ganhos de robustez e precisão.
+Diante do cenário dos modelos híbridos e ensembles , que combinam redes profundas, métodos
+estatísticos e indicadores técnicos, a ﬁm de aproveitar as vantagens de cada abordagem e mitigar
+suas fragilidades, tem-se o exemplo promissor que é o uso de metaclassiﬁcadores, em que vários
+algoritmos (e.g., redes LSTM, SVM, random forest) produzem predições independentes que
+são então combinadas por um modelo adicional, responsável por aprender como integrar essas
+saídas e gerar uma decisão ﬁnal mais consistente (SOUZA et al. , 2022).
+Ao mesmo tempo, a inclusão de indicadores técnicos, como médias móveis, índice
+de força relativa (RSI) ou bandas de Bollinger, tem se mostrado útil para modelos de ML no
+enriquecimento de informações de tendência e volatilidade marcadas por janelas de preços
+históricos. Isso melhora a capacidade das redes neurais de discriminar entre sinais reais e ruído
+(DING; QIN, 2020). Se a volatilidade for suﬁcientemente alta, esses comitês têm se mostrado
+mais estáveis e conﬁáveis na previsão do que qualquer um desses métodos usados isoladamente.
+Embora vários estudos tenham aﬁrmado precisões acima de 90% no caso de previsões
+diárias, análises subsequentes mostraram um viés de "falsa segurança": muitos resultados não
+são muito úteis em cenários reais de mercado porque ignoram a dependência temporal real entre
+treinamento e teste.
+1.3 Problema de Pesquisa
+Resultados de previsão intradiária frequentemente não se sustentam em uso real porque
+violam a ordem temporal, ignoram regimes de liquidez/volatilidade e desconsideram custos
+de transação. Nesse cenário, permanece incerto se modelos de aprendizado profundo — em
+especial arquiteturas híbridas CNN+LSTM — geram sinais direcionais realmente utilizáveis
+(horizonte +1 barra/15 min) para ações líquidas da B3 entre 2020–2025, quando avaliados sob um
+protocolo rigoroso de validação walk-forward e comparados a baselines clássicos e arquiteturas
+com atenção.
+Delimitação do escopo:
+Este estudo situa-se no universo de bolsas de valores e mercados organizados, em que a
+negociação se dá sob regras de listagem, leilões, formação de preço e procedimentos operacionais
+deﬁnidos (no caso brasileiro, pela B3) (B3, 2025). Em janelas intradiárias, o comportamento
+do preço é inﬂuenciado por aspectos de microestrutura (ex.: liquidez, spread , intensidade de
+ordens, periodicidades intradiárias), o que afeta diretamente a previsibilidade e a avaliação
+de modelos (HASBROUCK, 2007; ANDERSEN; BOLLERSLEV, 1997; DUFOUR; ENGLE,
+2000; ENGLE; RUSSELL, 1998). À luz dessa dinâmica, explicitamos a seguir as delimitações
+adotadas.
+∙Ativos : Consideramos ações líquidas negociadas na B3 (e.g., PETR4, V ALE3, ITUB4) e,
+quando pertinente, a carteira do Ibovespa como referência de mercado. A escolha por alta
+2rede recorrente com memória de longo prazo1.3. Problema de Pesquisa 9
+liquidez visa mitigar efeitos de microestrutura adversos (como slippage e spread amplos)
+que distorcem sinais intradiários (HASBROUCK, 2007).
+∙Período e granularidade : Os experimentos cobrem jan/2020–jul/2025 em barras de 15
+minutos, com análises de sensibilidade em 5 e 30 minutos. Essa granularidade equi-
+libra ruído e sinal em alta frequência e captura periodicidades intradiárias conhecidas
+(picos de volatilidade na abertura/fechamento, padrões de almoço, etc.) (ANDERSEN;
+BOLLERSLEV, 1997; HYNDMAN; ATHANASOPOULOS, 2018).
+∙Tarefa : Prever a direção do movimento de preço na próxima vela (horizonte +1barra),
+formulada como classiﬁcação probabilística. Tal formulação permite avaliar calibração e
+qualidade probabilística, não apenas acerto bruto (BRIER, 1950; GUO et al. , 2017) — ver
+também a interpretação visual da tarefa na Figura 2.
+∙Validação e treinamento : Para evitar viés temporal (ook-ahead) e superestimação de
+desempenho, adotamos validação walk-forward com janelas sequenciais, seleção de hi-
+perparâmetros por otimização Bayesiana e controle de sementes/versionamento para
+reprodutibilidade. Esse arranjo segue boas práticas de validação em séries temporais e
+backtesting (BERGMEIR; BENíTEZ, 2012; PRADO, 2018).
+∙Métricas : Aferimos:
+I.acurácia direcional com banda morta , para robustez a microvariações;
+II.Brier Score e Log-Loss, para qualidade das probabilidades e calibração (BRIER,
+1950; GUO et al. , 2017);
+III.métricas pós-custos de trading (retorno líquido, drawdown e índice de Sharpe),
+reﬂetindo utilidade prática sob custos de transação (SHARPE, 1994)
+Para comparar previsores quando necessário, usamos testes de acurácia preditiva como
+Diebold–Mariano (DIEBOLD; MARIANO, 1995).
+∙Comparadores (baselines) : Contrastamos o modelo proposto com referências clássicas e
+modernas:
+I.ARIMA/Box–Jenkins como baseline estatístico canônico (BOX et al. , 2015; HYND-
+MAN; ATHANASOPOULOS, 2018; JR; OUTROS, 2014);
+II.Prophet, representando um decompositor aditivo com sazonalidades/mudanças de
+nível (TAYLOR; LETHAM, 2018);
+III.arquiteturas modernas para séries temporais, incluindo variantes baseadas em Trans-
+formers, dada sua capacidade de capturar dependências de longo alcance (WEN et
+al., 2022; ZENG et al. , 2022).
+A ilustração 2 sintetiza a tarefa: em uma série de preços intradiária (barras de 15 min),
+cada ponto no tempo gera um vetor de atributos (preço, volume, indicadores técnicos e variáveis
+de contexto) e o modelo estima a probabilidade de a próxima barra encerrar acima (ou abaixo)
+da atual. O horizonte é de +1 barra (curto prazo), e as janelas de treino/teste avançam sequen-
+cialmente no tempo (esquema walk-forward), reﬂetindo o ﬂuxo real de mercado e evitando
+contaminação temporal.10 Capítulo 1. Introdução
+Figura 2 – Delimitação da tarefa: previsão direcional intradiária (+1 barra, 15 min). Fonte: autor.
+Pergunta central do estudo:
+Em que condições (janelas, regimes de volatilidade e custo) um modelo CNN+LSTM
+supera comparadores clássicos (Naive, ARIMA, Prophet) e variantes com atenção
+na tarefa de previsão direcional intradiária (+1 barra/15 min) em ações líquidas da
+B3 (2020–2025), sob avaliação walk-forward e métricas pós-custos?
+1.3.1 Justificativa
+A previsão intradiária de movimentos de preços na B3 apresenta relevância prática para
+apoio à decisão em ambientes voláteis e com custos de transação não desprezíveis. Do ponto de
+vista acadêmico, persiste uma lacuna entre resultados reportados em ambientes controlados e o
+desempenho sob walk-forward3, com avaliação pós-custos e controle de deriva de conceito. Este
+estudo busca reduzir essa lacuna ao (i) delimitar um cenário intradiário realista, (ii) empregar
+validação temporal adequada e (iii) comparar um modelo híbrido (CNN+LSTM) a baselines
+consolidados. O potencial impacto inclui melhores critérios de avaliação para tarefas direcionais,
+evidências sobre robustez em diferentes regimes de volatilidade e um pipeline reprodutível que
+pode ser replicado e estendido por outros pesquisadores.
+1.4 Objetivos
+1.4.1 Objetivo geral
+Avaliar de forma quantitativa e reprodutível, a capacidade de modelos de aprendizado de
+máquina sensíveis ao tempo em prever o comportamento direcional de indicadores ﬁnanceiros
+intradiários, comparando seu desempenho a baselines estatísticos e neurais sob um protocolo
+experimental realista (validação walk-forward e backtext4) pós-custos.
+3Método em que o treino e o teste avançam em janelas sequenciais, mantendo a ordem temporal.
+4Simulação histórica de uma estratégia sob regras e dados passados.1.4. Objetivos 11
+1.4.2 Objetivos específicos
+1.Construir e documentar o conjunto de dados intradiários (OHLCV e indicadores técnicos)
+para o período deﬁnido (2020–2025) e frequência ﬁxa (15 minutos), especiﬁcando fontes,
+regras de limpeza, critérios de inclusão de ativos e prevenção de vazamento temporal.
+2.Deﬁnir o desenho experimental com validação walk-forward (janelas deslizantes, embargo
+temporal e padronização dentro de cada janela), estratégia de seleção de hiperparâmetros e
+controle de variáveis (sementes, versões e ambiente).
+3.Treinar e comparar baselines representativos com o(s) modelo(s) proposto(s) sensíveis à
+ordem temporal, mantendo critérios comparáveis de otimização.
+4.Mensurar a qualidade preditiva por múltiplas métricas: acurácia direcional com banda
+morta, F1/recall para a classe positiva, Brier score e AUC-PR, incluindo análise de calibra-
+ção das probabilidades.
+5.Avaliar desempenho operacional convertendo sinais em regras simples de negociação e
+realizando backtests com custos de transação e slippage, reportando retorno, Sharpe, max
+drawdown e turnover, além de cortes por regimes de volatilidade.
+6.Testar signiﬁcância e robustez dos resultados por meio do teste de Diebold-Mariano,
+bootstrap em blocos e análises de sensibilidade (janelas temporais, subconjuntos de ativos,
+horizonte de previsão e feature sets).
+7.Garantir reprodutibilidade com repositório versionado, manifesto de dependências, scripts
+de preparo/treino/avaliação, diários de experimento e registro explícito de ameaças à
+validade interna e externa.
+1.4.3 Contribuição Esperada
+Este trabalho busca contribuir em quatro frentes principais:
+Primeiro, com o desenvolvimento de um modelo híbrido (CNN+LSTM) capaz de combi-
+nar padrões locais e dependências de longo prazo em séries temporais ﬁnanceiras, adequando-se
+às particularidades do mercado intradiário da B3.
+Em segundo lugar, ao realizar uma avaliação empírica comparativa com baselines esta-
+belecidos (ARIMA, Prophet, LSTM puro e variantes Transformer), sob um protocolo realista de
+validação walk-forward e backtests pós-custos.
+A terceira contribuição está na análise da robustez do modelo em diferentes condições
+de mercado, explorando regimes de volatilidade e choques pontuais.
+Finalmente, planeja-se lançar um pipeline reprodutível com a fonte organizada, bem
+como documentação detalhada, não apenas para apoiar a futura replicação de experimentos,
+mas também para facilitar a adaptação e extensão por outros pesquisadores interessados nessas
+abordagens.
+Este trabalho promoverá e eliminará barreiras técnicas à comunidade cientíﬁca e, desen-
+cadeará a co-construção do conhecimento. Além disso, a natureza aberta do pipeline permite
+que novas metodologias sejam testadas em igualdade de condições, tornando os resultados mais
+comparáveis e, portanto, contribuindo para conclusões mais robustas.13
+CAPÍTULO
+2
+FUNDAMENTAÇÃO TEÓRICA
+2.1 Mercado financeiro em geral
+Em primeiro lugar, é preciso compreender que o mercado ﬁnanceiro é um espaço
+institucionalizado no qual diversos agentes econômicos negociam diferentes tipos de ativos,
+como títulos de dívida, commodities , derivativos e moedas (MISHKIN; EAKINS, 2018).
+As ações também fazem parte desses ativos, frações adequadas do capital social de em-
+presas de capital aberto cuja negociação é realizada regularmente por meio das bolsas de valores
+(BRASIL, 1976b). Investidores que compram uma ação tornam-se acionistas, ou proprietários
+parciais das corporações que emitiram tais ações, e, consequentemente, têm certos direitos legais
+(o direito de receber sua parte proporcional dos dividendos distribuídos pela corporação e, muitas
+das vezes, o direito de votar em decisões corporativas indiretamente). Isso signiﬁca que as ações
+não são apenas sobre como a empresa ganha dinheiro na realidade, mas também sobre o que os
+investidores acham que ela gerará no futuro — portanto, a negociação de ações nada mais é do
+que uma percepção entre as pessoas e as dinâmicas econômicas gerais.
+A B3 opera em um ambiente regulado que garante segurança jurídica e transparência
+às operações realizadas pelos participantes, permitindo que investidores forneçam recursos
+às empresas ou ao governo em troca de remuneração futura, geralmente sob forma de juros,
+dividendos ou ganhos de capital advindos da valorização dos ativos adquiridos de acordo com a
+(BRASIL, 1976a).
+Existem muitas bolsas de valores espalhadas por todo o mundo, cada uma operando
+sob regulamentações especíﬁcas, negociando ativos próprios e reﬂetindo as particularidades
+econômicas e culturais das regiões onde estas estão inseridas. Exemplos notórios incluem a
+Bolsa de Nova York (New York Stock Exchange, s.d.), a Nasdaq (NASDAQ, s.d.) nos Estados
+Unidos, a Bolsa de Londres no Reino Unido (London Stock Exchange, s.d.), e a Bolsa de Valores
+de São Paulo no Brasil (B3, s.d.).
+2.1.1 Regulação e Estrutura da B3 como Infraestrutura de Mercado
+Considerando o funcionamento do mercado ﬁnanceiro brasileiro, é essencial destacar
+o papel central da B3 (B3, 2025b). A B3 é reconhecida como uma das principais empresas de
+infraestrutura de mercado ﬁnanceiro no mundo, atuando nos ambientes de bolsa e de balcão
+organizado (B3, 2025b).14 Capítulo 2. Fundamentação Teórica
+Neste contexto, a B3 atua como contraparte central, integrando funções de registro,
+custódia, liquidação e supervisão em uma cadeia verticalmente estruturada. Essa estrutura
+assegura a formação adequada de preços e a ampla divulgação das ofertas no livro central, com
+o objetivo de proteger os investidores e garantir eﬁciência ao mercado (B3, 2025a; B3, 2025b).
+Logo, os participantes do mercado — corretoras, formadores de mercado, provedores
+de tecnologia e emissores — devem operar conforme os procedimentos estabelecidos pela
+B3, incluindo padrões de conexão como DMA, co-location e PNP, além da manutenção de
+sistemas de auditoria e controles internos descritos no Manual de Procedimentos Operacionais
+de Negociação (B3, 2025).
+2.1.2 Conectividade e Ambientes de Negociação
+Para que os modelos de predição sejam robustos, é essencial compreender os diferentes
+tipos de conexão ao ambiente de negociação da B3. Segundo o Manual de Procedimentos
+Operacionais de Negociação da B3, as conexões ao ambiente de negociação são classiﬁcadas
+conforme sua origem e hospedagem — incluindo acesso via mesa de operações, assessores
+e conexão direta patrocinada (DMA) (B3, 2025). Essa última, conhecida como DMA (Direct
+Market Access), permite que investidores ou provedores enviem ordens diretamente ao sistema
+de negociação, sem intermediação manual, reduzindo latência e aumentando a eﬁciência na
+execução de trades (B3, 2025).
+Além do mais, a B3 oferece o serviço de co-location , onde servidores de corretoras
+ou investidores são instalados ﬁsicamente em data centers da bolsa (como COLO0/COLO1),
+diminuindo ainda mais a latência em relação ao DMA tradicional fora do centro de dados da B3
+(B3, 2025). Essa conﬁguração é especialmente importante para estratégias de alta frequência
+(HFT), nas quais milissegundos inﬂuenciam diretamente os retornos.
+Portanto, ao lidar com dados de alta frequência em seu modelo de predição é fundamental
+considerar que os atrasos (latência) e o tipo de conexão (DMA, co-location ou assessor) impactam
+a qualidade e a reprodutibilidade dos resultados no ambiente real de negociação.
+2.1.3 Ativos
+Os ativos ﬁnanceiros são instrumentos ou contratos negociados no mercado ﬁnanceiro,
+com características e funções especíﬁcas, permitindo aos investidores diversiﬁcar seus investi-
+mentos de acordo com diferentes perﬁs de risco e expectativas de retorno (MISHKIN; EAKINS,
+2018; FABOZZI; MODIGLIANI, 2009). Conforme introduzido na seção 2.1, esses ativos in-
+cluem ações, títulos públicos e privados, moedas, derivativos e commodities (FABOZZI;
+MODIGLIANI, 2009). Cada categoria apresenta particularidades quanto ao comportamento
+dos preços, liquidez e risco associado, tornando imprescindível uma análise detalhada antes de
+qualquer decisão de investimento.
+Os preços desses ativos são inﬂuenciados por fatores variados, desde condições climáticas
+e ambientais até eventos geopolíticos e econômicos globais (BANK, 2020), o que faz deles
+ativos voláteis, cujos preços podem oscilar signiﬁcativamente em curtos períodos. Além disso,
+muitos desses ativos são interligados, e variações no preço de um deles podem inﬂuenciar
+diretamente os demais, aumentando a complexidade das análises ﬁnanceiras e exigindo dos
+investidores estratégias consistentes e informações atualizadas para tomadas de decisão mais
+assertivas (MISHKIN; EAKINS, 2018).2.1. Mercado ﬁnanceiro em geral 15
+2.1.4 Principais conceitos utilizados no mercado financeiro
+Descrever a direção predominante do movimento dos preços ao longo do tempo carac-
+teriza o que chamamos de tendência . Quando um ativo apresenta uma sequência consistente
+de preços ascendentes, diz-se que há uma tendência de alta ; quando ocorre o inverso, com
+preços descendentes de forma persistente, trata-se de uma tendência de baixa . Se os preços não
+manifestam uma direção clara, oscilando em faixas relativamente estáveis, caracteriza-se como
+ausência de tendência ou mercado lateralizado (BODIE; KANE; MARCUS, 2021).
+Além do conceito de tendência, outros termos importantes são frequentemente utilizados
+para descrever os movimentos e comportamentos observados na bolsa de valores. Um desses
+termos é a volatilidade , que representa o grau de oscilação dos preços dos ativos ao longo de
+um determinado período, reﬂetindo a instabilidade ou a incerteza do mercado naquele momento
+(MISHKIN; EAKINS, 2018). Quando se fala em liquidez , refere-se à facilidade com que um
+ativo pode ser convertido em dinheiro sem causar grande impacto no seu preço. Um ativo com alta
+liquidez pode ser negociado rapidamente, enquanto um ativo com baixa liquidez possui menos
+compradores e vendedores, diﬁcultando sua negociação imediata (FABOZZI; MODIGLIANI,
+2009).
+Outro termo amplamente utilizado é o dividendo , que corresponde a uma parcela dos
+lucros que as empresas distribuem periodicamente aos acionistas como forma de remuneração
+pelo investimento realizado (BRASIL, 1976b; BODIE; KANE; MARCUS, 2021).
+É comum ouvir falar em bear market ebull market . O primeiro descreve períodos
+prolongados de queda nos preços das ações e pessimismo generalizado no mercado. Por outro
+lado, um bull market refere-se a fases caracterizadas por aumentos contínuos e generalizados
+dos preços dos ativos ﬁnanceiros, acompanhados por otimismo dos investidores em relação ao
+futuro econômico (BODIE; KANE; MARCUS, 2021).
+Por ﬁm, Índice de mercado diz respeito a indicadores que medem o desempenho médio
+de um conjunto de ativos negociados em bolsa (DAYCOV AL, 2024), como o Ibovespa no Brasil
+ou o S&P 500 nos Estados Unidos, servindo como referência para avaliar o comportamento geral
+do mercado ﬁnanceiro.
+2.1.5 Indicadores técnicos
+Além dos índices de mercado, existem também os chamados indicadores técnicos.
+Eles são muito usados na análise gráﬁca, justamente para tentar entender como os preços se
+comportam e, a partir disso, decidir o melhor momento de comprar ou vender um ativo. A
+diferença é que, enquanto os índices de mercado mostram o desempenho geral de um grupo de
+ações ou ativos, os indicadores técnicos olham para cada ativo separadamente. Eles funcionam
+com base em cálculos matemáticos feitos sobre o histórico de preços e sobre o volume de
+negociações, tentando transformar esses números em sinais que ajudem o investidor a agir com
+mais segurança.
+Além dos índices de mercado tradicionais, existem outros tipos de indicadores, de-
+nominados indicadores técnicos, utilizados principalmente na análise gráﬁca para avaliar o
+comportamento dos preços e tomar decisões relacionadas à compra e venda de ativos. Diferen-
+temente dos índices de mercado, que avaliam o desempenho geral de um conjunto especíﬁco
+de ativos, os indicadores técnicos são aplicados individualmente em cada ativo, com base em
+cálculos matemáticos realizados sobre os preços históricos e volumes de negociação (MURPHY,
+1999).16 Capítulo 2. Fundamentação Teórica
+Entre os indicadores técnicos mais utilizados, destacam-se:
+∙Bandas de Bollinger : indicam a volatilidade e possíveis níveis de suporte e resistência
+dos preços (BOLLINGER, 2001);
+∙Médias Móveis : suavizam os dados históricos e ajudam a identiﬁcar a direção predomi-
+nante dos preços (MURPHY, 1999);
+∙Índice de Força Relativa (RSI) : mede a força e a velocidade dos movimentos dos preços
+para avaliar possíveis situações de sobrecompra ou sobrevenda;
+∙MACD (Moving Average Convergence Divergence) : busca identiﬁcar mudanças nas
+tendências por meio das interações entre médias móveis.
+A Figura 3 ilustra apenas como exemplo didático a aplicação prática desses indicadores
+em um gráﬁco de candles com periodicidade de 15 minutos. As Médias Móveis de 9, 21 e 50
+períodos suavizam o comportamento dos preços e ajudam a identiﬁcar tendências de curto, médio
+e longo prazo (MURPHY, 1999). Em torno das velas estão as Bandas de Bollinger (20x2) , que
+se expandem ou se contraem conforme a volatilidade do mercado, sinalizando possíveis regiões
+de suporte e resistência (BOLLINGER, 2001). Na parte inferior do gráﬁco, as janelas do Índice
+de Força Relativa (RSI) com 9, 21 e 50 períodos medem a força do movimento dos preços,
+indicando potenciais situações de sobrecompra ou sobrevenda (MURPHY, 1999).
+Figura 3 – Mini-chart de 15 minutos da ação PETR4 (Petrobras), com candles, Médias Móveis de 9, 21 e
+50 períodos, Bandas de Bollinger (20x2) e RSI de 9, 21 e 50. Fonte: Yahoo Finance, adaptado
+pelo autor.
+Esses indicadores são ferramentas essenciais para investidores e analistas técnicos,
+permitindo uma melhor compreensão dos movimentos de preços e auxiliando na deﬁnição de
+estratégias para investimentos em curto, médio ou longo prazo. (MURPHY, 1999)
+2.1.6 Preço real, o que acontece
+Normalmente, ao acompanharmos o mercado ﬁnanceiro, prestamos atenção no preço ﬁnal
+das ações. Aliás, é exatamente esse valor que vemos estampado nos jornais e sites especializados2.1. Mercado ﬁnanceiro em geral 17
+após o fechamento da bolsa (MISHKIN; EAKINS, 2018). Só que, enﬁm, esse número por si
+só conta apenas parte da história do que realmente aconteceu durante o pregão. A verdade é
+que, ao longo do dia, acontecem inúmeras transações de compra e venda, fazendo com que o
+preço oscile diversas vezes—às vezes, até bruscamente—antes de chegar ao valor deﬁnitivo no
+encerramento do dia (MURPHY, 1999).
+Suponha-se que uma ação abra o pregão com preço elevado devido a notícias positivas
+divulgadas no dia anterior. Isso não garante que ela vá continuar assim durante todo o período.
+Na verdade, pode ocorrer o oposto: em poucas horas, inﬂuenciada por novas informações ou pela
+movimentação de grandes investidores, o preço pode despencar (BODIE; KANE; MARCUS,
+2021). Por isso, apenas olhar o preço ﬁnal é insuﬁciente para entender o comportamento completo
+da ação. É aí que surgem métricas mais especializadas.
+Opreço de abertura , por exemplo, revela o ponto inicial do dia e pode já sinalizar
+tendências imediatas devido a transações realizadas antes do pregão oﬁcial—o chamado pre-
+market. Já o preço máximo alcançado durante o dia nos diz muito sobre a força compradora,
+sendo um sinal claro do otimismo momentâneo dos investidores (MURPHY, 1999). Se esse
+preço máximo estiver muito distante do fechamento, talvez seja sinal de alerta, indicando uma
+possível reversão de tendência. O inverso ocorre com o preço mínimo, que reﬂete o maior nível
+de pessimismo momentâneo. Caso esteja próximo ao preço de fechamento, talvez seja sinal de
+recuperação da conﬁança dos investidores no decorrer do dia (PRING, 2014).
+Além disso, o volume de negociação também é uma parte integrante de toda essa narrativa.
+Em suma, é o total transacionado em reais durante o dia. Isso pode revelar muito sobre o interesse
+dos investidores naquela ação.
+Uma grande empresa como a Vale ou a Petrobras pode movimentar milhões, enquanto
+uma pequena movimenta pouco. Por exemplo, um aumento repentino no volume geralmente
+indica a chegada de algum evento signiﬁcativo. Por outro lado, uma diminuição no volume pode
+mostrar o interesse diminuindo e também implicar que a tendência pode estar se revertendo de
+sua direção atual.
+Por ﬁm, é essencial destacar que essas métricas podem e devem ser analisadas em
+conjunto. Cada uma delas fornece pistas importantes, mas é a combinação de todas que permite
+uma leitura mais precisa e rica sobre o que realmente aconteceu com os preços durante o dia na
+bolsa. Na prática, é esse conjunto completo de informações que possibilita aos investidores e
+analistas técnicos tomarem decisões mais assertivas e também ajuda redes neurais a preverem
+com mais acurácia os movimentos futuros do mercado (MURPHY, 1999; BODIE; KANE;
+MARCUS, 2021).
+2.1.6.1 Representação dos preços em Candlesticks
+O gráﬁco 4 de candlestick é uma das formas mais intuitivas de representar as oscilações
+de preço de ativos ﬁnanceiros. Cada vela informa, em um determinado intervalo de tempo, os
+preços de abertura, fechamento, máxima e mínima, como dito na imagem.
+Quando o fechamento é superior à abertura, a vela tende a ser clara, sinalizando valo-
+rização; se inferior, escura, indicando desvalorização. Essa conﬁguração visual permite não
+apenas uma leitura rápida das tendências, mas também auxilia na identiﬁcação de possíveis
+reversões. De acordo com estudo recente de Phankokkruad e Worasuwannarak (2025), padrões
+como Doji e Hammer são usados como indicativos de mudança de direção nos preços e demons-
+tram aplicabilidade em modelos preditivos baseados em redes neurais (PHANKOKKRUAD;
+WORASUWANNARAK, 2025).18 Capítulo 2. Fundamentação Teórica
+Figura 4 – Candlesticks. Fonte: Giacomel (2016).
+2.2 Estacionariedade e transformações usuais
+Mesmo quando os preços compartilham uma raiz unitária, embora os níveis de preços
+sejam comumente referidos como não estacionários em pesquisas e práticas ﬁnanceiras, as
+ﬂutuações de curto prazo podem frequentemente ser modeladas adequadamente por processos
+aproximadamente estacionários. É por isso que é uma tradição já estabelecida na área trabalhar
+com retornos e não com preços de ações simples (CAMPBELL; LO; MACKINLAY, 1997;
+TSAY, 2010). Neste texto, eles usam retornos logarítmicos deﬁnidos por rt=ln(Pt)−ln(Pt−1),
+o que torna a série temporal estacionária em relação à escala e permite composições aditivas ao
+longo do tempo (CAMPBELL; LO; MACKINLAY, 1997).
+Para avaliar a estacionaridade, podemos usar os seguintes testes complementares: o teste
+ADF (Augmented Dickey–Fuller), que tem como hipótese nula a existência de uma raiz unitária,
+e o KPSS, que assume como nula que os dados são estacionários em torno de um nível/tendência.
+Evita-se conclusões parciais através de uma leitura conjunta (SAID; DICKEY, 1984).
+Para controle de escala e heterocedasticidade, são executadas transformações z-score
+móveis ou monotônicas (por exemplo, Box–Cox), ajustadas apenas nos dados de treinamento e
+depois aplicadas ao conjunto de validação/teste para evitar vazamento de dados ( ??).
+Em algumas séries intradiárias, também se remove a tendência do efeito sazonal da
+periodicidade diária (abertura/fechamento), seja por meio de dummies intradiários ou subtraindo
+a média por faixa de tempo, removendo variações sistemáticas que não se generalizam fora do
+padrão diário (DACOROGNA et al. , 2001).
+2.2.1 Volatilidade e Liquidez Intradiária
+Segundo o Manual de Procedimentos Operacionais de Negociação da B3 (2019), me-
+canismos como a atuação de formadores de mercado, a estruturação das fases de negociação e
+parâmetros de lote mínimo inﬂuenciam signiﬁcativamente os padrões intradiários de liquidez e
+volatilidade (B3, 2025). Observa-se, por exemplo, que há picos de volatilidade na abertura e no
+fechamento da sessão, enquanto o período intermediário costuma apresentar menor atividade.
+Avolatilidade intradiária pode ser mensurada por indicadores como o desvio-padrão
+de retornos em janelas móveis de 1, 5 ou 15 minutos (ANDERSEN; BOLLERSLEV, 1997).2.2. Estacionariedade e transformações usuais 19
+Andersen & Bollerslev (1997) demonstraram que a volatilidade não é constante ao longo
+do dia, concentrando-se em horários especíﬁcos e gerando efeitos de heterocedasticidade e
+autocorrelação nos retornos (ANDERSEN; BOLLERSLEV, 1997).
+Por sua vez, a liquidez refere-se à facilidade de negociação de um ativo sem afetar
+substancialmente seu preço, sendo frequentemente avaliada por medidas como:
+∙V olume médio por minuto;
+∙Spread bid–ask, diferença entre o maior preço que alguém está disposto a pagar por um
+ativo e o menor preço pelo qual alguém está disposto a vendê-lo;
+∙Índice de iliquidez de Amihud, que relaciona o retorno absoluto ao volume negociado
+(AMIHUD, 2002);
+∙Profundidade do livro de ofertas, capturando o total de ordens disponíveis em níveis
+próximos ao melhor preço (HASBROUCK, 2007).
+Estudos empíricos mostram que períodos de baixa liquidez tendem a apresentar maior
+volatilidade, o que prejudica a acurácia de modelos preditivos baseados em padrões técnicos
+(DUFOUR; ENGLE, 2000). Além disso, ativos com elevada liquidez exibem maior previsibili-
+dade em horizontes de curtíssimo prazo, justiﬁcando a seleção desses papéis como base de dados
+para este trabalho.
+Do ponto de vista metodológico, a variação intradiária de volatilidade e liquidez introduz
+dois principais desaﬁos ao modelo:
+1.Heterocedasticidade — volatilidade variável ao longo do dia requer o uso de modelos
+capazes de capturar regimes de alta e baixa variância (ex.: GARCH intradiário);
+2.Autocorrelação temporal — séries de duração de ordens e inter-arrival times impactam
+a independência dos retornos, demandando abordagens como Autoregressive Conditional
+Duration (ENGLE; RUSSELL, 1998).
+Dessa forma, a análise conjunta de volatilidade e liquidez intradiária fornece ao novo
+modelo, maior robustez e sensibilidade aos diferentes momentos da sessão, permitindo antecipar
+cenários de risco e otimizar as decisões de predição.
+2.2.2 Componente Temporal em Predição de Séries Financeiras
+Na predição de séries ﬁnanceiras, o componente temporal é o elemento estruturante que
+vai além da simples ordem cronológica dos dados. Primeiro, efeitos sazonais e de calendário
+— como feriados, janelas de pré-abertura e fechamento — geram variações sistemáticas em
+volume e volatilidade que precisam ser modeladas explicitamente para evitar vieses sazonais
+(HYNDMAN; ATHANASOPOULOS, 2018). Em seguida, a escolha do tamanho da janela de
+análise ( rolling window ) implica em um trade-off : janelas muito longas diluem choques pontuais,
+enquanto janelas muito curtas ampliﬁcam ruídos e podem induzir sobreajuste (HYNDMAN;
+ATHANASOPOULOS, 2018).
+No gráﬁco da Figura 5, esse equilíbrio é ilustrado visualmente: à medida que aumentamos
+o tamanho da janela de análise, reduzimos o impacto do ruído de curto prazo, mas também
+perdemos a capacidade de reagir rapidamente a mudanças repentinas no mercado. Por outro20 Capítulo 2. Fundamentação Teórica
+lado, janelas muito curtas capturam com mais agilidade as variações recentes, porém ampliﬁcam
+ﬂutuações aleatórias que podem induzir ao sobreajuste. Dessa forma, a ﬁgura evidencia o dilema
+central entre estabilidade e sensibilidade, que precisa ser considerado na escolha do horizonte
+temporal para modelagem de séries ﬁnanceiras.
+Figura 5 – Trade-off do tamanho da janela. Fonte: o autor
+Para avaliar corretamente esse trade-off e estimar a performance out-of-sample, empregam-
+se técnicas de validação temporal avançada, tais como time series cross-validation com bloqueio
+por períodos e backtesting walk-forward, que previnem o look-ahead bias e fornecem indicadores
+realistas de acurácia (BERGMEIR; BENíTEZ, 2012). Adicionalmente, modelos de mudança de
+regime ( regime-switching ), como o proposto por Hamilton (1989), capturam transições abruptas
+entre fases de mercado (e.g., bull vs. bear), ajustando a sensibilidade do algoritmo conforme o
+regime vigente (HAMILTON, 1989).
+No contexto deste trabalho, integrar todos esses elementos temporais — sazonalidades,
+janelas de análise otimizadas, validação avançada, detecção de regimes e embeddings de tempo
+— torna o modelo mais sensível tanto a movimentos rápidos quanto a evoluções estruturais,
+garantindo predições mais estáveis e acuradas em diferentes momentos da sessão de negociação.
+2.2.3 Séries Temporais e a Aplicação de Deep Learning em Finanças
+A modelagem de dados ﬁnanceiros frequentemente se baseia no conceito de séries
+temporais, que consistem em uma sequência de observações coletadas em intervalos de tempo
+regulares. Uma série temporal é mais do que uma simples lista de números. A sua característica
+fundamental é a dependência temporal, onde o valor de uma observação em um determinado
+momento pode ser inﬂuenciado por valores passados. No contexto da bolsa de valores, uma série
+temporal pode ser composta pelos preços de fechamento diário de uma ação, pelo volume de
+negociações a cada minuto ou por qualquer outra métrica que evolua ao longo do tempo.
+Para ilustrar, considere a Tabela 1, que apresenta uma série temporal multivariada
+hipotética para a ação PETR4, com dados intradiários coletados a cada 15 minutos. Cada
+linha representa um ponto no tempo, e as colunas (variáveis) representam diferentes métricas
+ﬁnanceiras, como os preços de abertura, máxima, mínima, fechamento e o volume negociado.
+A análise dessa série busca identiﬁcar padrões, tendências e sazonalidades que possam ser
+utilizados para prever os movimentos futuros dos preços.2.2. Estacionariedade e transformações usuais 21
+Tabela 1 – Exemplo de Série Temporal Multivariada da Ação PETR4 (intervalo de 15 minutos)
+Timestamp Abertura (R$) Máxima (R$) Mínima (R$) Fechamento (R$) Volume
+2025-08-18 10:00 30,50 30,65 30,48 30,62 1.250.000
+2025-08-18 10:15 30,62 30,70 30,55 30,68 890.000
+2025-08-18 10:30 30,68 30,69 30,50 30,52 1.100.000
+2025-08-18 10:45 30,52 30,58 30,45 30,55 950.000
+A modelagem de séries temporais ﬁnanceiras com aprendizado profundo avançou signiﬁ-
+cativamente, com o surgimento de arquiteturas especializadas capazes de lidar com dependências
+complexas e padrões não estacionários. A seguir, detalham-se duas das arquiteturas mais inﬂuen-
+tes neste domínio: LSTM e Transformer.
+2.2.3.1 Redes Recorrentes Long Short-Term Memory (LSTM)
+As Redes Neurais Recorrentes (RNNs) foram projetadas para lidar com dados sequenci-
+ais, possuindo "loops"que permitem que a informação persista ao longo do tempo. Contudo, as
+RNNs tradicionais enfrentam o problema do desaparecimento do gradiente (vanishing gradient),
+o que as impede de aprender dependências de longo prazo, uma característica essencial para
+séries temporais ﬁnanceiras.
+Para superar essa limitação, Hochreiter e Schmidhuber (1997) propuseram a arquitetura
+Long Short-Term Memory (LSTM), uma variante soﬁsticada de RNN. A principal inovação da
+LSTM é sua unidade de memória, composta por um estado de célula (cell state) e três portões
+(gates) que regulam o ﬂuxo de informação. O estado de célula atua como uma esteira rolante,
+transportando informações relevantes ao longo da sequência com poucas alterações. Os portões
+são estruturas neurais que, por meio de funções de ativação sigmoide, decidem qual informação
+deve ser adicionada ou removida do estado de célula.
+A Figura 6 ilustra o funcionamento de uma célula LSTM. Seus componentes são:
+∙Portão de Esquecimento (Forget Gate) : Decide qual informação do estado de célula
+anterior ( Ct−1) deve ser descartada. Ele analisa a entrada atual ( Xt) e o estado oculto anterior
+(ht−1) para gerar um valor entre 0 (esquecer completamente) e 1 (manter completamente).
+∙Portão de Entrada (Input Gate) : Determina quais novas informações serão armazenadas
+no estado de célula. Ele é composto por duas partes: uma camada sigmoide que decide
+quais valores serão atualizados e uma camada tanh que cria um vetor de novos valores
+candidatos.
+∙Portão de Saída (Output Gate) : Deﬁne qual será a saída da célula. A saída é baseada no
+estado da célula ﬁltrado, que passa por uma camada tanh para normalização e, em seguida,
+é multiplicado pela saída da camada sigmoide do portão.22 Capítulo 2. Fundamentação Teórica
+Figura 6 – Arquitetura de uma célula de memória LSTM, ilustrando o estado de célula e os três portões
+(esquecimento, entrada e saída) que regulam o ﬂuxo de informação. Fonte: Adaptado de
+(OLAH, 2015).
+Essa estrutura de portões permite que a LSTM aprenda a reter informações por longos
+períodos, tornando-a particularmente eﬁcaz na previsão de cotações, onde eventos passados
+podem inﬂuenciar signiﬁcativamente os preços futuros.
+2.2.3.2 Arquitetura Transformer e o Mecanismo de Atenção
+Apesar de seu sucesso, as LSTMs e outras redes recorrentes possuem uma limitação
+inerente: seu processamento é sequencial. Isso signiﬁca que, para processar o décimo ponto de
+uma série, é preciso antes ter processado os nove anteriores, o que diﬁculta a paralelização e a
+captura de dependências entre pontos muito distantes na sequência.
+Para resolver essas questões, (V ASWANI et al. , 2017) introduziram a arquitetura Trans-
+former, que abandona a recorrência e se baseia inteiramente no mecanismo de atenção (attention
+mechanism). A ideia central da atenção, especiﬁcamente da auto-atenção (self-attention), é
+permitir que o modelo pondere a importância de todas as outras posições da sequência de entrada
+ao processar uma única posição. Em vez de passar a informação sequencialmente, o Transformer
+pode "olhar"para toda a série temporal de uma só vez e identiﬁcar quais pontos do passado são
+mais relevantes para prever o futuro.
+A arquitetura do Transformer, ilustrada na Figura 7, é composta por dois blocos principais:
+o Codiﬁcador (Encoder) e o Decodiﬁcador (Decoder). Seus componentes-chave incluem:
+∙Auto-Atenção Multi-Cabeças (Multi-Head Self-Attention) : Em vez de calcular a aten-
+ção uma única vez, o modelo o faz múltiplas vezes em paralelo (as "cabeças"), permitindo
+que ele se concentre em diferentes aspectos da sequência. Por exemplo, uma cabeça pode
+focar na tendência de curto prazo, enquanto outra foca em padrões sazonais de longo
+prazo.
+∙Codiﬁcação Posicional (Positional Encoding) : Como o modelo não processa os dados
+em ordem, a informação sobre a posição de cada ponto na sequência é adicionada aos
+dados de entrada. Isso garante que a ordem cronológica da série temporal seja preservada.2.2. Estacionariedade e transformações usuais 23
+∙Camadas Feed-Forward : Após as camadas de atenção, cada posição passa por uma rede
+neural feed-forward para processamento adicional.
+Figura 7 – A arquitetura do modelo Transformer, destacando os blocos de codiﬁcador e decodiﬁcador, as
+camadas de atenção multi-cabeças e as redes feed-forward. Fonte: Adaptado de Vaswani et al.
+(2017) (V ASWANI et al. , 2017).
+A aplicação de Transformers em ﬁnanças é recente, porém bastante promissora. Mode-
+los como o Temporal Fusion Transformer (TFT) proposto por (LIM; ZOHREN; ROBERTS,
+2021),combinam múltiplas fontes de dados e camadas de atenção interpretáveis, adequando-se a
+dados ﬁnanceiros complexos. Estudos recentes como esse, mostram que, em ambientes de alta
+frequência, os Transformers podem superar as LSTMs (WU et al. , 2020), principalmente devido
+à sua capacidade de modelar dependências de longo prazo de forma mais eﬁcaz e estável .
+Assim, a escolha arquitetural deve ser orientada não apenas pela natureza sequencial dos
+dados, mas também pelas características operacionais do mercado alvo, sendo o Transformer e
+suas variantes uma tendência crescente na modelagem de séries temporais ﬁnanceiras.25
+CAPÍTULO
+3
+TRABALHOS RELACIONADOS
+A literatura sobre forecasting de séries temporais ﬁnanceiras é vasta, com abordagens
+que evoluíram dos modelos estatísticos clássicos para arquiteturas híbridas integrando machine
+learning , redes neurais e indicadores técnicos.
+3.1 Modelos Clássicos e Estatísticos
+Os modelos estatísticos tradicionais, especialmente os da família ARIMA (Autoregressive
+Integrated Moving Average), baseiam -se na metodologia Box–Jenkins (BOX et al. , 2015),
+integrando componentes autoregressivo (AR), de média móvel (MA) e de diferenciação (I) para
+lidar com séries não estacionárias.
+Rotela Jr. et al.(JR; OUTROS, 2014) ajustaram o modelo ARIMA para previsão usando
+uma longa série histórica mensal do Ibovespa (1995–2013), otimizando em relação ao erro
+MAPE, e obtiveram valores mais baixos, o que indica um bom ajuste nos dados agregados.
+Outros estudos comparativos indicam que a precisão do ARIMA se deteriora à medida
+que o horizonte de previsão aumenta, enquanto outros modelos, como o LSTM, são mais robustos
+em cenários de janela mais longa e não lineares (SOUZA et al. , 2022).
+A principal limitação do ARIMA reside em sua premissa de que todas as informações
+relevantes estão contidas em valores passados da própria série — o que ignora fontes externas,
+como indicadores técnicos, choques exógenos ou eventos de mercado súbitos. Além disso, sua
+sensibilidade a pontos de inﬂexão subestima impactos abruptos como crises e anúncios de
+política econômica — situações frequentes no contexto da B3 (B3, 2025).
+Assim sendo, embora o ARIMA forneça boa interpretabilidade e seja eﬁciente para
+previsões de curto prazo em séries estacionárias, ele revela fragilidade frente à alta volatilidade,
+dependências não lineares e dinâmicas multivariadas típicas do mercado acionário brasileiro.
+Desse modo, para o ambiente da B3 — marcado por ruído, sazonalidade e eventos exógenos
+— esses modelos demonstram limitações relevantes que justiﬁcam a exploração de arquiteturas
+mais soﬁsticadas e híbridas.
+3.2 Aprendizado de Máquina e Modelos Híbridos
+Métodos de previsão híbridos unem instrumentos estatísticos tradicionais (por exemplo,
+ARIMA) com algoritmos de aprendizado de máquina ou aprendizado profundo (como LSTM,26 Capítulo 3. Trabalhos Relacionados
+XGBoost), a ﬁm de colher os benefícios das características lineares e não lineares para dados de
+séries temporais ﬁnanceiras.
+Estes são alguns exemplos do padrão de complementação demonstrado em vários estudos
+recentes. Gonçalves (2023) analisou um modelo híbrido onde foram comparados modelos
+ARIMA e LSTM aplicados nos preços diários do índice IBX50 no Brasil, entre 2012 e 2022.
+ARIMA oferece boa previsão fora da amostra para o período próximo ao treinamento, mas LSTM
+é sempre melhor para horizontes de previsão mais longos (GONçALVES, 2023). Já Kashif &
+´Slepaczuk (2024) propuseram o modelo LSTM -ARIMA, onde os resíduos gerados pelo ARIMA
+são incorporados como entrada adicional à LSTM, resultando em ganhos consistentes em
+múltiplos índices de ações globais (KASHIF MUHAMMAD E ´SLEPACZUK, 2024). Além
+disso, Nasir et al. (2025) introduziram uma estrutura híbrida que combina ARIMA, decomposição
+LMD (Local Mean Decomposition) e algoritmos clássicos de ML como XGBoost e Random
+Forest, demonstrando melhoria signiﬁcativa em RMSE, MAE e acurácia direcional (NASIR;
+ZHANG; WANG, 2025).
+Quanto aos resultados empíricos, Gonçalves (2023) observou que o desempenho do
+ARIMA diminui progressivamente conforme o horizonte de previsão se estende, enquanto
+o LSTM se mostra mais robusto em janelas maiores de predição (GONçALVES, 2023). No
+trabalho de Kashif & ´Slepaczuk, o modelo híbrido LSTM -ARIMA superou tanto o ARIMA
+quanto a LSTM isoladamente, alcançando métricas superiores em retorno ajustado ao risco em
+índices como S&P 500, FTSE 100 e CAC 40 (KASHIF MUHAMMAD E ´SLEPACZUK, 2024).
+Nasir et al. (2025) relataram que a combinação com LMD + XGBoost incrementou a precisão
+em torno de 10–15 % em comparação com modelos individuais, além de melhorar a consistência
+direcional das previsões (NASIR; ZHANG; WANG, 2025).
+Do ponto de vista crítico, tais modelos híbridos oferecem vantagens claras, como conse-
+guir aprender tanto as partes lineares — bem captadas pelo ARIMA — quanto as dependências
+temporais não lineares, padrões sazonais complexos, por meio de LSTM ou XGBoost. Contudo,
+apresentam alguns desaﬁos relevantes:
+∙Dependência de grandes volumes de dados para treinar redes profundas, o que pode ser
+limitante nos ativos menos líquidos da B3.
+∙Complexidade computacional e necessidade de tuning rigoroso (por exemplo, validação
+temporal walk-forward), o que exige infraestrutura e expertise avançados.
+∙Risco de sobreajuste, especialmente em mercados voláteis ou com mudanças estruturais
+repentinas.
+Como ilustra a Figura 8, aplica-se uma validação temporal do tipo walk-forward com
+embargo opcional h. Em cada foldi, o modelo é treinado apenas com dados passados e tem seus
+hiperparâmetros selecionados por busca bayesiana (Optuna) em uma validação interna contida
+no bloco de treino. Em seguida, impõe-se um período de embargo de hobservações entre o
+ﬁm do treino/validação e o início do conjunto de teste para mitigar vazamento de informação.
+O desempenho é então medido no próximo bloco temporal ( Teste i+1), estritamente posterior.
+O procedimento se repete ao longo do tempo (folds 1; : : : ; k), produzindo uma sequência de
+avaliações fora da amostra; as métricas ﬁnais são agregadas sobre os blocos de teste, e o modelo
+pode ser retreinado no maior preﬁxo disponível com os hiperparâmetros selecionados. Esse
+protocolo é crucial para séries ﬁnanceiras e, em especial, para modelos híbridos, pois respeita a
+causalidade temporal e reduz sobreajuste.3.3. Redes Neurais Profundas 27
+Figura 8 – Validação temporal walk-forward com seleção bayesiana de hiperparâmetros. Fonte: autor.
+Dada a alta volatilidade, sazonalidade intradiária e nível de impacto exógeno da B3,
+incluindo política monetária e crises regionais (HASBROUCK, 2007; ANDERSEN; BOLLERS-
+LEV, 1997), modelos híbridos podem se tornar preferíveis, mas apenas com boa calibração e
+validação em seu próprio intervalo de tempo. Eles são superiores aos clássicos em trajetórias de
+médio e longo prazo e permitem captar padrões que são inalcançáveis para métodos lineares.
+Deve-se mostrar timidez na transformação de estratégias de investimento, avaliação de risco,
+estabilidade fora da amostra etc.
+Em síntese, os modelos híbridos representam uma evolução lógica em relação aos mode-
+los puramente estatísticos, conciliando interpretabilidade e robustez, e surgem como abordagem
+promissora para aplicações em predição de séries ﬁnanceiras na B3.
+3.3 Redes Neurais Profundas
+As redes neurais profundas, especialmente aquelas com estrutura recorrente como as
+LSTM (Long Short -Term Memory), foram idealizadas por Hochreiter e Schmidhuber (HO-
+CHREITER; SCHMIDHUBER, 1997). Essas arquiteturas superam os desaﬁos do desvaneci-
+mento/explosão de gradiente em sequências longas por meio do “carrossel de erro” (constant
+error carousel), permitindo que a rede capte dependências tardias essenciais (HOCHREITER;
+SCHMIDHUBER, 1997).
+Em aplicações ﬁnanceiras, as LSTM têm sido amplamente adotadas para previsão
+de séries temporais não estacionárias. Estudos como Siami -Namini & Siami Namin (2018)
+demonstraram que LSTM supera ARIMA de forma consistente, reduzindo a taxa de erro em cerca
+de 84–87% nos dados analisados (SIAMI -NAMINI; NAMIN, 2018). Além disso, Fjellström
+(2022) utilizou um ensemble de LSTMs paralelos para classiﬁcação binária de movimentos de
+preço, obtendo resultados mais estáveis com menor volatilidade de previsão (FJELLSTRöM,
+2022).
+Mais recentemente, Kabir et al. (2025) propuseram o modelo híbrido LSTM -mTrans -MLP,
+integrando LSTM com módulos Transformer e perceptron multicamada. Essa abordagem de-
+monstrou desempenho robusto em diversos ativos (Bitcoin, índices chineses e ações globais),
+com melhorias substanciais em precisão e sensibilidade (KABIR; OUTROS, 2025).28 Capítulo 3. Trabalhos Relacionados
+Quanto aos resultados práticos, o trabalho original de Hochreiter & Schmidhuber (1997)
+mostrou que LSTM pode resolver tarefas com atrasos de tempo superiores a mil steps e aprender
+signiﬁcativamente mais rápido que redes recorrentes tradicionais ou Elman nets (HOCHREI-
+TER; SCHMIDHUBER, 1997). No estudo de Siami -Namini, observa-se que a LSTM reduz
+drasticamente os erros em relação ao ARIMA — especialmente em mercados voláteis. Fjells-
+tröm evidenciou que o ensemble de LSTMs reduz a variabilidade nos resultados, favorecendo
+previsões diretas de movimento de preço mais estáveis. Já Kabir et al. apresentaram melhoria de
+desempenho mesmo em mercados altamente não lineares e ruidosos (KABIR; OUTROS, 2025).
+Crucialmente, as redes LSTM são uma escolha particularmente boa para séries temporais
+ﬁnanceiras, pois podem modelar dependências não lineares e memória de longo prazo melhor do
+que RNNs convencionais. No entanto, elas exigem:
+∙Aprendizado em Lote: Um grande volume de dados é usado para jogar pelo seguro, porque
+a B3 possui valores mobiliários com baixa liquidez e o overﬁtting pode se tornar um
+problema.
+∙Ajustes computacionais pesados e ajuste ﬁno de hiperparâmetros (portas, taxas de aprendi-
+zado, etc.) requerem uma infraestrutura robusta.
+∙Risco em termos de perda de estabilidade contra dados ruidosos ou eventos exógenos
+inesperados.
+No contexto da B3 (alta volatilidade, sazonalidade intradiária e relação com eventos
+macroeconômicos), as LSTMs podem ter um bom desempenho, desde que seja utilizada validação
+temporal suﬁciente para evitar o overﬁtting, especialmente em um ambiente de conjunto ou com
+módulos Transformer.
+Redes neurais profundas, especialmente LSTM e o modelo híbrido com variante Trans-
+former mostrado neste trabalho, representam uma ampla evolução em relação aos modelos
+clássicos por duas razões principais: elas podem capturar relações temporais complexas a partir
+de grandes conjuntos de dados; e provam previsões mais estáveis em um ambiente de mercado
+real.
+3.4 Transformers para Séries Temporais
+Os modelos baseados em Transformer, originalmente propostos por Vaswani et al. (2017),
+têm sido adaptados para séries temporais graças ao mecanismo de atenção que captura depen-
+dências de longo alcance e interações multivariadas de forma eﬁciente (WEN et al. , 2022).
+No contexto ﬁnanceiro e de séries temporais, trabalhos como Costa & Machado (2023)
+aplicaram o Transformer à predição de preços de ações do Ibovespa e concluíram que o modelo
+superou ARIMA e LSTM em cerca de 60% dos casos testados (COSTA; MACHADO, 2023).
+Em estudos mais gerais, Wen et al. (2022) apresentam uma revisão sistemática dos Transformers
+para análise temporal, destacando suas forças e limitações na parte estrutural e de aplicação
+(WEN et al. , 2022). Outro avanço signiﬁcativo foi o modelo Non-stationary Transformer (Liu et
+al., 2022), que propõe módulos de “series stationarization” e “de-stationary attention” para lidar
+eﬁcazmente com dados não estacionários, reduzindo o MSE em até 49% em relação a outras
+variantes como Informer e Reformer (LIU et al. , 2022).3.5. LLMs atuais aplicados a Séries Temporais Financeiras 29
+Além disso, Nie et al. (2022) introduziram o PatchTST, que segmenta séries em "pat-
+ches"temporais canal-independentes para reduzir complexidade e melhorar previsões de longo
+prazo, superando modelos Transformer convencionais em benchmarks públicos (NIE et al. ,
+2023).
+Os resultados empíricos demonstram que:
+∙Costa & Machado conseguiram maior precisão do Transformer em relação a modelos
+clássicos (ARIMA e LSTM) em séries do mercado brasileiro (COSTA; MACHADO,
+2023).
+∙Liu et al. reduziram MSE em 49% comparando com Transformers tradicionais, Informer
+e Reformer, na tarefa de prever séries não estacionárias (LIU et al. , 2022).
+∙Nie et al. relataram que o PatchTST oferece previsões robustas e mais acurácia em longo
+horizonte com menor carga computacional (NIE et al. , 2023).
+Sob análise crítica, os Transformers apresentam pontos fortes e limitações:
+∙Vantagem clara na modelagem de dependências de longo prazo e interações multivariadas
+sem recorrer à recursividade.
+∙Risco de perda de informação temporal devido à invariância à permutação na autoatenção,
+especialmente se o encoding posicional não for bem calibrado (ZENG et al. , 2022).
+∙Complexidade computacional elevada, com necessidade de variantes modiﬁcadas como
+Informer, Autoformer ou PatchTST para tornar o modelo escalável em grandes horizontes
+temporais.
+∙Em cenários com títulos de baixa liquidez na B3, os Transformers exigem volume substan-
+cial de dados, o que pode ser desaﬁador.
+Em síntese, os Transformers representam uma evolução promissora para o mercado
+da B3 pela capacidade de capturar padrões complexos e não estacionários. Entretanto, exigem
+adaptações especíﬁcas, validação robusta e infraestrutura computacional adequada para realmente
+superar métodos como LSTM e modelos híbridos em cenários reais da bolsa brasileira.
+3.5 LLMs atuais aplicados a Séries Temporais Financei-
+ras
+Recentemente, os Large Language Models (LLMs) passaram a ser explorados como fer-
+ramentas de previsão de séries temporais ﬁnanceiras, aproveitando sua capacidade de raciocínio
+sequencial e contextual. Em vez de operar diretamente sobre séries numéricas, esses modelos
+são adaptados por meio de técnicas como transformação de padrões temporais em tokens de
+linguagem, aprendizado em poucos exemplos ( few-shot) ou inferência sem ajuste ( zero-shot)
+(ALONSO; FRANKLIN, 2024).
+Um estudo conduzido por Noguer I Alonso & Franklin (2024/25) testou modelos como
+TimeGPT, NBEATS, NHITS, PatchTST e KAN em dados de ações de empresas globais (Google,
+Apple, Meta, entre outras), mostrando que variantes baseadas em LLMs, especialmente TimeGPT30 Capítulo 3. Trabalhos Relacionados
+Long Horizon, tiveram desempenho superior em cenários estáveis, enquanto modelos especi-
+alizados como PatchTST se destacaram em condições mais voláteis (ALONSO; FRANKLIN,
+2024).
+Jiang et al. (2025), por meio do framework LLM -PS, integraram módulos de convolução
+multi -escala e um componente de “time -to-text”, permitindo ao LLM captar padrões semânticos
+e temporais de séries não estacionárias. O método obteve precisão de ponta tanto em previsões
+de curto quanto longo prazo, em regimes com poucos dados ou sem ajuste ﬁno (TANG et al. ,
+2025).
+Além disso, trabalhos como LLM4TS (Chang et al., 2023) apresentaram esquema de
+alinhamento e ﬁne -tuning adaptativo de LLMs pré -treinados para séries temporais, alcançando
+redução média de 6,8% no MSE em cenários few -shot em comparação com modelos treinados
+do zero (CHANG et al. , 2023). Jin et al. (2023) criaram a arquitetura Time -LLM, que reprograma
+LLMs em tarefas de forecasting uniﬁcando prompts como preﬁxos, e demonstrou desempenho
+competitivo frente a modelos especializados, inclusive em cenários zero-shot (JIN et al. , 2023).
+Mais recentemente, o modelo DeepSeek-TS+ foi proposto como uma estrutura uniﬁ-
+cada para previsão de séries multivariadas com múltiplos produtos, integrando atenção latente
+multi -cabeça (MLA) com uma política adaptativa de otimização por grupos (GRPO) (LI et
+al., 2025). Essa arquitetura apresentou ganhos signiﬁcativos sobre GRUs e modelos ARMA
+em ambientes dinâmicos, com melhor capacidade de adaptação e robustez temporal. Em para-
+lelo, o modelo SMETimes , baseado em LLMs leves com menos de 3 bilhões de parâmetros,
+demonstrou superioridade em relação a modelos maiores ( 7B), tanto em desempenho quanto
+em economia de recursos, sugerindo que arquiteturas otimizadas podem ser mais eﬁcazes em
+contextos como o da B3 (FAN; OUTROS, 2025).
+Os resultados indicam que:
+∙LLMs são eﬁcazes em cenários com poucos dados (few -shot ou zero -shot), sendo úteis
+quando séries são curtas ou ativos têm baixa liquidez.
+∙Frameworks como LLM -PS e LLM4TS aprimoram o modelo com módulos que capturam
+padrões temporais e escrevem sequências numéricas em linguagem natural, resultando em
+previsão mais contextualizada.
+∙Modelos como Time -LLM e DeepSeek -TS+ oferecem versatilidade e capacidade adapta-
+tiva robusta, inclusive em cenários com múltiplas variáveis e dinâmicas não lineares.
+∙LLMs otimizados, como o SMETimes, viabilizam previsões precisas com menor custo
+computacional — um diferencial importante em aplicações reais.
+Embora essas abordagens mostrem potencial sob escrutínio, elas também apresentam
+algumas deﬁciências:
+∙A conversão de dados numéricos em linguagem pode criar abstração de informações e
+perda de precisão sem a tokenização adequada.
+∙O desempenho tende a decair em séries sem padrão claro (ruído elevado, ausência de sazo-
+nalidade ou tendência), conforme evidenciado por Tang et al. (2024) (TANG; OUTROS,
+2024).3.6. Síntese Crítica 31
+∙Extrapolar para alta frequência, uma característica comum do B3, exige uma reformulação
+em grande escala do pipeline de tokenização e das representações temporais.
+Em conclusão, os LLMs otimizados fundidos e de cabeça dupla com módulos dinâmi-
+cos temporais especializados podem reﬂetir um método promissor para o tipo de problema 3
+com desequilíbrio extremo censurado e dados de séries temporais esparsas que poderiam ser
+complementares às abordagens típicas e híbridas ao lidar com o B3.
+3.6 Síntese Crítica
+Ao revisar os trabalhos relacionados, observa-se que a literatura documenta uma evolu-
+ção das abordagens de previsão de séries ﬁnanceiras, indo de modelos estatísticos clássicos a
+arquiteturas profundas e híbridas. Modelos tradicionais como a família ARIMA permanecem
+relevantes pela interpretabilidade e pelo desempenho observado em séries aproximadamente
+estacionárias (BOX et al. , 2015; HYNDMAN; ATHANASOPOULOS, 2018; JR; OUTROS,
+2014). Por outro lado, há relatos de limitações quando a dinâmica é fortemente não linear, multi-
+variada ou sujeita a mudanças de regime e elevada volatilidade (MAKRIDAKIS; SPILIOTIS;
+ASSIMAKOPOULOS, 2018; DERBENTSEV, 2020).
+Abordagens híbridas que combinam modelos estatísticos com técnicas de aprendizado
+de máquina e profundo têm sido associadas, em determinados cenários, a ganhos de robustez e
+desempenho fora da amostra, ao custo de maior complexidade de modelagem e sensibilidade a
+hiperparâmetros (GONçALVES, 2023; KASHIF MUHAMMAD E ´SLEPACZUK, 2024; NASIR;
+ZHANG; WANG, 2025). A literatura também recomenda validação temporal cuidadosa (por
+exemplo, esquemas especíﬁcos para séries) e procedimentos sistemáticos de ajuste para mitigar
+sobreajuste (BERGMEIR; BENíTEZ, 2012; PRADO, 2018; AKIBA et al. , 2019).
+No campo das redes neurais, LSTM e variantes correlatas têm sido empregadas para
+capturar dependências de longo prazo e padrões não lineares em séries ﬁnanceiras, com resultados
+competitivos em diferentes horizontes de previsão (HOCHREITER; SCHMIDHUBER, 1997;
+SIAMI -NAMINI; NAMIN, 2018; FJELLSTRöM, 2022). Há ainda propostas de ensembles e
+modelos híbridos que integram módulos recorrentes e atencionais (KABIR; OUTROS, 2025).
+Em termos práticos, a necessidade de dados e de recursos computacionais pode ser um fator
+restritivo em ativos de baixa liquidez, aspecto discutido na literatura de microestrutura e liquidez
+(AMIHUD, 2002).
+Arquiteturas baseadas em Transformers vêm sendo adaptadas ao domínio temporal e
+reportam resultados competitivos em horizontes longos e séries multivariadas, incluindo estudos
+no contexto brasileiro (WEN et al. , 2022; COSTA; MACHADO, 2023). Diversas variantes
+propõem mecanismos de estabilização e estratégias para lidar com não estacionariedade e
+eﬁciência computacional, como módulos de “stationarization” e atenção modiﬁcada (LIU et
+al., 2022) ou segmentação em patches temporais (NIE et al. , 2023). Ao mesmo tempo, análises
+críticas questionam condições em que tais modelos de atenção superam abordagens alternativas,
+sugerindo cautela na generalização de resultados (ZENG et al. , 2022).
+Mais recentemente, modelos de linguagem de grande escala (LLMs) foram explorados
+como apoio à previsão de séries temporais por meio de reprogramação de tarefas, few-shot e
+integrações que capturam padrões semânticos e temporais (LATHUILèRE et al. , 2024; CHANG
+et al. , 2023; JIN et al. , 2023; ALONSO; FRANKLIN, 2024; TANG et al. , 2025). A literatura
+também discute sensibilidades relacionadas à tokenização, alinhamento temporal e custos compu-32 Capítulo 3. Trabalhos Relacionados
+tacionais, recomendando atenção a limitações e preferências dos modelos nessas tarefas (TANG;
+OUTROS, 2024).
+Em síntese, os estudos revisados não apontam consenso em torno de um modelo único e
+universalmente superior para os desaﬁos de previsão no mercado acionário, especialmente em
+ambientes voláteis e sujeitos a eventos exógenos (MAKRIDAKIS; SPILIOTIS; ASSIMAKO-
+POULOS, 2018; WEN et al. , 2022). Nesse cenário, linhas de pesquisa sobre soluções híbridas e
+adaptativas aparecem como promissoras para conciliar interpretabilidade, ﬂexibilidade e desem-
+penho. Este trabalho, portanto, investigará uma abordagem que integra paradigmas estatístico,
+profundo e atencional, com foco em estabilidade, precisão e aplicabilidade prática a cenários
+representativos do mercado brasileiro.
+Para uma visão de conjunto dos grupos de modelos discutidos, ver as Tabelas 2 a 5.
+Tabela 2 – Método vs. Dados exigidos. Fonte: o autor.
+Método Dados exigidos
+Modelos estatísticos (ARIMA/ARIMAX) Série univariada; estacionária (ou diferenciada); histórico razoável
+(100–300+ pontos); regressores opcionais via ARIMAX.
+LSTM Muitos dados; normalização; janelas de lookback ;tuning de
+hiperparâmetros.
+Transformers (PatchTST, Non-stationary) Janelas longas; multivariadas; melhor com grande volume de dados.
+Patching reduz tokens ; módulos de estacionarização ajudam.
+Híbridos (ARIMA+LSTM; LMD+XGBoost) Dados para ambos os blocos; etapas de decomposição e resíduos;
+pipeline mais complexo.
+LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) Pré-processo time-to-text /prompting ; poucos dados funcionam
+(few/zero-shot); sem treino pesado.
+Tabela 3 – Método vs. Custo computacional. Fonte: o autor.
+Método Custo computacional
+Modelos estatísticos (ARIMA/ARIMAX) Baixo (CPU). Ajuste Box–Jenkins/auto-ARIMA.
+LSTM Médio–alto (GPU recomendável).
+Transformers (PatchTST, Non-stationary) Alto (atenção quadrática). Variantes reduzem custo.
+Híbridos (ARIMA+LSTM; LMD+XGBoost) Alto (múltiplos modelos/etapas).
+LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) Alto na inferência; baixo/zero custo de treino adicional; modelos
+menores mitigam.
+Tabela 4 – Método vs. Pontos fortes. Fonte: o autor.
+Método Pontos fortes
+Modelos estatísticos (ARIMA/ARIMAX) Interpretável; bom curto prazo; baseline sólido.
+LSTM Capta dependências longas e não-linearidades; bom para múltiplas
+features /indicadores.
+Transformers (PatchTST, Non-stationary) Modela dependências de longo alcance; bom em horizontes longos e
+séries multivariadas.
+Híbridos (ARIMA+LSTM; LMD+XGBoost) Combina linear e não-linear; ganhos consistentes em métricas e
+acurácia direcional.
+LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) Generalizam com pouco dado; integram sinais textuais (notícias) e
+numéricos.3.6. Síntese Crítica 33
+Tabela 5 – Método vs. Fragilidades. Fonte: o autor.
+Método Fragilidades
+Modelos estatísticos (ARIMA/ARIMAX) Não-linearidades e quebras de regime; piora em horizontes longos;
+multivariadas limitadas.
+LSTM Exige dados; risco de overﬁtting ; sensível a mudanças de regime sem
+validação temporal.
+Transformers (PatchTST, Non-stationary) Custo elevado; risco de má codiﬁcação temporal; debate sobre
+ganhos vs. modelos lineares simples.
+Híbridos (ARIMA+LSTM; LMD+XGBoost) Complexidade; tuning pesado; risco de sobreajuste; manutenção
+mais difícil.
+LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) Tokenização pode perder precisão; maturidade menor; desempenho
+cai em ruído extremo/alta frequência.35
+CAPÍTULO
+4
+PRÓXIMOS PASSOS
+Este capítulo detalha os procedimentos que serão adotados para desenvolver e avaliar o
+modelo de predição de séries temporais ﬁnanceiras proposto. Os próximos passos foram estrutu-
+rados em cinco etapas principais: 1) Aquisição e Descrição dos Dados; 2) Pré-processamento e
+Engenharia de Atributos; 3) Arquitetura dos Modelos; 4) Desenho Experimental e Treinamento;
+e 5) Métricas de Avaliação.
+Figura 9 – Guia adotado para construção de modelo. Fonte: o autor.36 Capítulo 4. Próximos passos
+4.1 Aquisição e Descrição dos Dados
+A seleção e a qualidade dos dados são determinantes para previsões intradiárias conﬁáveis.
+Para mitigar vieses comuns, adotamos três diretrizes: controle de survivorship bias, ajustes
+corporativos e consistência temporal. Para evitar vazamentos de informação entre janelas e avaliar
+desempenho de forma realista, estruturamos o histórico em partições temporais sequenciais com
+embargo entre treino e teste, conforme práticas recomendadas para séries ﬁnanceiras (PRADO,
+2018; BERGMEIR; BENíTEZ, 2012). Além disso, respeitamos regras operacionais e fases de
+negociação da B3 ao longo do período analisado (B3, 2025).
+∙Ativos: Selecionamos um conjunto ﬁxo de ações líquidas negociadas na B3 (ex.: PETR4,
+V ALE3, ITUB4), mantido constante ao longo de todo o período (2020–2025) ou, alternati-
+vamente, utilizamos a composição histórica do Ibovespa por janelas mensais, preservando
+a representatividade de mercado. Liquidez reduz spreads egaps , diminui slippage e tende
+a estabilizar métricas em backtests .
+∙Ajustes e integridade: As séries são ajustadas por desdobramentos e grupamentos (re-
+verse splits ) e por proventos (dividendos/JCP/boniﬁcações). Conferimos fuso horário e
+horários de pregão; removemos barras com registros anômalos (preço/volume ausentes,
+zeros ou spikes espúrios). Para reduzir efeitos de microestrutura — como bid–ask bounce
+e periodicidades intradiárias — empregamos banda morta na rotulagem e checagens de
+consistência (HASBROUCK, 2007; ANDERSEN; BOLLERSLEV, 1997).
+∙Período e frequência: Utilizamos barras de 15 minutos entre janeiro/2020 e julho/2025.
+Realizamos análise de sensibilidade em 5m e 30m para avaliar robustez à granularidade,
+conciliando captação da dinâmica intradiária com redução do ruído de alta frequência
+(ANDERSEN; BOLLERSLEV, 1997).
+∙Fontes: Dados obtidos junto à B3/fornecedores com histórico consolidado e timestamping
+consistente (B3, 2025a).
+4.2 Pré-processamento e Engenharia de Atributos
+∙Normalização: Aplicamos Min–Max (ouZ–Score em análise de sensibilidade), ajustada
+exclusivamente no conjunto de treino de cada etapa do walk-forward para evitar data
+leakage . O mesmo procedimento vale para quaisquer transformações ou imputações
+(PRADO, 2018; BERGMEIR; BENíTEZ, 2012).
+∙Criação de atributos: Além de OHLCV , calculamos: (i) retornos logarítmicos e variações
+de volume; (ii) amplitude high–low e medidas de volatilidade móvel; (iii) indicadores
+consagrados como MME 9/21/50, Bandas de Bollinger e RSI, que auxiliam na captura de
+padrões locais e regimes de volatilidade (BOLLINGER, 2001; MURPHY, 1999).
+4.3 Arquitetura dos Modelos
+Adotamos uma abordagem que combina modelos de referência e arquiteturas modernas,
+em ordem crescente de complexidade, viabilizando comparações consistentes. A seleção foi
+guiada por literatura de previsão de séries temporais e pelas particularidades da negociação4.4. Desenho Experimental e Treinamento 37
+eletrônica na B3, onde frequência dos dados, fases do pregão e tipos de ordens afetam a
+formação de preços (B3, 2025; HYNDMAN; ATHANASOPOULOS, 2018; BOX et al. , 2015;
+TAYLOR; LETHAM, 2018; HOCHREITER; SCHMIDHUBER, 1997; BOROVYKH; BOHTE;
+OOSTERLEE, 2017).
+∙Naive / Drift (Baseline 0): Regras simples (repetir a direção da última barra; regressão
+linear curta) para estabelecer piso de desempenho.
+∙ARIMA (Baseline 1): Modelo estatístico para dependências lineares; parâmetros (p;d;q)
+identiﬁcados via ACF/PACF, seguindo o procedimento Box–Jenkins (BOX et al. , 2015).
+∙Prophet (Baseline 2): Referência para sazonalidades diárias/semanais; incluído de forma
+crítica dado o contexto intradiário de 15m (TAYLOR; LETHAM, 2018).
+∙LSTM Puro (Baseline 3): Duas camadas LSTM empilhadas seguidas de camada densa
+para previsão; adequado a dependências de longo prazo (HOCHREITER; SCHMIDHU-
+BER, 1997).
+∙Híbrido CNN–LSTM (Proposta): Convoluções 1D extraem padrões locais na janela
+temporal; camadas LSTM capturam dependências de maior alcance. A saída sigmoide
+gera probabilidade de alta no próximo intervalo, buscando equilibrar movimentos bruscos
+e tendências persistentes (BOROVYKH; BOHTE; OOSTERLEE, 2017).
+4.4 Desenho Experimental e Treinamento
+∙Validação walk-forward :Dividimos o histórico em blocos sequenciais. Em cada etapa,
+treinamos no bloco ke avaliamos em k+1, aplicando embargo temporal dehbarras (com
+higual ao horizonte de previsão) para reduzir dependências geradas por janelas sobrepos-
+tas/rotulagem próxima (PRADO, 2018; BERGMEIR; BENíTEZ, 2012). O processo se
+repete até o ﬁm da série.
+∙Seleção de hiperparâmetros: Em cada etapa do walk-forward , realizamos otimização
+bayesiana ( Optuna ) no conjunto de validação interno para janela N, ﬁltros da CNN,
+unidades LSTM, dropout ,learning rate etc.; o melhor conjunto é re-treinado no bloco ke
+aferido em k+1 (AKIBA et al. , 2019).
+∙Treinamento e estabilidade: Utilizamos AdamW, early stopping ,gradient clipping e
+schedulers (one-cycle /cosine). Fixamos sementes e versionamos dependências para repro-
+dutibilidade (LOSHCHILOV; HUTTER, 2019).
+∙Função de custo: Binary Cross-Entropy para classiﬁcação probabilística da direção.
+∙Ambiente: Python 3.12; TensorFlow/Keras; Pandas/Scikit-learn.
+4.5 Métricas de Avaliação
+∙Acurácia direcional (foco): Métrica alinhada à decisão prática (comprar/vender), com
+banda morta para amortecer ruído de microestrutura (HASBROUCK, 2007).38 Capítulo 4. Próximos passos
+∙Qualidade probabilística: Brier Score eLog-Loss capturam calibração e discriminação;
+curvas de conﬁabilidade (ECE) avaliam calibração global (BRIER, 1950; GUO et al. ,
+2017). Balanced Accuracy, F1-score e MCC auxiliam quando há desequilíbrio entre
+classes.
+∙Métricas de trading: Retorno líquido, índice de Sharpe e max drawdown quantiﬁcam
+impacto após custos e slippage (SHARPE, 1994).
+A métrica principal é a acurácia direcional (hit rate ) após banda morta. Para reﬂetir
+qualidade probabilística e possível desbalanceamento, reportamos: Brier Score, Log-Loss, Balan-
+ced Accuracy, F1, MCC e AUC-PR; avaliamos calibração via curvas de conﬁabilidade (ECE).
+Para utilidade prática, executamos backtests simples (entrada/saída) com custos de transação e
+slippage explícitos, reportando retorno líquido, Sharpe, max drawdown eproﬁt factor .
+4.5.1 Backtests e Custos de Transação
+Executamos backtests long-only elong/short condicionados às probabilidades previstas
+e a limiares calibrados. Custos ﬁxos e proporcionais (corretagem, emolumentos) e slippage são
+descontados; também reportamos turnover e sensibilidade a custos (análise de estresse), em
+conformidade com as práticas e estruturas de custos divulgadas pela B3 (B3, 2025a).
+4.5.2 Testes de Robustez e Significância
+Comparamos a série de perdas/erros do modelo proposto contra os baselines por meio
+do teste de Diebold–Mariano, avaliando signiﬁcância de diferenças de acurácia direcional e
+Brier. Segmentamos resultados por regimes de volatilidade (calmaria vs. choques) para veriﬁcar
+estabilidade (DIEBOLD; MARIANO, 1995).
+4.5.3 Reprodutibilidade
+Todo o ﬂuxo é versionado (dados, código e artefatos). Publicamos scripts executáveis
+(prepare_data.py ,train.py ,evaluate.py ,backtest.py ) com sementes ﬁxas e manifesto
+de dependências, permitindo replicação e extensão dos experimentos.
+4.6 Ameaças à Validade
+∙Qualidade de dados: Inconsistências de timestamp ouspikes podem afetar métricas;
+mitigamos com ﬁltros, ajustes e checagens de integridade.
+∙Vazamento de informação: Evitado com ajuste exclusivamente no treino, validação
+walk-forward e embargo temporal (PRADO, 2018; BERGMEIR; BENíTEZ, 2012).
+∙Seleção de ativos: O viés de sobrevivência é mitigado ao ﬁxar universo ou usar composi-
+ção histórica do índice.
+∙Sobreajuste de hiperparâmetros: Otimização aninhada e regularização ( dropout ,weight
+decay ) reduzem risco; relatamos sensibilidade.4.7. Cronograma PFC2 39
+4.7 Cronograma PFC2
+O cronograma de execução do PFC2 foi elaborado com base nos próximos passos
+deﬁnidos no projeto, distribuindo as atividades em etapas mensais de setembro de 2025 a
+janeiro de 2026. A Tabela abaixo apresenta as principais tarefas, os períodos de realização e os
+entregáveis correspondentes.
+Tabela 6 – Cronograma de Execução do PFC2 (Set/2025–Jan/2026)
+Etapa (conforme Próximos
+Passos)Set Out Nov Dez Jan/26 Entregáveis / Marcos
+Aquisição e auditoria de dados
+(2020–2025, 15m); ajustes
+corporativos; integridade
+temporalX Dataset auditado; checklist de
+integridade; universo de ativos
+deﬁnido.
+Pré-processamento e engenharia
+de atributos (retornos log, vol.
+móvel, MME 9/21/50, RSI,
+Bollinger)X
+Particionamento e desenho
+experimental ( walk-forward ,
+embargo temporal, seeds,
+versionamento)X Folds deﬁnidos; protocolo de
+avaliação documentado;
+ambiente reprodutível.
+Baselines: Naive/Drift, ARIMA,
+Prophet (execução nos 1–2
+primeiros blocos)X Relatório curto com desempenho
+por bloco.
+Modelo proposto (CNN–LSTM)
+e LSTM puro: implementação,
+treino e tuning por blocoX ‘train.py‘/‘evaluate.py‘
+funcionais; logs de
+hiperparâmetros.
+Avaliação preditiva: hit rate
+(banda morta), Brier, Log-Loss,
+Balanced Acc., F1, MCC,
+AUC-PR; calibração (ECE)X Tabela consolidada por
+modelo/fold; curvas de
+conﬁabilidade.
+Backtests (long-only e
+long/short) com custos e
+slippage ; sensibilidade a custos e
+turnoverX X ‘backtest.py‘; relatório
+operacional (retorno, Sharpe,
+drawdown).
+Robustez e signiﬁcância:
+Diebold–Mariano; regimes de
+volatilidade; sensibilidade
+(5/30m)X Tabelas de p-valores; gráﬁcos
+por regime; nota técnica.
+Reprodutibilidade: manifesto de
+dependências; organização de
+repositório/artefatos; README
+executávelX X Repositório ﬁnal organizado;
+scripts e experimentos
+replicáveis.
+Redação de Resultados,
+Discussão e Ameaças à ValidadeX X Capítulos redigidos com ﬁguras
+e tabelas; limitações descritas.40 Capítulo 4. Próximos passos
+Etapa (conforme Próximos
+Passos)Set Out Nov Dez Jan/26 Entregáveis / Marcos
+Revisão ABNT (citações/refs,
+listas, numeração) e formatação
+ﬁnalX Checklist ABNT concluído; PDF
+ﬁnal para submissão.
+Entrega e preparação para
+defesa (slides, roteiro, ensaio)X Slides prontos; ensaio
+cronometrado; materiais anexos.41
+CAPÍTULO
+5
+CONSIDERAÇÕES FINAIS
+O trabalho até aqui forneceu uma deﬁnição sistemática de escopo, objetivos e planeja-
+mento metodológico para uma tarefa de previsão direcional intradiária na B3, especiﬁcamente
+em uma proposta forte para uma avaliação completa e reprodutível. O principal objetivo foi
+fornecer um protocolo sensível ao tempo que não vaze informações e represente melhor o uso
+real com custos e slippage. Para alcançar isso, o plano integrou:
+i. construção do banco de dados intradiário;
+ii.conﬁguração experimental com janelas deslizantes e validação cruzada walk-forward com
+embargo temporal;
+iii. comparação de linhas de base (por exemplo, ARIMA e LSTM) com as redes propostas;
+iv. deﬁnição de métricas relacionadas à tomada de decisão;
+v. backtests usando custos explícitos;
+vi. testes de robustez e signiﬁcância; e
+vii. reprodutibilidade, por meio de versionamento e scripts executáveis.
+Quanto à base teórico-empírica agora consolidada, o artigo fundamentou-se na dinâmica
+intradiária (liquidez, volatilidade, volume) e microestrutura, e na decisão de introduzir uma banda
+morta (positiva) para mitigar ruídos na estimativa da precisão direcional. A revisão apresentou
+a evolução dos modelos, começando pelos clássicos (como a família ARIMA, modelos Box-
+Jenkins) até métodos de aprendizado profundo (LSTM, CNN) e arquiteturas contemporâneas com
+mecanismos de atenção, apontando as limitações de modelos puramente lineares em ambientes
+não estacionários e na presença de choques, e os ganhos de modelos que lidam com dependência
+de longo prazo. Além disso, foi mencionada a relevância dos Transformers para séries ﬁnanceiras
+multivariadas e de alta frequência, como o TF-T, e algumas evidências de ganhos sobre o
+LSTM no RMSE e precisão direcional são encontradas sob tamanho de janela longo. O estudo
+também empregou um modelo híbrido LSTM+CNN como referência para capturar características
+temporais e locais das características intradiárias, consistente com a intenção de generalidade em
+vários ambientes de volatilidade.
+Para avaliação, uma gama de métricas de decisão e probabilidade foi incluída: precisão
+direcional com folga (foco principal), qualidade probabilística (Brier Score, Log-Loss e ECE)42 Capítulo 5. Considerações ﬁnais
+e medidas de equilíbrio (Balanced Accuracy, F1, MCC, AUC-PR). A validação econômica foi
+adicionada com backtests com custo e slippage em Peso, retornando retorno líquido, índice
+de Sharpe, máximo drawdown e fator de lucro de acordo com estruturas operacionais e custos
+divulgados pela B3. A signiﬁcância da diferença entre os modelos será examinada através
+da estatística de Diebold–Mariano, onde a análise é segmentada de acordo com regimes de
+volatilidade para garantir a robustez da comparação. Por ﬁm, a reprodutibilidade foi garantida
+pelo versionamento completo de dados, código, artefatos e seeds com scripts de ponta a ponta
+para preparar, treinar, avaliar e realizar backtests.
+A motivação do tema surge do fato de que observamos consistentemente o desempenho
+em laboratório e o desempenho no piso em desacordo um com o outro em um mundo intradiário
+ruidoso com custos. O plano metodológico tenta reduzir essa lacuna integrando walk-forward
+com prevenção de vazamento de embargo, métricas orientadas para decisão e backtests pós-
+custo e entregar critérios de validação mais robustos enquanto preserva a possibilidade de
+generalização entre ativos e estados de mercado. As ameaças à validade (qualidade dos dados,
+viés de sobrevivência, divisões temporais) e mitigadores de resultados também foram claramente
+declarados, aumentando a conﬁabilidade do desenho experimental.
+Para concluir, as ações subsequentes, explicadas no Capítulo de próximos passos – pos-
+se/limpeza dos dados intradiários, pré-processamento de dados e geração de características,
+conﬁguração de arquiteturas (linhas de base e propostas), deﬁnição do espaço de busca de hiper-
+parâmetros, protocolo de treino/validação walk-forward com embargo e avaliações de métricas e
+backtests com testes de robustez e signiﬁcância – são o elo imediato para o PFC2. Realizar essas
+etapas na próxima fase torna possível (1) realizar os experimentos sob controles claros, (2) com-
+parar os diferentes modelos de forma estatisticamente signiﬁcativa, (3) relatar os resultados de
+forma tão transparente e reprodutível quanto desejado, fechando o ciclo metodológico conforme
+pretendido neste trabalho.43
+REFERÊNCIAS
+AKIBA, T.; SANO, S.; YANASE, T.; OHTA, T.; KOYAMA, M. Optuna: A next-generation
+hyperparameter optimization framework. In: KDD . [S.l.: s.n.], 2019. Citado nas páginas 31
+e 37.
+ALONSO, M. N. I.; FRANKLIN, R. P. Large language models for ﬁnancial time series fore-
+casting. SSRN Working Paper , 2024. Testados modelos LLM e especialistas como PatchTST,
+TimeGPT em dados de ações globais. Citado nas páginas 7, 29, 30 e 31.
+AMIHUD, Y . Illiquidity and stock returns: Cross-section and time-series effects. Journal of
+Financial Markets , v. 5, n. 1, p. 31–56, jan. 2002. Citado nas páginas 5, 19 e 31.
+ANDERSEN, T. G.; BOLLERSLEV , T. Intraday periodicity and volatility persistence in ﬁnancial
+markets. Journal of Empirical Finance , v. 4, n. 2–3, p. 115–158, jun. 1997. Citado nas páginas
+5, 7, 8, 9, 18, 19, 27 e 36.
+B3.Manual de Procedimentos Operacionais de Negociacao da B3 — versao 17/02/2025 .
+2025. <https://www.b3.com.br/data/ﬁles/55/65/B5/7D/AC31591029BEEC39AC094EA8/MPO%
+20de%20Negociacao%20da%20B3.pdf>. Acesso em: ago. 2025. Citado nas páginas 8, 14, 18,
+25, 36 e 37.
+B3.Produtos e Serviços — B3 . 2025. <https://www.b3.com.br/pt_br/produtos-e-servicos/>.
+Acesso em: ago. 2025. Citado nas páginas 14, 36 e 38.
+B3.Quem Somos — B3 . 2025. Acesso em: ago. 2025. Disponível em: <https://www.b3.com.
+br/pt_br/b3/institucional/quem-somos/>. Citado nas páginas 5, 13 e 14.
+B3.B3 — Brasil, Bolsa, Balcão . s.d. Acesso em: 7 ago. 2025. Disponível em: <https://www.b3.
+com.br/>. Citado na página 13.
+BANK, W. Global Economic Prospects: Slow Growth, Policy Challenges . [S.l.], 2020.
+Disponível em: <https://documents1.worldbank.org/curated/en/494581578977519941/pdf/
+Global-Economic-Prospects-Slow-Growth-Policy-Challenges.pdf>. Citado nas páginas 5,
+6 e 14.
+BERGMEIR, C.; BENíTEZ, J. M. On the use of cross-validation for time series predictor evalu-
+ation. Information Sciences , v. 191, p. 192–213, 2012. Acesso em 04 Ago 2025. Disponível
+em: <https://www.sciencedirect.com/science/article/abs/pii/S0020025511006773>. Citado nas
+páginas 9, 20, 31, 36, 37 e 38.
+BODIE, Z.; KANE, A.; MARCUS, A. J. Investments . 12. ed. [S.l.]: McGraw-Hill Education,
+2021. ISBN 978-1260775156. Citado nas páginas 5, 6, 15 e 17.
+BOLLINGER, J. Bollinger on Bollinger Bands . New York: McGraw-Hill, 2001. ISBN 978-
+0071386739. Citado nas páginas 16 e 36.44 Referências
+BOROVYKH, A.; BOHTE, S.; OOSTERLEE, C. W. Conditional Time Series Forecas-
+ting with Convolutional Neural Networks . 2017. Disponível em: <https://arxiv.org/abs/1703.
+04691>. Citado na página 37.
+BOX, G. E. P.; JENKINS, G. M.; REINSEL, G. C.; LJUNG, G. M. Time Series Analysis:
+Forecasting and Control . 5. ed. [S.l.]: Wiley, 2015. ISBN 9781118675021. Citado nas páginas
+6, 9, 25, 31 e 37.
+BRASIL. Lei no6.385, de 7 de dezembro de 1976 (Mercado de Valores Mobiliários e CVM) .
+1976. Acesso em: 7 ago. 2025. Disponível em: <http://www.planalto.gov.br/ccivil_03/leis/l6385.
+htm>. Citado nas páginas 5 e 13.
+BRASIL. Lei no6.404, de 15 de dezembro de 1976 (Lei das Sociedades por Ações) . 1976.
+Acesso em: 7 ago. 2025. Disponível em: <http://www.planalto.gov.br/ccivil_03/leis/l6404consol.
+htm>. Citado nas páginas 5, 13 e 15.
+BRIER, G. W. Veriﬁcation of forecasts expressed in terms of probability. Monthly Weather
+Review , v. 78, n. 1, p. 1–3, 1950. Citado nas páginas 9 e 38.
+CAMPBELL, J. Y .; LO, A. W.; MACKINLAY , A. C. The Econometrics of Financial Markets .
+Princeton, NJ: Princeton University Press, 1997. Citado na página 18.
+CHANG, C.; WANG, W.-Y .; PENG, W.-C.; CHEN, T.-F. Llm4ts: Aligning pre-trained llms as
+data-efﬁcient time-series forecasters. arXiv preprint , 2023. Citado nas páginas 7, 30 e 31.
+COSTA, L. D.; MACHADO, A. M. C. Prediction of stock price time series using transformers.
+Revista Brasileira de Aprendizado de Máquina e Inteligência Artiﬁcial , 2023. Aplicado a
+ações do Ibovespa em 2008. Citado nas páginas 28, 29 e 31.
+DACOROGNA, M. M.; GENÇAY , R.; MÜLLER, U. A.; OLSEN, R. B.; PICTET, O. V . An
+Introduction to High-Frequency Finance . San Diego, CA: Academic Press, 2001. ISBN
+9780122796715. Citado nas páginas 7 e 18.
+DAYCOV AL. Índices de mercado: o que são e como utilizar . 2024. Blog Dayco-
+val. Acesso em 31 de julho de 2025. Disponível em: <https://blog.daycoval.com.br/
+indices-de-mercado-o-que-sao/>. Citado na página 15.
+DERBENTSEV , V . Machine learning approaches for ﬁnancial time series forecasting. Epj Data
+Science , 2020. Citado na página 31.
+DIEBOLD, F. X.; MARIANO, R. S. Comparing predictive accuracy. Journal of Business &
+Economic Statistics , v. 13, n. 3, p. 253–263, 1995. Citado nas páginas 9 e 38.
+DING, G.; QIN, L. Study on the prediction of stock price based on the associated network
+model of lstm. International Journal of Machine Learning and Cybernetics , v. 11, n. 6, p.
+1307–1317, 2020. Citado nas páginas 6, 7 e 8.
+DUFOUR, A.; ENGLE, R. F. Time and the price impact of a trade. Journal of Finance , v. 55,
+n. 6, p. 2467–2498, dez. 2000. Citado nas páginas 5, 8 e 19.
+ENGLE, R. F.; RUSSELL, J. R. Autoregressive conditional duration: A new model for irregularly
+spaced transaction data. Econometrica , v. 66, n. 5, p. 1127–1162, 1998. Citado nas páginas 5,
+7, 8 e 19.Referências 45
+FABOZZI, F. J.; MODIGLIANI, F. Capital Markets: Institutions and Instruments . 4. ed.
+Upper Saddle River, NJ: Pearson Prentice Hall, 2009. ISBN 978-0136026020. Citado nas
+páginas 5, 14 e 15.
+FAN, Y .; OUTROS. Smetimes: Efﬁcient large language models for time series forecasting. arXiv
+preprint arXiv:2503.03594 , 2025. Citado na página 30.
+FJELLSTRöM, C. Long short-term memory neural network for ﬁnancial time series. arXiv
+preprint arXiv:2201.08218 , 2022. Citado nas páginas 27 e 31.
+GIACOMEL, F. dos S. Um Método Algorítmico para Operações na Bolsa de Valores Base-
+ado em Ensembles de Redes Neurais para Modelar e Prever os Movimentos dos Mercados
+de Ações . Dissertação (Dissertação de Mestrado) — Universidade Federal do Rio Grande do
+Sul, Porto Alegre, 2016. Orientadora: Profa. Dra. Renata Galante. Citado nas páginas 1 e 18.
+GOEL, R.; WANG, S.; FELDMAN, S.; MADDOX, W. TimesFM: Foundation models for
+probabilistic time series forecasting. Journal of Machine Learning Research , v. 26, n. 54, p.
+1–36, 2025. Disponível em: <http://jmlr.org/papers/v26/24-054.html>. Citado na página 7.
+GONçALVES, R. S. O impacto do horizonte de previsão em modelos ARIMA e LSTM
+aplicados ao IBX50 . Dissertação (Mestrado) — Universidade Estadual de Campinas, Campinas,
+SP, 2023. Disponível em: <https://repositorio.unicamp.br/handle/REPOSIP/377123>. Acesso
+em: ago. 2025. Citado nas páginas 26 e 31.
+GUO, C.; PLEISS, G.; SUN, Y .; WEINBERGER, K. Q. On calibration of modern neural
+networks. In: ICML . [S.l.: s.n.], 2017. Citado nas páginas 9 e 38.
+HAMILTON, J. D. A new approach to the economic analysis of nonstationary time series and
+the business cycle. Econometrica , v. 57, n. 2, p. 357–384, 1989. Citado na página 20.
+HASBROUCK, J. Empirical Market Microstructure: The Institutions, Economics, and
+Econometrics of Securities Trading . [S.l.]: Oxford University Press, 2007. ISBN 978-0-19-
+530164-9. Citado nas páginas 5, 7, 8, 9, 19, 27, 36 e 37.
+HOCHREITER, S.; SCHMIDHUBER, J. Long short-term memory. Neural Computation , v. 9,
+n. 8, p. 1735–1780, 1997. Citado nas páginas 27, 28, 31 e 37.
+HYNDMAN, R. J.; ATHANASOPOULOS, G. Forecasting: Principles and Practice . 2. ed.
+OTexts, 2018. 2nd ed. Disponível em: <https://otexts.com/fpp2/>. Citado nas páginas 6, 9, 19,
+31 e 37.
+JIN, M.; WANG, S.; MA, L.; CHU, Z.; ZHANG, J. Y .; SHI, X.; CHEN, P.-Y .; LIANG, Y .; LI,
+Y .-F.; PAN, S.; WEN, Q. Time-llm: Time series forecasting by reprogramming large language
+models. arXiv preprint , 2023. Citado nas páginas 7, 30 e 31.
+JR, P. R.; OUTROS. Modelo arima aplicado à previsão do índice bovespa. Open Journal of
+Statistics , Scientiﬁc Research, v. 4, n. 5, p. 319–324, 2014. Citado nas páginas 7, 9, 25 e 31.
+JUNIOR, M. M. d. O. L. Proposta de um modelo de predição da bolsa de valores utilizando
+uma abordagem híbrida . Dissertação (Dissertação de Mestrado) — Universidade Federal do
+Maranhão, São Luís, 2013. Citado na página 7.
+KABIR, M. R.; OUTROS. Lstm -mtrans -mlp: Hybrid deep learning ensemble for ﬁnancial time
+series forecasting. Information , 2025. Citado nas páginas 27, 28 e 31.46 Referências
+KASHIF MUHAMMAD E ´SLEPACZUK, R. Lstm-arima hybrid model for stock market fore-
+casting: A multi-index evaluation. Expert Systems with Applications , v. 233, p. 120992, 2024.
+Citado nas páginas 26 e 31.
+LATHUILèRE, B.; DROIT, A.; IDRISSI, N.; PEZESHKI, M. TimeGPT: Few-shot forecas-
+ting with large language models. In: Proceedings of the 12th International Conference on
+Learning Representations (ICLR 2024) . [S.l.: s.n.], 2024. Poster. Citado nas páginas 7 e 31.
+LEONUNESBIO. Introdução à Análise de Séries Temporais: como esses modelos são usa-
+dos para responder questões ambientais? 2014. Acessado em: 17/08/2025. Citado nas
+páginas 1 e 6.
+LI, Z. et al. Deepseek-ts+: A uniﬁed framework for multi-product
+time series forecasting. Towards AI , 2025. <https://pub.towardsai.net/
+deepseek-ts-a-uniﬁed-framework-for-multi-product-time-series-forecasting-da4932ce6022>.
+Citado na página 30.
+LIANG, K.; ZHANG, Y .; LIU, X.; XU, W. Hidformer: Dual-tower hypergraph transformer
+for multimodal stock prediction. In: Proceedings of the 44th International Conference on
+Machine Learning (ICML 2025) . [S.l.: s.n.], 2025. p. 12245–12260. Citado na página 7.
+LIM, B.; ZOHREN, S.; ROBERTS, S. Temporal fusion transformers for interpretable multi-
+horizon time series forecasting. International Journal of Forecasting , Elsevier, v. 37, n. 4, p.
+1748–1764, 2021. Citado nas páginas 7 e 23.
+LIU, Y .; WU, H.; WANG, J.; LONG, M. Non -stationary transformers: Exploring the stationarity
+in time series forecasting. arXiv preprint , 2022. Citado nas páginas 7, 28, 29 e 31.
+LO, A. W. Adaptive Markets: Financial Evolution at the Speed of Thought . Princeton, NJ:
+Princeton University Press, 2017. ISBN 978-0-691-15319-1. Citado na página 5.
+London Stock Exchange. London Stock Exchange (LSE) . s.d. Acesso em: 7 ago. 2025. Dispo-
+nível em: <https://www.londonstockexchange.com/>. Citado na página 13.
+LOSHCHILOV , I.; HUTTER, F. Decoupled weight decay regularization. In: ICLR . [S.l.: s.n.],
+2019. Citado na página 37.
+MAKRIDAKIS, S.; SPILIOTIS, E.; ASSIMAKOPOULOS, V . Statistical and machine learning
+forecasting methods: Concerns and ways forward. PLOS ONE , 2018. Citado nas páginas 31
+e 32.
+MISHKIN, F. S.; EAKINS, S. G. Financial Markets and Institutions . 9. ed. [S.l.]: Pearson,
+2018. ISBN 978-0-13-451926-5. Citado nas páginas 5, 7, 13, 14, 15 e 17.
+MURPHY , J. J. Technical Analysis of the Financial Markets: A Comprehensive Guide to
+Trading Methods and Applications . 2. ed. New York: New York Institute of Finance, 1999.
+ISBN 978-0735200661. Citado nas páginas 15, 16, 17 e 36.
+NASCIMENTO, O. S.; SANTOS, F. G.; FERREIRA, K. H. A. Previsão de Preços de Ações
+Utilizando Inteligência Artiﬁcial. Sociedade Brasileira de Computação (SBC), Porto Alegre,
+RS, Brasil, p. 37–47, 2023. Disponível em: <https://sol.sbc.org.br/index.php/bwaif/article/view/
+20485>. Citado nas páginas 6, 7 e 8.Referências 47
+NASDAQ. Nasdaq . s.d. Acesso em: 7 ago. 2025. Disponível em: <https://www.nasdaq.com/>.
+Citado na página 13.
+NASIR, M.; ZHANG, W.; WANG, J. Forecasting stock prices using lmd-based hybrid arima-
+xgboost framework. Journal of Computational Finance , v. 29, n. 1, p. 33–55, 2025. Forthco-
+ming. Citado nas páginas 26 e 31.
+New York Stock Exchange. New York Stock Exchange (NYSE) . s.d. Acesso em: 7 ago. 2025.
+Disponível em: <https://www.nyse.com/>. Citado na página 13.
+NIE, Z.; LIU, M.; ZHOU, H.; LI, X.; ZHAO, T.; ZHOU, T.; WEN, Q. Patchtst: Transformer with
+patch attention for long-term time-series forecasting. In: Proceedings of the 40th International
+Conference on Machine Learning (ICML 2023) . [S.l.: s.n.], 2023. p. 16906–16930. Citado
+nas páginas 7, 29 e 31.
+OLAH, C. Understanding LSTM Networks . 2015. <https://colah.github.io/posts/
+2015-08-Understanding-LSTMs/>. Acesso em: 18 ago. 2025. Citado nas páginas 1
+e 22.
+PHANKOKKRUAD, P.; WORASUWANNARAK, C. Enhancing forex market predictions: A
+comparative study of candlestick patterns and the middam patterns. ResearchGate , 2025. Dispo-
+nível em: <https://www.researchgate.net/publication/388573821_Enhancing_FOREX_Market_
+Predictions_A_Comparative_Study_of_Candlestick_Patterns_and_the_MIDDAM_Patterns>.
+Citado na página 17.
+PRADO, M. López de. Advances in Financial Machine Learning . [S.l.]: Wiley, 2018. Citado
+nas páginas 9, 31, 36, 37 e 38.
+PRING, M. J. Technical Analysis Explained: The Successful Investor’s Guide to Spotting
+Investment Trends and Turning Points . 5. ed. New York: McGraw-Hill Education, 2014.
+ISBN 978-0071824227. Citado na página 17.
+SAID, S. E.; DICKEY , D. A. Testing for unit roots in autoregressive-moving average models of
+unknown order. Biometrika , v. 71, n. 3, p. 599–607, 1984. Citado na página 18.
+SHARPE, W. F. The sharpe ratio. Journal of Portfolio Management , v. 21, n. 1, p. 49–58,
+1994. Citado nas páginas 9 e 38.
+SIAMI -NAMINI, S.; NAMIN, A. S. Forecasting economics and ﬁnancial time series: Arima vs.
+lstm. arXiv preprint arXiv:1803.06386 , 2018. Citado nas páginas 27 e 31.
+SOUZA, Y . G. V .; TARRATACA, L.; CARDOSO, D. O.; ASSIS, L. S. d. Sentiment analysis
+applied to ibovespa prediction. In: Anais do Congresso Brasileiro de Inteligência Computa-
+cional (CBIC) . [S.l.: s.n.], 2022. p. 373–388. Citado nas páginas 7, 8 e 25.
+SUNKI, A.; SATYAKUMAR, C.; NARAYANA, G. S.; KOPPERA, V .; HAKEEM, M. Time
+series forecasting of stock market using arima, lstm and fb prophet. In: MATEC Web of
+Conferences - ICMED 2024 . [S.l.: s.n.], 2024. v. 392, p. 01163. Citado na página 7.
+TANG, H.; OUTROS. Time series forecasting with llms: Understanding and enhancing preferen-
+ces and limitations. KDD Exploration , 2024. Citado nas páginas 30 e 32.48 Referências
+TANG, J.; CHEN, S.; GONG, C.; ZHANG, J.; TAO, D. Llm-ps: Empowering large language
+models for time series forecasting with temporal patterns and semantics. arXiv preprint , 2025.
+Citado nas páginas 30 e 31.
+TAYLOR, S. J.; LETHAM, B. Forecasting at scale. The American Statistician , v. 72, n. 1, p.
+37–45, 2018. Citado nas páginas 9 e 37.
+TSAY , R. S. Analysis of Financial Time Series . 3. ed. Hoboken, NJ: Wiley, 2010. Citado nas
+páginas 7 e 18.
+V ASWANI, A.; SHAZEER, N.; PARMAR, N.; USZKOREIT, J.; JONES, L.; GOMEZ, A. N.;
+KAISER Łukasz; POLOSUKHIN, I. Attention is all you need. In: Advances in Neural Infor-
+mation Processing Systems (NeurIPS 2017) . [S.l.]: Curran Associates, 2017. p. 5998–6008.
+Citado nas páginas 1, 22 e 23.
+WEN, Q.; ZHOU, T.; ZHANG, C.; CHEN, W.; MA, Z.; YAN, J.; SUN, L. Transformers in time
+series: A survey. In: Proceedings of IJCAI . [S.l.: s.n.], 2022. Citado nas páginas 6, 7, 9, 28, 31
+e 32.
+WOOD, R. A.; MCINISH, T. H.; ORD, J. K. An investigation of transactions data for nyse
+stocks. The Journal of Finance , v. 40, n. 3, p. 723–739, 1985. Citado na página 7.
+WU, H.; LI, J.; YU, R.; JIANG, Y .; LIU, M.; WEN, Q.; YU, Y . Timesnet: Temporal 2d-
+variation modeling for general time series analysis. In: Proceedings of the 40th International
+Conference on Machine Learning (ICML 2023) . [S.l.: s.n.], 2023. p. 24518–24533. Citado
+na página 7.
+WU, H.; NAYAK, R.; DARVISHI, A.; SIMON, D.; BEHESHTI, M. Deep learning for time
+series forecasting: The electric load case. Energies , MDPI, v. 13, n. 1, p. 101, 2020. Citado na
+página 23.
+ZENG, A.; CHEN, M.; ZHANG, L.; XU, Q. Are transformers effective for time series forecas-
+ting? arXiv preprint , 2022. Citado nas páginas 6, 7, 9, 29 e 31.49
+CAPÍTULO
+6
+GLOSSÁRIO
+∙Gap — Espaço no gráﬁco de preços entre dois períodos consecutivos, causado por variação
+abrupta na cotação.
+∙Slippage — Diferença entre o preço esperado e o preço efetivo de execução de uma ordem.
+∙Spread — Diferença entre o preço de compra (bid) e o de venda (ask) de um ativo.
+∙Survivorship bias — Viés de análise que considera apenas casos que “sobreviveram” a um
+processo, ignorando os demais.
+∙Splits – No contexto de mercados ﬁnanceiros, refere-se à divisão ou agrupamento das
+ações de uma empresa, alterando o número de papéis em circulação sem modiﬁcar o valor
+total investido.
+–Stock Split (desdobramento): aumenta a quantidade de ações e reduz proporcional-
+mente o preço unitário.
+–Reverse Split (grupamento) ou Inplits: reduz a quantidade de ações e eleva proporci-
+onalmente o preço unitário.
+∙Time Zone – No contexto do mercado ﬁnanceiro, refere-se ao fuso horário adotado para
+registrar e sincronizar horários de negociações, cotações e eventos relevantes. A correta
+conﬁguração do time zone é essencial para alinhar dados de diferentes bolsas e mercados
+globais, garantindo precisão na análise temporal e na execução de ordens.
+∙Candlestick – Tipo de gráﬁco utilizado no mercado ﬁnanceiro que representa, por meio de
+velas, a abertura, fechamento, máxima e mínima dos preços de um ativo em um intervalo
+de tempo deﬁnido.
+∙Candles – Representações gráﬁcas, no formato de velas ( candlestick ), que mostram aber-
+tura, fechamento, máxima e mínima de preços de um ativo em um intervalo de tempo no
+mercado ﬁnanceiro.
+∙Spikes Espúrios – No mercado ﬁnanceiro, referem-se a variações abruptas e atípicas nos
+preços de um ativo, geralmente causadas por erros de dados, baixa liquidez ou eventos não
+representativos das condições reais de mercado.50 Capítulo 6. Glossário
+∙Tick-by-Tick – No mercado ﬁnanceiro, refere-se a dados que registram cada alteração de
+preço e volume negociado de um ativo, fornecendo o histórico completo das negociações
+em ordem cronológica.
+∙Timestamping – No mercado ﬁnanceiro, é o processo de registrar com precisão o instante
+exato em que uma negociação, evento ou dado de mercado ocorre, permitindo análises
+temporais e sincronização de informações.
+∙APIs – No contexto de mercado ﬁnanceiro e IA, são interfaces de programação que permi-
+tem a integração e troca de dados entre sistemas, possibilitando o acesso automatizado a
+cotações, históricos, ordens e outros serviços em tempo real.
+∙Min-Max Scaler – No contexto de IA aplicada ao mercado ﬁnanceiro, é uma técnica de
+normalização que transforma os dados para um intervalo pré-deﬁnido, geralmente entre 0
+e 1, preservando as proporções originais. É usada para padronizar variáveis, como preços
+e indicadores, antes do treinamento de modelos.
+∙Z-Score – No contexto de IA e mercado ﬁnanceiro, é uma medida de padronização que
+indica quantos desvios-padrão um valor está distante da média. É utilizada para identiﬁcar
+anomalias, como preços atípicos ou variações incomuns em séries temporais.
+∙Walk-Forward – No contexto de IA e mercado ﬁnanceiro, é uma técnica de validação em
+séries temporais que consiste em treinar um modelo em um intervalo de dados e testá-lo no
+período subsequente, avançando progressivamente no tempo para avaliar seu desempenho
+de forma contínua.
+∙Data Leakage – No mercado ﬁnanceiro, é o uso indevido de dados futuros no treinamento
+de modelos de IA, causando previsões artiﬁcialmente precisas e sem validade real.
+∙Imputation – No mercado ﬁnanceiro e IA, é o processo de preencher valores ausentes
+em séries temporais, garantindo consistência nos dados para análise ou treinamento de
+modelos.
+∙OHLCV – No mercado ﬁnanceiro, sigla para Open ,High ,Low,Close eVolume , represen-
+tando respectivamente abertura, máxima, mínima, fechamento e volume negociado de um
+ativo em um intervalo de tempo.
+∙Bayesiana – No contexto de IA e mercado ﬁnanceiro, refere-se a métodos baseados no
+Teorema de Bayes, que atualizam probabilidades à medida que novas informações se
+tornam disponíveis, auxiliando na previsão e na tomada de decisão.
+∙Dropout – Em IA aplicada ao mercado ﬁnanceiro, é uma técnica de regularização em
+redes neurais que desativa aleatoriamente neurônios durante o treinamento, reduzindo
+overﬁtting.
+∙Learning Rate – Em IA aplicada ao mercado ﬁnanceiro, é o parâmetro que deﬁne o
+tamanho dos ajustes nos pesos da rede neural a cada iteração de treinamento.
+∙Early Stopping – Em IA para mercado ﬁnanceiro, técnica que interrompe o treinamento
+ao detectar perda de desempenho em validação, evitando overﬁtting.
+∙Gradient Clipping – Em IA para mercado ﬁnanceiro, técnica que limita o valor máximo
+dos gradientes no treinamento, evitando instabilidade e divergência do modelo.51
+∙Scheduler – Em IA para mercado ﬁnanceiro, mecanismo que ajusta automaticamente a
+learning rate durante o treinamento para melhorar a convergência do modelo.
+∙Binary Cross-Entropy – Em IA para mercado ﬁnanceiro, função de perda usada em
+classiﬁcações binárias, medindo a diferença entre probabilidades previstas e valores reais.
+∙Drawdown – No mercado ﬁnanceiro, é a redução percentual do valor de um ativo ou
+portfólio desde um pico até o menor ponto subsequente.
+∙backtest – Simulação histórica de uma estratégia sob regras e dados passados.
+∙Balanced Accuracy - Média de sensibilidade e especiﬁcidade; robusta a classes desbalan-
+ceadas.
+∙Banda morta - Zona neutra em torno de um limiar para ignorar microvariações e ruídos de
+microestrutura.
+∙Bandas de Bollinger - Envelope ao redor de uma média móvel deﬁnido por desvios-padrão,
+sinalizando volatilidade e possíveis suportes/resistências.
+∙Acurácia direcional (hit rate) - Proporção de acertos na previsão da direção (alta/baixa) do
+próximo movimento.
+∙Bid–ask bounce - Oscilação do preço entre bid e ask sem mudança no valor justo, gerando
+ruído.
+∙Bootstrap em blocos - Reamostragem por blocos contíguos para preservar dependência
+temporal em séries.
+∙Brier Score - Erro quadrático médio entre probabilidades previstas e resultados binários
+observados.
+∙Co-location - Hospedagem de servidores no data center da bolsa para reduzir latência de
+comunicação.
+∙Custos de transação - Despesas e fricções (corretagem, emolumentos, spread, slippage)
+consideradas nos backtests.
+∙Embargo temporal - Janela de exclusão após o treino para impedir contaminação temporal
+da validação/teste.
+∙F1-Score - Média harmônica entre precisão (precision) e revocação (recall).
+∙Latência - Atraso entre envio/recebimento de dados/ordens e sua efetiva execução/registro.
+∙Log-Loss - Perda logarítmica usada em classiﬁcadores probabilísticos; penaliza conﬁança
+indevida.
+∙LSTM (conceito) - Rede recorrente com memória de longo prazo para dependências
+temporais extensas.
+∙Microestrutura de mercado - Aspectos de formação de preço em alta frequência (livro de
+ofertas, tipos de ordens, latência).
+∙Otimização Bayesiana - Busca de hiperparâmetros guiada por modelo probabilístico do
+desempenho.52 Capítulo 6. Glossário
+∙Prophet - Modelo aditivo com tendências e sazonalidades marcado para séries temporais.
+∙Regimes de volatilidade - Estratiﬁcação do tempo por níveis de volatilidade para análises
+de robustez.
+∙Seed (semente aleatória) - Estado inicial do gerador pseudoaleatório para reprodutibilidade.
+∙Teste de Diebold–Mariano - Teste estatístico para comparar a acurácia preditiva de dois
+modelos.
+∙Transformers - Arquitetura baseada em atenção para dependências de longo alcance sem
+recorrência.
+∙Turnover - Taxa de giro da carteira (volume negociado relativo ao capital) em um período.
+∙Validação walk-forward - Treina e testa em janelas deslizantes preservando a ordem
+temporal.
+∙V olatilidade - Grau de oscilação dos preços em um período; associada à dispersão dos
+retornos.
+∙Índice de Sharpe - Retorno excedente por unidade de risco (desvio-padrão dos retornos).53
+CAPÍTULO
+7
+SIGLAS
+∙API - Interface de Programação de Aplicações; permite integração e acesso automatizado
+a dados/serviços.
+∙ARIMA - Modelo AutoRegressivo Integrado de Médias Móveis para dependências lineares
+em séries temporais.
+∙AUC-PR - Área sob a curva Precisão–Revocação; indicada para classes desbalanceadas.
+∙CNN - Rede Neural Convolucional que extrai padrões locais em janelas temporais.
+∙DMA - Direct Market Access; envio de ordens diretamente ao sistema de negociação.
+∙ECE - Expected Calibration Error; discrepância média entre probabilidades previstas e
+frequências observadas.
+∙HFT - High-Frequency Trading; estratégias sensíveis a latências de milissegundos e à
+microestrutura.
+∙LSTM - Long Short-Term Memory; rede recorrente com memória de longo prazo.
+∙MCC - Coeﬁciente de Correlação de Matthews (–1 a 1) para qualidade de classiﬁcação
+binária.
+∙MME - Média Móvel Exponencial.
+∙OHLCV - Abertura (Open), Máxima (High), Mínima (Low), Fechamento (Close) e V olume
+(V olume).
+∙RSI - Relative Strength Index; oscilador de momento para sobrecompra/sobrevenda.

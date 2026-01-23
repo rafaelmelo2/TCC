@@ -1,0 +1,78 @@
+======================================================================
+RELATÓRIO DE AUDITORIA TÉCNICA DE DADOS
+======================================================================
+
+Arquivo: VALE3_M15_20200101_20251231.csv
+Status Geral: WARNING
+
+----------------------------------------------------------------------
+
+1. ESTRUTURA DOS DADOS
+----------------------------------------------------------------------
+  Shape: (36486, 9)
+  Colunas: 9
+  Tipo de índice: <class 'pandas.core.indexes.datetimes.DatetimeIndex'>
+  É DatetimeIndex: True
+
+2. PERÍODO DE COBERTURA
+----------------------------------------------------------------------
+  Início: 2020-10-22 10:00:00
+  Fim: 2025-10-22 17:45:00
+  Duração: 1826 dias (5.00 anos)
+  Total de barras: 36,486
+  Barras por dia (média): 20.0
+
+3. GAPS TEMPORAIS
+----------------------------------------------------------------------
+  Total de gaps: 1252
+  Maior gap: 115.2 horas
+  Barras faltantes estimadas: 140094
+
+  Primeiros gaps:
+    2020-10-22 16:45:00 -> 2020-10-23 10:00:00 (17.2h, ~69 barras)
+    2020-10-23 16:45:00 -> 2020-10-26 10:00:00 (65.2h, ~261 barras)
+    2020-10-26 16:45:00 -> 2020-10-27 10:00:00 (17.2h, ~69 barras)
+    2020-10-27 16:45:00 -> 2020-10-28 10:00:00 (17.2h, ~69 barras)
+    2020-10-28 16:45:00 -> 2020-10-29 10:00:00 (17.2h, ~69 barras)
+
+4. MISSING VALUES
+----------------------------------------------------------------------
+  [OK] Nenhum missing value
+
+5. VALIDAÇÃO OHLC
+----------------------------------------------------------------------
+  [OK] Todas as barras têm lógica OHLC válida
+
+6. HORÁRIO DE PREGÃO
+----------------------------------------------------------------------
+  Barras dentro do pregão: 35,173 (96.4%)
+  Barras fora do pregão: 1,313 (3.6%)
+
+7. ANOMALIAS DE PREÇO
+----------------------------------------------------------------------
+  Total de anomalias detectadas: 0
+
+8. POSSÍVEIS AJUSTES CORPORATIVOS
+----------------------------------------------------------------------
+  Nenhum evento suspeito detectado
+
+9. ESTATÍSTICAS
+----------------------------------------------------------------------
+  Preço médio: R$ 58.86
+  Preço mínimo: R$ 37.94
+  Preço máximo: R$ 78.36
+  Volatilidade média: 0.34%
+  Volume médio: 903,756
+  Volume total: 32,974,458,600
+  Barras com volume zero: 0
+  Timestamps duplicados: 0
+
+11. AVISOS
+----------------------------------------------------------------------
+  [!] Poucas barras por dia (20.0). Esperado: ~28
+  [!] Encontrados 1252 gaps temporais. Maior gap: 115.2 horas
+  [!] 1313 barras fora do horário de pregão
+
+======================================================================
+FIM DO RELATÓRIO
+======================================================================
