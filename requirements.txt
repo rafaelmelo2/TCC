@@ -1,0 +1,26 @@
+# Dependências necessárias para o pipeline
+
+# Manipulação de dados
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Modelos estatísticos (ARIMA)
+statsmodels>=0.14.0
+
+# Visualização
+matplotlib>=3.7.0
+
+# Métricas de avaliação
+scikit-learn>=1.3.0
+scipy>=1.10.0
+
+# Otimização bayesiana (Optuna)
+optuna>=3.0.0
+
+# Deep Learning (LSTM)
+tensorflow>=2.14.0
+
+# Processamento de PDF
+PyPDF2>=3.0.0# Variáveis de ambiente
+python-dotenv>=1.0.0# OpenAI API
+openai>=1.0.0
