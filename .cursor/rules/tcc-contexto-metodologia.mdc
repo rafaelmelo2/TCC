@@ -1,0 +1,60 @@
+---
+description: Contexto do projeto TCC e metodologia obrigatória (validação walk-forward, prevenção de data leakage, features, métricas)
+alwaysApply: true
+---
+
+# Contexto do Projeto TCC
+
+## Projeto
+**Predição Automática de Indicativos Financeiros para Bolsa de Valores Considerando o Aspecto Temporal**
+
+**Objetivo**: Desenvolver modelo híbrido CNN+LSTM para prever direção de movimentos de preços intradiários (barras de 15 minutos) em ações líquidas da B3.
+
+**Dados**: Janeiro/2020 a Dezembro/2025, granularidade 15 minutos, ativos PETR4, VALE3, ITUB4.
+
+## Metodologia Obrigatória
+
+### 1. Validação Walk-Forward (CRÍTICO)
+- **SEMPRE** usar validação walk-forward com embargo temporal
+- **NUNCA** usar k-fold tradicional (viola ordem temporal)
+- Treinar no bloco k, validar internamente, aplicar embargo de h barras, testar em k+1
+- Implementar conforme Figura 8 do TCC (Seção 3.2)
+
+### 2. Prevenção de Data Leakage (CRÍTICO)
+- Normalização ajustada **APENAS** nos dados de treino
+- Aplicar transformações do treino ao teste (fit no treino, transform no teste)
+- **NUNCA** usar informações futuras para prever o passado
+- Manter embargo temporal entre treino/validação e teste
+
+### 3. Engenharia de Features (Seção 4.2)
+Features obrigatórias:
+- OHLCV, Retornos logarítmicos: `rt = ln(Pt) - ln(Pt-1)`
+- Volatilidade móvel (janela 20 períodos)
+- MME: 9, 21, 50 períodos
+- RSI: 9, 21, 50 períodos
+- Bandas de Bollinger (20 períodos, 2 desvios-padrão)
+
+### 4. Arquitetura CNN-LSTM
+```python
+# Estrutura base:
+- Conv1D (filters=64, kernel_size=2)
+- MaxPooling1D (pool_size=2)
+- LSTM (50 unidades, dropout=0.2)
+- Dense(1, sigmoid)
+- Otimizador: AdamW (lr=0.001)
+- Janela: n_steps=60 barras, n_features=12
+```
+
+### 5. Métricas de Avaliação (Seção 4.5)
+**Métricas Principais**: Hit rate (com banda morta), Brier Score, Log-Loss, Balanced Accuracy, F1-Score, MCC, AUC-PR
+
+**Métricas de Trading**: Retorno líquido, Sharpe, Maximum Drawdown, Profit Factor, Turnover
+
+**Banda Morta**: `|retorno_real| < 0.001` → classe neutra
+
+### 6. Baselines Obrigatórios
+1. Naive/Drift, 2. ARIMA, 3. Prophet, 4. LSTM Puro, 5. CNN-LSTM Híbrido
+
+## Referências
+- TCC: `codigo/pipeline/others/generate_text_for_ia_by_pdf/Predição_Automática_de_Indicativos_Financeiros_para_Bolsa_de_Valores_Considerando_o_Aspecto_Temporal___Rafael_da_Silva_Melo___2025.txt`
+- Sempre consultar TCC antes de criar componentes novos

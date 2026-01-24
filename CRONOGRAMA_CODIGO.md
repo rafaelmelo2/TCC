@@ -47,35 +47,47 @@
 - [x] `metrics.py` - Métricas de avaliação
 
 #### Dia 4 (25/01) - Walk-Forward
-- [ ] `validation.py` - WalkForwardValidator
-- [ ] Testar walk-forward nos baselines
+- [x] `validation.py` - WalkForwardValidator ✅
+- [x] Testar walk-forward nos baselines ✅
 
 #### Dia 5 (26/01) - Prophet
-- [ ] `prophet_model.py` - Baseline Prophet
-- [ ] Consolidar resultados baselines
+- [x] `prophet_model.py` - Baseline Prophet ✅
+- [x] Consolidar resultados baselines ✅
 
 #### Dia 6-7 (27-28/01) - Preparação DL
-- [ ] Preparar dados para deep learning
+- [x] Preparar dados para deep learning (`prepare_sequences.py`) ✅
+- [x] Script de treinamento (`train.py`) ✅
+- [x] Configuração walk-forward documentada (`config.py`) ✅
+- [x] Script de análise de sensibilidade (`testar_sensibilidade_walkforward.py`) ✅
 - [ ] Setup Optuna
-- [ ] Arquitetura LSTM básica
+- [ ] Arquitetura LSTM básica (já implementada em train.py)
 
 ---
 
 ### Semana 2: LSTM (29 Jan - 04 Fev)
 
 #### Dia 8-9 (29-30/01) - LSTM
-- [ ] `lstm_model.py` - Arquitetura LSTM
-- [ ] `train.py` - Script de treinamento
-- [ ] Otimização com Optuna
+- [x] `lstm_model.py` - Arquitetura LSTM ✅
+- [x] `train.py` - Script de treinamento ✅
+- [x] Setup Optuna para otimização bayesiana ✅
+- [x] Definir espaços de busca de hiperparâmetros (`config.py`) ✅
+  - [x] LSTM: lstm_units [32, 50, 64], dropout [0.1, 0.2, 0.3], learning_rate [1e-4, 1e-3, 1e-2], batch_size [16, 32, 64] ✅
+  - [x] CNN-LSTM: conv_filters [32, 64, 128], conv_kernel_size [2, 3], lstm_units [32, 50, 64], dropout [0.1, 0.2, 0.3], learning_rate [1e-4, 1e-3, 1e-2], batch_size [16, 32, 64] ✅
 
 #### Dia 10-11 (31/01-01/02) - Otimização
+- [x] Implementar otimização bayesiana (Optuna) dentro de cada fold walk-forward ✅
+- [x] Otimização no conjunto de validação interno (não no teste) ✅
+- [x] Módulo `optuna_optimizer.py` criado ✅
+- [x] Integração com `train.py` (flag `--optuna`) ✅
+- [ ] Testar otimização com LSTM
+- [ ] Testar otimização com CNN-LSTM
 - [ ] Analisar resultados Optuna
-- [ ] Retreinar com melhores hiperparâmetros
-- [ ] Walk-forward completo com LSTM
+- [ ] Walk-forward completo com modelos otimizados
 
 #### Dia 12-13 (02-03/02) - CNN-LSTM
-- [ ] `cnn_lstm_model.py` - Arquitetura híbrida
-- [ ] Otimização CNN-LSTM
+- [x] `cnn_lstm_model.py` - Arquitetura híbrida ✅
+- [ ] Otimização CNN-LSTM com Optuna
+- [ ] Hiperparâmetros: conv_filters, conv_kernel_size, lstm_units, dropout, learning_rate, batch_size
 
 #### Dia 14 (04/02) - Consolidação
 - [ ] Comparar LSTM vs CNN-LSTM
@@ -114,9 +126,12 @@
 - [ ] Análise por regimes
 
 #### Dia 24-25 (14-15/02) - Sensibilidade
-- [ ] Análise de sensibilidade a janelas
+- [x] Análise de sensibilidade a janelas walk-forward (`testar_sensibilidade_walkforward.py`) ✅
+  - [x] Configurações: mais_permissivo, principal, mais_conservador, mais_treino, embargo_dia ✅
+- [ ] Executar análise de sensibilidade completa
 - [ ] Análise de sensibilidade a features
 - [ ] Análise de sensibilidade a custos
+- [ ] Análise de sensibilidade a hiperparâmetros (variações dos valores otimizados)
 
 #### Dia 26-27 (16-17/02) - Consolidação
 - [ ] Consolidar todos os resultados

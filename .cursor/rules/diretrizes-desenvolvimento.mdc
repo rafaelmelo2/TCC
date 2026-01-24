@@ -1,0 +1,33 @@
+---
+description: Diretrizes de workflow para implementar funcionalidades, modificar código, criar modelos e fazer backtests
+alwaysApply: true
+---
+
+# Diretrizes de Desenvolvimento
+
+## Ao Implementar Novas Funcionalidades
+1. **Consultar o TCC primeiro**: Verificar seção relevante em `generate_text_for_ia_by_pdf/`
+2. **Seguir metodologia**: Implementar conforme Capítulo 4 (Próximos Passos)
+3. **Validar temporalmente**: Sempre usar walk-forward, nunca k-fold tradicional
+4. **Documentar**: Adicionar docstrings explicando relação com metodologia
+5. **Testar**: Validar com dados conhecidos antes de aplicar em produção
+
+## Ao Modificar Código Existente
+1. **Manter compatibilidade**: Não quebrar scripts de treinamento existentes
+2. **Preservar validação temporal**: Não introduzir data leakage
+3. **Atualizar documentação**: Refletir mudanças em comentários/docstrings
+4. **Versionar**: Commitar mudanças com mensagens descritivas
+
+## Ao Criar Novos Modelos
+1. **Implementar walk-forward**: Obrigatório para todos os modelos
+2. **Comparar com baselines**: Sempre incluir Naive, ARIMA, Prophet
+3. **Calcular todas as métricas**: Hit rate, Brier, Log-Loss, Sharpe, etc.
+4. **Salvar resultados**: CSV com previsões e métricas por fold
+5. **Gerar visualizações**: Gráficos comparativos e curvas de calibração
+
+## Princípios Gerais
+- **Sempre priorizar reprodutibilidade**: Código deve ser executável por qualquer pessoa
+- **Manter foco na metodologia**: Seguir rigorosamente o protocolo do TCC
+- **Validar resultados**: Comparar com literatura e baselines estabelecidos
+- **Documentar decisões**: Explicar escolhas arquiteturais e de hiperparâmetros
+- **Testar robustez**: Validar em diferentes regimes de mercado e ativos

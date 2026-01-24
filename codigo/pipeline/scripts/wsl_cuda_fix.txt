@@ -1,0 +1,25 @@
+# Instalar libtinfo5 primeiro
+sudo apt-get install -y libtinfo5
+
+# OU instalar CUDA sem nsight-systems
+sudo apt-get install -y cuda-toolkit-12-2 --no-install-recommends
+
+# OU instalar pacotes individuais
+sudo apt-get install -y cuda-compiler-12-2 cuda-libraries-12-2 cuda-libraries-dev-12-2
+
+# Verificar instalação
+nvcc --version
+
+# Adicionar ao PATH
+export PATH=/usr/local/cuda-12.2/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64:$LD_LIBRARY_PATH
+
+# Verificar GPU no WSL (precisa driver NVIDIA no Windows)
+nvidia-smi
+
+# Se nvidia-smi funcionar, instalar TensorFlow
+cd /mnt/d/Rafael/TCC/codigo/pipeline
+uv pip install tensorflow[and-cuda]
+
+# Testar
+uv run python -c "import tensorflow as tf; print('GPUs:', len(tf.config.list_physical_devices('GPU')))"

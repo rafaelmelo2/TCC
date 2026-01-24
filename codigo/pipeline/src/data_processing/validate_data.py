@@ -13,26 +13,8 @@ from typing import Dict, List, Tuple, Optional
 from datetime import time, timedelta
 from pathlib import Path
 
-try:
-    from .load_data import carregar_dados
-    from ..config import (
-        COLUNAS_OBRIGATORIAS,
-        HORARIO_ABERTURA,
-        HORARIO_FECHAMENTO,
-        INTERVALO_BARRAS_MINUTOS
-    )
-except ImportError:
-    # Para execução direta do script
-    import sys
-    import os
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from load_data import carregar_dados
-    from config import (
-        COLUNAS_OBRIGATORIAS,
-        HORARIO_ABERTURA,
-        HORARIO_FECHAMENTO,
-        INTERVALO_BARRAS_MINUTOS
-    )
+from .load_data import carregar_dados
+from ..config import COLUNAS_OBRIGATORIAS, HORARIO_ABERTURA, HORARIO_FECHAMENTO, INTERVALO_BARRAS_MINUTOS
 
 # Thresholds específicos para validação (usados apenas aqui)
 THRESHOLD_ANOMALIA_PRECO = 0.15  # 15% - variação para considerar anomalia
@@ -678,7 +660,8 @@ if __name__ == '__main__':
     else:
         # Tentar caminho relativo ao diretório do projeto
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
-        arquivo_teste = os.path.join(base_dir, 'data', 'raw', 'VALE3_M15_20200101_20251231.csv')
+        from ..config import obter_nome_arquivo_dados
+        arquivo_teste = os.path.join(base_dir, 'data', 'raw', obter_nome_arquivo_dados('VALE3'))
     
     if os.path.exists(arquivo_teste):
         print("\n" + "=" * 70)

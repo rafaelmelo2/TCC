@@ -1,0 +1,6 @@
+Configuração,Descrição,Treino (barras),Teste (barras),Embargo (barras),N_Folds,N_Teste,Acurácia Direcional,Accuracy,F1-Score,MCC
+mais_permissivo,Configuração mais permissiva: embargo mínimo,6552,546,1,5,2373,0.5002350728725905,0.5002350728725905,0.47712739793408754,0.00026889467981793593
+principal,Configuração principal escolhida a priori,6552,546,5,5,2353,0.49359278595158995,0.49359278595158995,0.5740518962075848,-0.01051588289687556
+mais_conservador,Configuração mais conservadora: embargo maior,6552,546,10,5,2328,0.5045519885002395,0.5045519885002395,0.587390263367917,0.01544034746092188
+mais_treino,Mais dados de treino: 1.5 anos,9828,546,5,3,1638,0.5114345114345115,0.5114345114345115,0.0,0.0
+embargo_dia,Embargo de 1 dia completo (máxima separação),6552,546,26,5,2248,0.5012431626056688,0.5012431626056688,0.4837879567678847,0.001761349893439824

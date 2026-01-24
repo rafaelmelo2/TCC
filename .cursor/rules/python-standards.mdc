@@ -1,0 +1,76 @@
+---
+description: Padrões de código Python, convenções de nomenclatura, estrutura de funções e organização de imports
+globs: **/*.py
+alwaysApply: false
+---
+
+# Padrões de Código Python
+
+## Convenções de Nomenclatura
+- **Funções**: `snake_case` (ex: `calcular_features_tecnicas`)
+- **Classes**: `PascalCase` (ex: `WalkForwardValidator`)
+- **Constantes**: `UPPER_SNAKE_CASE` (ex: `N_STEPS = 60`)
+- **Variáveis**: `snake_case` (ex: `df_features`)
+
+## Estrutura de Funções
+```python
+def nome_funcao(parametros):
+    """
+    Descrição clara e concisa da função.
+    
+    Conforme metodologia do trabalho (Seção X.Y do TCC).
+    
+    Parâmetros:
+        parametro1: Descrição (tipo esperado)
+        parametro2: Descrição (tipo esperado)
+        
+    Retorna:
+        Descrição do retorno (tipo)
+        
+    Exceções:
+        TipoErro: Quando ocorre
+    """
+    # Implementação
+    pass
+```
+
+## Organização de Imports
+```python
+# 1. Bibliotecas padrão
+import os
+import sys
+
+# 2. Bibliotecas de terceiros
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from sklearn.metrics import accuracy_score
+
+# 3. Módulos locais
+from data_processing.load_data import carregar_dados
+from models.arima_model import treinar_arima
+```
+
+## Tratamento de Dados Temporais
+- **SEMPRE** usar índices temporais (DatetimeIndex) em DataFrames
+- Validar ordem cronológica antes de processar
+- Remover ou tratar valores ausentes (NaN) explicitamente
+- Documentar ajustes corporativos (splits, dividendos)
+
+## Logging e Debugging
+- Usar `print()` com prefixos `[OK]`, `[!]`, `[ERRO]` para feedback visual
+- Documentar progresso em etapas numeradas: `[1/7]`, `[2/7]`, etc.
+- Salvar logs de experimentos com timestamps
+- Versionar modelos e resultados com identificadores únicos
+
+## Execução de Código Python
+- **SEMPRE usar `uv` para executar scripts Python**: `uv run python script.py`
+- **NUNCA usar `python` diretamente** - usar apenas `uv run python` para evitar erros de ambiente
+- Para módulos: `uv run python -m modulo.script`
+- O UV garante que o ambiente correto e as dependências estejam disponíveis
+
+## Reprodutibilidade
+- Fixar seeds: `np.random.seed(42)`, `tf.random.set_seed(42)`
+- Versionar dependências (requirements.txt, pyproject.toml)
+- Documentar versões de bibliotecas críticas
+- Salvar configurações de experimentos (JSON/YAML)
