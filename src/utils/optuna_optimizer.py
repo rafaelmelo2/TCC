@@ -58,7 +58,7 @@ def criar_espaco_busca_cnn_lstm(trial: Trial) -> Dict[str, Any]:
 def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
                   X_val: np.ndarray, y_val: np.ndarray,
                   n_steps: int, n_features: int,
-                  epochs: int = 30, verbose: int = 0) -> float:
+                  epochs: int = 100, verbose: int = 0) -> float:
     """
     Função objetivo para otimização de LSTM.
     
@@ -123,18 +123,18 @@ def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
         class_weight = None
     
     # Callbacks para early stopping
-    # Reduzir patience para permitir mais variação entre trials
+    # Usar patience adequado para permitir convergência
     callbacks_list = [
         keras.callbacks.EarlyStopping(
             monitor='val_loss',
-            patience=5,  # Reduzido de 10 para 5 para permitir mais variação
+            patience=10,  # Aumentado para dar mais tempo de convergência
             restore_best_weights=True,
             verbose=0
         ),
         keras.callbacks.ReduceLROnPlateau(
             monitor='val_loss',
             factor=0.5,
-            patience=3,  # Reduzido de 5 para 3
+            patience=5,  # Permite mais épocas antes de reduzir LR
             min_lr=1e-7,
             verbose=0
         )
@@ -177,7 +177,7 @@ def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
 def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
                      X_val: np.ndarray, y_val: np.ndarray,
                      n_steps: int, n_features: int,
-                     epochs: int = 30, verbose: int = 0) -> float:
+                     epochs: int = 100, verbose: int = 0) -> float:
     """
     Função objetivo para otimização de CNN-LSTM.
     
@@ -245,18 +245,18 @@ def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
         class_weight = None
     
     # Callbacks para early stopping
-    # Reduzir patience para permitir mais variação entre trials
+    # Usar patience adequado para permitir convergência
     callbacks_list = [
         keras.callbacks.EarlyStopping(
             monitor='val_loss',
-            patience=5,  # Reduzido de 10 para 5 para permitir mais variação
+            patience=10,  # Aumentado para dar mais tempo de convergência
             restore_best_weights=True,
             verbose=0
         ),
         keras.callbacks.ReduceLROnPlateau(
             monitor='val_loss',
             factor=0.5,
-            patience=3,  # Reduzido de 5 para 3
+            patience=5,  # Permite mais épocas antes de reduzir LR
             min_lr=1e-7,
             verbose=0
         )

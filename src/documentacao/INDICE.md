@@ -17,10 +17,12 @@ Guia rápido para encontrar informações específicas.
 - [Feature Engineering](implementacoes/feature_engineering.md)
 - [Métricas de Avaliação](implementacoes/metricas.md)
 - [Análise de Sensibilidade](implementacoes/analise_sensibilidade.md)
+- [Correções do Treinamento (2026-01-23)](implementacoes/correcoes_treinamento_2026_01_23.md)
 
 ### Análises
 - [Análise da Banda Morta](decisoes_tecnicas/banda_morta.md#análise-realizada)
 - [Correção do ARIMA](ordem_cronologica.md#2025-01-23---correção-do-problema-arima)
+- [Correções Críticas no Treinamento](implementacoes/correcoes_treinamento_2026_01_23.md)
 
 ---
 
@@ -29,6 +31,7 @@ Guia rápido para encontrar informações específicas.
 ### Metodologia - Engenharia de Features
 - [Feature Engineering](implementacoes/feature_engineering.md)
 - [Decisão sobre Banda Morta](decisoes_tecnicas/banda_morta.md)
+- [Aplicação Correta da Banda Morta](implementacoes/correcoes_treinamento_2026_01_23.md#problema-1-banda-morta-não-aplicada-bug-crítico)
 
 ### Metodologia - Dados
 - [Período Exato dos Dados](periodo_dados.md) - 22/10/2020 até 22/10/2025 (5 anos)
@@ -43,12 +46,22 @@ Guia rápido para encontrar informações específicas.
 ### Metodologia - Métricas
 - [Métricas de Avaliação](implementacoes/metricas.md)
 
+### Metodologia - Seleção de Hiperparâmetros
+- [Otimização com Optuna](implementacoes/correcoes_treinamento_2026_01_23.md#problema-3-convergência-insuficiente)
+  - Early stopping com patience=10
+  - Máximo de 100 épocas
+  - Ajustes de learning rate
+
 ### Resultados
 - [Resultados dos Baselines](implementacoes/baselines.md#resultados-walk-forward-vale3)
   - Análise completa: Naive, Drift, ARIMA, Prophet
   - Interpretação: todos próximos de 50% (esperado)
   - Baseline estabelecido para comparação com deep learning
 - [Impacto da Remoção da Banda Morta](decisoes_tecnicas/banda_morta.md#impacto-mensurável)
+- [Resultados do Treinamento CNN-LSTM](implementacoes/correcoes_treinamento_2026_01_23.md#resultados-observados)
+  - Correções aplicadas e impacto
+  - Acurácia: ~53% (acima de baseline)
+  - Análise de problemas e limitações
 
 ---
 

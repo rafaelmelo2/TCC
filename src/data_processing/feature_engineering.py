@@ -57,13 +57,32 @@ def calcular_volatilidade(df: pd.DataFrame, periodo: int = PERIODO_VOLATILIDADE,
 
 
 def criar_target_com_banda_morta(df: pd.DataFrame, coluna_retornos: str = 'returns',
-                                  threshold: float = 0.0) -> pd.Series:
-    """Cria target: 1 (alta), -1 (baixa), 0 (neutro apenas se retorno == 0)."""
+                                  threshold: float = THRESHOLD_BANDA_MORTA) -> pd.Series:
+    """
+    Cria target com banda morta para classificação direcional.
+    
+    IMPORTANTE: A banda morta filtra movimentos pequenos (ruído) que não
+    representam tendências significativas. Movimentos entre -threshold e +threshold
+    são classificados como neutros (0) e serão REMOVIDOS do treinamento.
+    
+    Conforme metodologia do TCC (Seção 4.2 - Definição de Target):
+    - Retorno > threshold: Alta (1)
+    - Retorno < -threshold: Baixa (-1)  
+    - -threshold <= Retorno <= threshold: Neutro (0) - removido no treino
+    
+    Parâmetros:
+        df: DataFrame com coluna de retornos
+        coluna_retornos: Nome da coluna com retornos logarítmicos
+        threshold: Threshold da banda morta (padrão: THRESHOLD_BANDA_MORTA)
+    
+    Retorna:
+        Series com target: 1 (alta), -1 (baixa), 0 (neutro)
+    """
     next_return = df[coluna_retornos].shift(-1)
     target = pd.Series(0, index=df.index, dtype=int)
     target.loc[next_return > threshold] = 1
     target.loc[next_return < -threshold] = -1
-    # Apenas valores exatamente zero ficam como 0 (neutro)
+    # Valores entre -threshold e +threshold ficam como 0 (neutro)
     return target
 
 
@@ -103,7 +122,7 @@ def criar_features(df: pd.DataFrame, incluir_retornos: bool = True, incluir_ema:
         df_features['volatility'] = calcular_volatilidade(df_features)
     
     if incluir_target and 'returns' in df_features.columns:
-        df_features['target'] = criar_target_com_banda_morta(df_features)
+        df_features['target'] = criar_target_com_banda_morta(df_features, threshold=THRESHOLD_BANDA_MORTA)
         if verbose:
             n_alta = (df_features['target'] == 1).sum()
             n_baixa = (df_features['target'] == -1).sum()
