@@ -517,7 +517,7 @@ if __name__ == '__main__':
     parser.add_argument('--modelo', type=str, default='cnn_lstm', choices=['lstm', 'cnn_lstm'],
                        help='Tipo de modelo: lstm ou cnn_lstm')
     parser.add_argument('--arquivo', type=str, default=None, help='Caminho para arquivo de dados')
-    parser.add_argument('--epochs', type=int, default=50, help='Número de épocas')
+    parser.add_argument('--epochs', type=int, default=100, help='Número de épocas (com early stopping)')
     parser.add_argument('--batch-size', type=int, default=32, help='Tamanho do batch (ignorado se --optuna)')
     parser.add_argument('--optuna', action='store_true', help='Usar Optuna para otimizar hiperparâmetros')
     parser.add_argument('--n-trials', type=int, default=20, help='Número de trials do Optuna')

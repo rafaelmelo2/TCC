@@ -4,6 +4,74 @@ Documentação cronológica de todas as decisões técnicas, implementações e 
 
 ---
 
+## 2026-01-23 - Correções Críticas no Treinamento
+
+### Contexto
+- Primeiro treinamento do modelo CNN-LSTM com Optuna
+- Identificados problemas que impediam aprendizado adequado
+- Acurácias muito baixas (~50-54%) indicando problemas
+
+### Problemas Identificados
+
+1. **BUG CRÍTICO**: Banda morta não aplicada
+   - Função chamada sem parâmetro `threshold`
+   - Usando valor padrão 0.0 ao invés de 0.001
+   - Resultado: apenas 4.6% neutros (deveria ser ~40%)
+
+2. **Threshold inadequado**
+   - Threshold de 0.05% muito pequeno para dados intradiários
+   - Classificando ruído como movimento significativo
+
+3. **Convergência insuficiente**
+   - Patience muito baixo (5 épocas)
+   - Poucas épocas máximas (30)
+   - Modelos não convergiam adequadamente
+
+### Correções Aplicadas
+
+1. **Aplicação correta da banda morta**
+   - Adicionado `threshold=THRESHOLD_BANDA_MORTA` na chamada
+   - Threshold aumentado de 0.0005 para 0.001 (0.1%)
+
+2. **Ajustes de hiperparâmetros**
+   - Patience aumentado: 5 → 10 épocas
+   - Épocas máximas: 30 → 100
+   - ReduceLROnPlateau patience: 3 → 5
+
+### Resultados
+
+**Melhorias:**
+- ✅ Neutros: 4.6% → **42.8%** (correto!)
+- ✅ Maior variância nas probabilidades (std: 0.006 → 0.010)
+- ✅ Acurácia melhorou: ~50% → ~53%
+
+**Problemas ainda existentes:**
+- ⚠️ Acurácia ainda baixa (~53%) - possível limitação do mercado
+- 🔴 Alguns modelos colapsando para "sempre prever baixa"
+- ⚠️ Learning rates altos (0.01) causando convergência prematura
+
+### Interpretação
+
+- Acurácia de 53% é considerada **boa** na literatura de finanças quantitativas
+- Acima de 50% indica poder preditivo real
+- Movimentos intradiários são notoriamente difíceis de prever
+
+### Arquivos Modificados
+- `src/config.py` - Aumentado THRESHOLD_BANDA_MORTA
+- `src/data_processing/feature_engineering.py` - Aplicado threshold corretamente
+- `src/utils/optuna_optimizer.py` - Ajustes de convergência
+- `src/train.py` - Aumentado épocas padrão
+
+### Documentação
+- [Correções do Treinamento](implementacoes/correcoes_treinamento_2026_01_23.md) - Documentação completa
+
+### Próximos Passos
+- Avaliar resultados completos dos 5 folds
+- Ajustar espaço de busca do Optuna (remover lr=0.01)
+- Testar outras arquiteturas se necessário
+
+---
+
 ## 2025-01-23 - Remoção da Banda Morta
 
 ### Contexto

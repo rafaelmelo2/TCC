@@ -72,7 +72,9 @@ DESVIOS_BOLLINGER = 2  # Número de desvios-padrão para Bandas de Bollinger
 PERIODO_VOLATILIDADE = 20  # Janela para cálculo de volatilidade
 
 # Threshold para banda morta (usado em feature_engineering e métricas)
-THRESHOLD_BANDA_MORTA = 0.0005  # 0.05% - movimentos menores são considerados neutros
+# IMPORTANTE: Para barras de 15 minutos, movimentos < 0.1% são considerados ruído
+# Valor baseado em análise empírica de movimentos significativos intradiários
+THRESHOLD_BANDA_MORTA = 0.001  # 0.1% - movimentos menores são considerados neutros
 
 # ============================================================================
 # CONFIGURAÇÕES DE WALK-FORWARD
