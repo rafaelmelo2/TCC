@@ -93,7 +93,8 @@ def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
         n_features=n_features,
         lstm_units=hiperparams['lstm_units'],
         dropout=hiperparams['dropout'],
-        learning_rate=hiperparams['learning_rate']
+        learning_rate=hiperparams['learning_rate'],
+        gradient_clip_norm=1.0  # Gradient clipping (TCC Seção 4.4)
     )
     
     # Converter targets para binário e remover neutros
@@ -215,7 +216,8 @@ def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
         pool_size=hiperparams['pool_size'],
         lstm_units=hiperparams['lstm_units'],
         dropout=hiperparams['dropout'],
-        learning_rate=hiperparams['learning_rate']
+        learning_rate=hiperparams['learning_rate'],
+        gradient_clip_norm=1.0  # Gradient clipping (TCC Seção 4.4)
     )
     
     # Converter targets para binário e remover neutros

@@ -18,6 +18,8 @@ Guia rápido para encontrar informações específicas.
 - [Métricas de Avaliação](implementacoes/metricas.md)
 - [Análise de Sensibilidade](implementacoes/analise_sensibilidade.md)
 - [Correções do Treinamento (2026-01-23)](implementacoes/correcoes_treinamento_2026_01_23.md)
+- [Melhorias Técnicas (2026-01-23)](implementacoes/melhorias_tecnicas_2026_01_23.md) - Gradient clipping, salvamento de modelos
+- [Mudanças Completas (2026-01-23/24)](implementacoes/mudancas_completas_2026_01_23_24.md) - Documentação completa de todas as implementações
 
 ### Análises
 - [Análise da Banda Morta](decisoes_tecnicas/banda_morta.md#análise-realizada)
