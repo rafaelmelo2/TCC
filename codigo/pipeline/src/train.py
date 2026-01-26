@@ -172,7 +172,9 @@ def converter_target_para_binario(y: np.ndarray, remover_neutros: bool = True) -
 def treinar_modelo_fold(model: keras.Model, X_train: np.ndarray, y_train: np.ndarray,
                        X_val: Optional[np.ndarray] = None, y_val: Optional[np.ndarray] = None,
                        epochs: int = 50, batch_size: int = 32,
-                       verbose: int = 1) -> keras.Model:
+                       verbose: int = 1, fold_num: Optional[int] = None,
+                       ativo: Optional[str] = None, modelo_tipo: Optional[str] = None,
+                       log_dir: Optional[Path] = None) -> keras.Model:
     """
     Treina modelo em um fold de walk-forward.
     
@@ -215,21 +217,53 @@ def treinar_modelo_fold(model: keras.Model, X_train: np.ndarray, y_train: np.nda
     else:
         class_weight = None
     
+    # Callbacks para treinamento otimizado (conforme TCC Seção 4.4)
     callbacks_list = [
+        # Early stopping: para quando não há melhoria
         callbacks.EarlyStopping(
             monitor='val_loss' if X_val is not None else 'loss',
             patience=10,
             restore_best_weights=True,
-            verbose=0
+            verbose=1 if verbose > 0 else 0  # Mostrar quando para
         ),
+        # Scheduler: reduz learning rate quando estagnado
         callbacks.ReduceLROnPlateau(
             monitor='val_loss' if X_val is not None else 'loss',
             factor=0.5,
             patience=5,
             min_lr=1e-7,
-            verbose=0
+            verbose=1 if verbose > 0 else 0  # Mostrar quando reduz LR
         )
     ]
+    
+    # Adicionar ModelCheckpoint e CSVLogger se fold_num especificado
+    if fold_num is not None and ativo is not None and modelo_tipo is not None:
+        models_dir = Path('models') / ativo / modelo_tipo
+        models_dir.mkdir(parents=True, exist_ok=True)
+        
+        checkpoint_path = models_dir / f'fold_{fold_num}_checkpoint.keras'
+        callbacks_list.append(
+            callbacks.ModelCheckpoint(
+                filepath=str(checkpoint_path),
+                monitor='val_loss' if X_val is not None else 'loss',
+                save_best_only=True,
+                verbose=1 if verbose > 0 else 0  # Mostrar quando salva
+            )
+        )
+        
+        # CSV Logger para salvar histórico de cada epoch
+        if log_dir is not None:
+            log_dir.mkdir(parents=True, exist_ok=True)
+            csv_log_path = log_dir / f'fold_{fold_num}_history.csv'
+            callbacks_list.append(
+                callbacks.CSVLogger(
+                    str(csv_log_path),
+                    separator=',',
+                    append=False
+                )
+            )
+            if verbose > 0:
+                print(f"     [LOG] Salvando histórico em: {csv_log_path}")
     
     # Preparar validação (também removendo neutros)
     if X_val is not None:
@@ -278,7 +312,7 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
          arquivo_dados: Optional[str] = None, epochs: int = 50,
          batch_size: int = 32, verbose: bool = True,
          usar_optuna: bool = False, n_trials_optuna: int = 20,
-         usar_gpu: bool = True):
+         usar_gpu: bool = True, folds_especificos: Optional[list] = None):
     """
     Função principal de treinamento.
     
@@ -342,8 +376,18 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
         test_size=TAMANHO_TESTE_BARRAS,
         embargo=EMBARGO_BARRAS
     )
-    folds_info = validator._gerar_folds(len(df_features))
-    print(f"[OK] {len(folds_info)} folds serão gerados")
+    folds_originais = validator._gerar_folds(len(df_features))
+    print(f"[OK] {len(folds_originais)} folds disponíveis")
+    
+    # Filtrar folds se especificado
+    if folds_especificos is not None:
+        folds_info = [folds_originais[i-1] for i in folds_especificos if 1 <= i <= len(folds_originais)]
+        if not folds_info:
+            print(f"[ERRO] Nenhum fold válido especificado. Folds disponíveis: 1-{len(folds_originais)}")
+            return
+        print(f"[INFO] Treinando apenas folds: {folds_especificos}")
+    else:
+        folds_info = folds_originais
     
     # Preparar dados para primeiro fold (para determinar dimensões)
     if len(folds_info) == 0:
@@ -379,7 +423,10 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
     results = []
     
     for i, fold in enumerate(folds_info):
-        print(f"\n[Fold {i+1}/{len(folds_info)}] Treino:[{fold.train_start}:{fold.train_end}] "
+        # Encontrar índice original do fold
+        fold_original_idx = folds_originais.index(fold)
+        fold_num = fold_original_idx + 1
+        print(f"\n[Fold {fold_num}/{len(folds_originais)}] Treino:[{fold.train_start}:{fold.train_end}] "
               f"Teste:[{fold.test_start}:{fold.test_end}]")
         
         # Preparar dados do fold
@@ -437,10 +484,13 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
                 batch_size_otimizado = melhores_hiperparams['batch_size']
             
             # Treinar com todos os dados de treino (incluindo validação interna)
+            log_dir = Path('logs') / 'training_history' / ativo / modelo_tipo
             model = treinar_modelo_fold(
                 model, X_train, y_train,
                 epochs=epochs, batch_size=batch_size_otimizado,
-                verbose=1 if verbose else 0
+                verbose=1 if verbose else 0,
+                fold_num=fold_num, ativo=ativo, modelo_tipo=modelo_tipo,
+                log_dir=log_dir
             )
         else:
             # Criar modelo com hiperparâmetros padrão
@@ -450,10 +500,13 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
                 model = criar_modelo_cnn_lstm(n_steps, n_features)
             
             # Treinar
+            log_dir = Path('logs') / 'training_history' / ativo / modelo_tipo
             model = treinar_modelo_fold(
                 model, X_train, y_train,
                 epochs=epochs, batch_size=batch_size,
-                verbose=1 if verbose else 0
+                verbose=1 if verbose else 0,
+                fold_num=fold_num, ativo=ativo, modelo_tipo=modelo_tipo,
+                log_dir=log_dir
             )
         
         # Prever
@@ -464,7 +517,7 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
         metricas['accuracy_direcional'] = calcular_acuracia_direcional(y_test, y_pred)
         
         results.append({
-            'fold': i + 1,
+            'fold': fold_num,
             'train_start': fold.train_start,
             'train_end': fold.train_end,
             'test_start': fold.test_start,
@@ -523,8 +576,26 @@ if __name__ == '__main__':
     parser.add_argument('--n-trials', type=int, default=20, help='Número de trials do Optuna')
     parser.add_argument('--gpu', action='store_true', default=True, help='Usar GPU (padrão: True)')
     parser.add_argument('--no-gpu', dest='gpu', action='store_false', help='Forçar uso de CPU')
+    parser.add_argument('--folds', type=str, default=None, 
+                       help='Folds específicos para treinar (ex: "4,5" ou "1-3")')
     
     args = parser.parse_args()
+    
+    # Processar parâmetro --folds
+    folds_especificos = None
+    if args.folds:
+        try:
+            if '-' in args.folds:
+                # Range: "1-3" -> [1, 2, 3]
+                start, end = map(int, args.folds.split('-'))
+                folds_especificos = list(range(start, end + 1))
+            else:
+                # Lista: "4,5" -> [4, 5]
+                folds_especificos = [int(x.strip()) for x in args.folds.split(',')]
+        except ValueError:
+            print(f"[ERRO] Formato inválido para --folds: {args.folds}")
+            print("[INFO] Use formato: --folds 4,5 ou --folds 1-3")
+            sys.exit(1)
     
     main(
         ativo=args.ativo,
@@ -535,5 +606,6 @@ if __name__ == '__main__':
         verbose=True,
         usar_optuna=args.optuna,
         n_trials_optuna=args.n_trials,
-        usar_gpu=args.gpu
+        usar_gpu=args.gpu,
+        folds_especificos=folds_especificos
     )

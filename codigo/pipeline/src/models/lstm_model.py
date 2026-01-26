@@ -12,7 +12,8 @@ tf.random.set_seed(SEED)
 
 def criar_modelo_lstm(n_steps: int, n_features: int, 
                       lstm_units: int = 50, dropout: float = 0.2,
-                      learning_rate: float = 0.001) -> keras.Model:
+                      learning_rate: float = 0.001,
+                      gradient_clip_norm: float = 1.0) -> keras.Model:
     """
     Cria modelo LSTM puro (Baseline 3).
     
@@ -32,6 +33,8 @@ def criar_modelo_lstm(n_steps: int, n_features: int,
         lstm_units: Número de unidades na camada LSTM (padrão: 50)
         dropout: Taxa de dropout para regularização (padrão: 0.2)
         learning_rate: Taxa de aprendizado do otimizador (padrão: 0.001)
+        gradient_clip_norm: Norma máxima dos gradientes (padrão: 1.0)
+            Gradient clipping previne explosão de gradientes (TCC Seção 4.4)
     
     Retorna:
         Modelo Keras compilado e pronto para treinamento
@@ -50,8 +53,14 @@ def criar_modelo_lstm(n_steps: int, n_features: int,
         layers.Dense(1, activation='sigmoid', name='output_layer')
     ])
     
+    # Criar otimizador AdamW com gradient clipping (conforme TCC Seção 4.4)
+    optimizer = keras.optimizers.AdamW(
+        learning_rate=learning_rate,
+        clipnorm=gradient_clip_norm  # Gradient clipping por norma
+    )
+    
     model.compile(
-        optimizer=keras.optimizers.AdamW(learning_rate=learning_rate),
+        optimizer=optimizer,
         loss='binary_crossentropy',
         metrics=['accuracy']
     )

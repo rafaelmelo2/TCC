@@ -72,6 +72,91 @@ Documentação cronológica de todas as decisões técnicas, implementações e 
 
 ---
 
+## 2026-01-23 (tarde) - Implementação de Melhorias Técnicas
+
+### Contexto
+- Treinamento completo finalizado (2 horas)
+- Resultados: Acurácia média 52.51%, F1=0.626, MCC=0.039
+- Modelos não foram salvos (perda de 2 horas de trabalho)
+- Consulta ao TCC para identificar melhorias possíveis
+
+### Melhorias Implementadas
+
+1. **Salvamento automático de modelos**
+   - ModelCheckpoint para cada fold
+   - Salva melhor modelo baseado em val_loss
+   - Estrutura: `models/{ativo}/{modelo_tipo}/fold_{n}_checkpoint.keras`
+
+2. **Gradient clipping**
+   - Implementado com `clipnorm=1.0`
+   - Previne explosão de gradientes
+   - Conforme TCC Seção 4.4
+
+3. **Otimizador AdamW**
+   - Já estava implementado (confirmado)
+   - Weight decay desacoplado
+   - Melhor regularização que Adam
+
+4. **Callbacks otimizados**
+   - EarlyStopping (patience=10)
+   - ReduceLROnPlateau (patience=5)
+   - ModelCheckpoint (novo)
+
+### Análise dos Resultados Atuais
+
+**Walk-Forward (5 folds):**
+
+| Fold | Acurácia | F1 | MCC | Neutros |
+|------|----------|----|----|---------|
+| 1 | 46.87% | 0.638 | 0.000 | 36.0% |
+| 2 | 52.45% | 0.559 | 0.050 | 33.7% |
+| 3 | 52.09% | 0.638 | 0.051 | 43.7% |
+| 4 | 54.34% | 0.569 | 0.093 | 52.1% |
+| 5 | 56.82% | 0.725 | 0.000 | 49.9% |
+| **Média** | **52.51%** | **0.626** | **0.039** | **43.1%** |
+
+**Interpretação:**
+- ✅ Acurácia acima de baseline (~50%)
+- ✅ Melhoria progressiva (46.87% → 56.82%)
+- ⚠️ MCC muito baixo (sinal fraco)
+- ⚠️ Alta variabilidade entre folds
+
+### Técnicas Ainda Não Implementadas (Do TCC)
+
+**Curto prazo:**
+- Cosine annealing scheduler
+- One-cycle scheduler
+- Features adicionais (amplitude, volume)
+
+**Médio prazo:**
+- Ensemble de modelos (voting)
+- Metaclassificador
+- Retreinamento no maior prefixo
+
+### Arquivos Modificados
+- `src/models/cnn_lstm_model.py` - Gradient clipping
+- `src/models/lstm_model.py` - Gradient clipping
+- `src/train.py` - Salvamento de modelos
+- `src/utils/optuna_optimizer.py` - Gradient clipping
+
+### Documentação
+- [Melhorias Técnicas](implementacoes/melhorias_tecnicas_2026_01_23.md) - Documentação completa
+- [Mudanças Completas](implementacoes/mudancas_completas_2026_01_23_24.md) - Documentação completa de todas as mudanças
+
+### Scripts Criados
+- `src/scripts/analisar_modelos_salvos.py` - Análise de modelos salvos
+- `src/scripts/ver_historico_epochs.py` - Visualização de epochs
+- `src/scripts/teste_rapido_validacao.py` - Validação de testes rápidos
+- `treinar_e_desligar.sh` - Treinamento com desligamento automático
+
+### Status Atual
+- ✅ Implementações completas
+- ✅ 3 de 5 modelos salvos (folds 1-3)
+- ❌ Faltam folds 4 e 5 (melhores resultados: 54.34% e 56.82%)
+- ⏳ Próximo: Retreinar para salvar todos os modelos
+
+---
+
 ## 2025-01-23 - Remoção da Banda Morta
 
 ### Contexto
