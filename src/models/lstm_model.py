@@ -5,15 +5,16 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 from ..config import SEED
+from ..utils.focal_loss import focal_loss
 
 # Fixar seed para reprodutibilidade
 tf.random.set_seed(SEED)
 
 
-def criar_modelo_lstm(n_steps: int, n_features: int, 
-                      lstm_units: int = 50, dropout: float = 0.2,
-                      learning_rate: float = 0.001,
-                      gradient_clip_norm: float = 1.0) -> keras.Model:
+def criar_modelo_lstm(n_steps: int, n_features: int,
+                     lstm_units: int = 50, dropout: float = 0.2,
+                     learning_rate: float = 0.001,
+                     gradient_clip_norm: float = 1.0, use_focal_loss: bool = False) -> keras.Model:
     """
     Cria modelo LSTM puro (Baseline 3).
     
@@ -59,9 +60,16 @@ def criar_modelo_lstm(n_steps: int, n_features: int,
         clipnorm=gradient_clip_norm  # Gradient clipping por norma
     )
     
+    # Escolher loss function
+    if use_focal_loss:
+        # Gamma mais alto (5.0) para focar muito mais em exemplos difíceis
+        loss_fn = focal_loss(gamma=5.0, alpha=0.5)
+    else:
+        loss_fn = 'binary_crossentropy'
+    
     model.compile(
         optimizer=optimizer,
-        loss='binary_crossentropy',
+        loss=loss_fn,
         metrics=['accuracy']
     )
     

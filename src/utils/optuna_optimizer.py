@@ -3,13 +3,17 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.callbacks import LearningRateScheduler
+from tensorflow.keras.optimizers.schedules import CosineDecayRestarts
 from typing import Dict, Any, Callable, Optional, Tuple
 import optuna
 from optuna.trial import Trial
+from sklearn.utils.class_weight import compute_class_weight
 
 from ..config import SEED, HIPERPARAMETROS_LSTM, HIPERPARAMETROS_CNN_LSTM
 from ..models.lstm_model import criar_modelo_lstm
 from ..models.cnn_lstm_model import criar_modelo_cnn_lstm
+from .focal_loss import focal_loss
 
 # Fixar seed para reprodutibilidade
 np.random.seed(SEED)
@@ -58,7 +62,7 @@ def criar_espaco_busca_cnn_lstm(trial: Trial) -> Dict[str, Any]:
 def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
                   X_val: np.ndarray, y_val: np.ndarray,
                   n_steps: int, n_features: int,
-                  epochs: int = 100, verbose: int = 0) -> float:
+                  epochs: int = 100, verbose: int = 0, use_focal_loss: bool = False) -> float:
     """
     Função objetivo para otimização de LSTM.
     
@@ -94,7 +98,8 @@ def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
         lstm_units=hiperparams['lstm_units'],
         dropout=hiperparams['dropout'],
         learning_rate=hiperparams['learning_rate'],
-        gradient_clip_norm=1.0  # Gradient clipping (TCC Seção 4.4)
+        gradient_clip_norm=1.0,  # Gradient clipping (TCC Seção 4.4)
+        use_focal_loss=use_focal_loss
     )
     
     # Converter targets para binário e remover neutros
@@ -110,16 +115,16 @@ def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
     y_train_binary = np.where(y_train_filtered == 1, 1, 0)
     y_val_binary = np.where(y_val_filtered == 1, 1, 0)
     
-    # Calcular class weights para balancear (se houver desbalanceamento)
-    n_class_0 = np.sum(y_train_binary == 0)  # Baixa
-    n_class_1 = np.sum(y_train_binary == 1)  # Alta
-    total = len(y_train_binary)
-    
-    if n_class_0 > 0 and n_class_1 > 0:
-        # Calcular pesos inversamente proporcionais à frequência
-        weight_0 = total / (2 * n_class_0)
-        weight_1 = total / (2 * n_class_1)
-        class_weight = {0: weight_0, 1: weight_1}
+    # Calcular class weights usando sklearn (mais robusto)
+    # Isso previne que o modelo sempre preveja a mesma classe
+    if len(np.unique(y_train_binary)) > 1:
+        classes = np.unique(y_train_binary)
+        weights = compute_class_weight(
+            'balanced',
+            classes=classes,
+            y=y_train_binary
+        )
+        class_weight = {int(cls): float(weight) for cls, weight in zip(classes, weights)}
     else:
         class_weight = None
     
@@ -140,6 +145,23 @@ def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
             verbose=0
         )
     ]
+    
+    # Adicionar Cosine Annealing Scheduler (TCC Seção 4.4)
+    # Melhora convergência e pode aumentar acurácia em 1-3%
+    initial_lr = hiperparams['learning_rate']
+    cosine_schedule = CosineDecayRestarts(
+        initial_learning_rate=initial_lr,
+        first_decay_steps=max(epochs // 2, 10),  # Primeira metade das épocas
+        t_mul=2.0,  # Multiplicador de período
+        m_mul=1.0,  # Multiplicador de learning rate mínimo
+        alpha=1e-7  # Learning rate mínimo
+    )
+    callbacks_list.append(
+        LearningRateScheduler(
+            lambda epoch: cosine_schedule(epoch).numpy(),
+            verbose=0
+        )
+    )
     
     # Treinar modelo
     try:
@@ -178,7 +200,7 @@ def objetivo_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
 def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
                      X_val: np.ndarray, y_val: np.ndarray,
                      n_steps: int, n_features: int,
-                     epochs: int = 100, verbose: int = 0) -> float:
+                     epochs: int = 100, verbose: int = 0, use_focal_loss: bool = False) -> float:
     """
     Função objetivo para otimização de CNN-LSTM.
     
@@ -217,7 +239,8 @@ def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
         lstm_units=hiperparams['lstm_units'],
         dropout=hiperparams['dropout'],
         learning_rate=hiperparams['learning_rate'],
-        gradient_clip_norm=1.0  # Gradient clipping (TCC Seção 4.4)
+        gradient_clip_norm=1.0,  # Gradient clipping (TCC Seção 4.4)
+        use_focal_loss=use_focal_loss
     )
     
     # Converter targets para binário e remover neutros
@@ -233,16 +256,16 @@ def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
     y_train_binary = np.where(y_train_filtered == 1, 1, 0)
     y_val_binary = np.where(y_val_filtered == 1, 1, 0)
     
-    # Calcular class weights para balancear (se houver desbalanceamento)
-    n_class_0 = np.sum(y_train_binary == 0)  # Baixa
-    n_class_1 = np.sum(y_train_binary == 1)  # Alta
-    total = len(y_train_binary)
-    
-    if n_class_0 > 0 and n_class_1 > 0:
-        # Calcular pesos inversamente proporcionais à frequência
-        weight_0 = total / (2 * n_class_0)
-        weight_1 = total / (2 * n_class_1)
-        class_weight = {0: weight_0, 1: weight_1}
+    # Calcular class weights usando sklearn (mais robusto)
+    # Isso previne que o modelo sempre preveja a mesma classe
+    if len(np.unique(y_train_binary)) > 1:
+        classes = np.unique(y_train_binary)
+        weights = compute_class_weight(
+            'balanced',
+            classes=classes,
+            y=y_train_binary
+        )
+        class_weight = {int(cls): float(weight) for cls, weight in zip(classes, weights)}
     else:
         class_weight = None
     
@@ -263,6 +286,23 @@ def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
             verbose=0
         )
     ]
+    
+    # Adicionar Cosine Annealing Scheduler (TCC Seção 4.4)
+    # Melhora convergência e pode aumentar acurácia em 1-3%
+    initial_lr = hiperparams['learning_rate']
+    cosine_schedule = CosineDecayRestarts(
+        initial_learning_rate=initial_lr,
+        first_decay_steps=max(epochs // 2, 10),  # Primeira metade das épocas
+        t_mul=2.0,  # Multiplicador de período
+        m_mul=1.0,  # Multiplicador de learning rate mínimo
+        alpha=1e-7  # Learning rate mínimo
+    )
+    callbacks_list.append(
+        LearningRateScheduler(
+            lambda epoch: cosine_schedule(epoch).numpy(),
+            verbose=0
+        )
+    )
     
     # Treinar modelo
     try:
@@ -299,10 +339,19 @@ def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
             pred_min = np.min(y_pred_proba)
             pred_max = np.max(y_pred_proba)
             pred_std = np.std(y_pred_proba)
+            
+            # Aviso se modelo prevê sempre mesma classe
+            warning = ""
+            if n_pred_1 == 0 or n_pred_neg1 == 0:
+                warning = " ⚠️ MODELO PREVÊ SEMPRE MESMA CLASSE!"
+            
             print(f"     Trial {trial.number}: Pred=[1:{n_pred_1}, -1:{n_pred_neg1}], "
                   f"Val=[1:{n_val_1}, -1:{n_val_neg1}], "
                   f"Proba=[{pred_min:.3f}-{pred_max:.3f}, mean={pred_mean:.3f}, std={pred_std:.3f}], "
-                  f"Acc={acuracia:.4f}")
+                  f"Acc={acuracia:.4f}{warning}")
+        
+        # Limpar sessão após trial
+        keras.backend.clear_session()
         
         return acuracia
     
@@ -310,6 +359,7 @@ def objetivo_cnn_lstm(trial: Trial, X_train: np.ndarray, y_train: np.ndarray,
         # Se houver erro, retornar valor muito baixo
         if verbose > 0:
             print(f"     Erro no trial {trial.number}: {e}")
+        keras.backend.clear_session()
         return 0.0
 
 
@@ -319,7 +369,8 @@ def otimizar_hiperparametros(X_train: np.ndarray, y_train: np.ndarray,
                              n_steps: int, n_features: int,
                              n_trials: int = 20,
                              epochs: int = 30,
-                             verbose: bool = True) -> Tuple[Dict[str, Any], optuna.Study]:
+                             verbose: bool = True,
+                             use_focal_loss: bool = False) -> Tuple[Dict[str, Any], optuna.Study]:
     """
     Otimiza hiperparâmetros usando Optuna.
     
@@ -350,12 +401,12 @@ def otimizar_hiperparametros(X_train: np.ndarray, y_train: np.ndarray,
     if modelo_tipo == 'lstm':
         objetivo = lambda trial: objetivo_lstm(
             trial, X_train, y_train, X_val, y_val,
-            n_steps, n_features, epochs, verbose=0
+            n_steps, n_features, epochs, verbose=0, use_focal_loss=use_focal_loss
         )
     elif modelo_tipo == 'cnn_lstm':
         objetivo = lambda trial: objetivo_cnn_lstm(
             trial, X_train, y_train, X_val, y_val,
-            n_steps, n_features, epochs, verbose=0
+            n_steps, n_features, epochs, verbose=0, use_focal_loss=use_focal_loss
         )
     else:
         raise ValueError(f"[ERRO] Tipo de modelo inválido: {modelo_tipo}")
@@ -380,4 +431,67 @@ def otimizar_hiperparametros(X_train: np.ndarray, y_train: np.ndarray,
         print(f"     Melhor acurácia (validação): {study.best_value:.4f}")
         print(f"     Melhores hiperparâmetros: {melhores_hiperparams}")
     
-    return melhores_hiperparams, study
+    # Retornar também o melhor modelo
+    # Recriar modelo com melhores hiperparâmetros
+    if modelo_tipo == 'lstm':
+        best_model = criar_modelo_lstm(
+            n_steps=n_steps,
+            n_features=n_features,
+            lstm_units=melhores_hiperparams['lstm_units'],
+            dropout=melhores_hiperparams['dropout'],
+            learning_rate=melhores_hiperparams['learning_rate'],
+            use_focal_loss=use_focal_loss
+        )
+    else:  # cnn_lstm
+        best_model = criar_modelo_cnn_lstm(
+            n_steps=n_steps,
+            n_features=n_features,
+            conv_filters=melhores_hiperparams['conv_filters'],
+            conv_kernel_size=melhores_hiperparams['conv_kernel_size'],
+            pool_size=melhores_hiperparams.get('pool_size', 2),
+            lstm_units=melhores_hiperparams['lstm_units'],
+            dropout=melhores_hiperparams['dropout'],
+            learning_rate=melhores_hiperparams['learning_rate'],
+            use_focal_loss=use_focal_loss
+        )
+    
+    # Treinar modelo com melhores hiperparâmetros
+    mask_train = y_train != 0
+    mask_val = y_val != 0
+    X_train_filtered = X_train[mask_train]
+    y_train_filtered = y_train[mask_train]
+    X_val_filtered = X_val[mask_val]
+    y_val_filtered = y_val[mask_val]
+    y_train_binary = np.where(y_train_filtered == 1, 1, 0)
+    y_val_binary = np.where(y_val_filtered == 1, 1, 0)
+    
+    # Class weights
+    if len(np.unique(y_train_binary)) > 1:
+        classes = np.unique(y_train_binary)
+        weights = compute_class_weight('balanced', classes=classes, y=y_train_binary)
+        class_weight = {int(cls): float(weight) for cls, weight in zip(classes, weights)}
+    else:
+        class_weight = None
+    
+    # Callbacks
+    callbacks_list = [
+        keras.callbacks.EarlyStopping(
+            monitor='val_loss',
+            patience=10,
+            restore_best_weights=True,
+            verbose=0
+        )
+    ]
+    
+    # Treinar
+    best_model.fit(
+        X_train_filtered, y_train_binary,
+        validation_data=(X_val_filtered, y_val_binary),
+        epochs=epochs,
+        batch_size=melhores_hiperparams['batch_size'],
+        callbacks=callbacks_list,
+        class_weight=class_weight,
+        verbose=0
+    )
+    
+    return melhores_hiperparams, study, best_model
