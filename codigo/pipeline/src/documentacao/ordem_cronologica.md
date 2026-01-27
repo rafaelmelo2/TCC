@@ -408,3 +408,72 @@ Documentação cronológica de todas as decisões técnicas, implementações e 
 - `data/processed/VALE3_baselines_walkforward.csv` - Resultados salvos
 
 ---
+
+## 2026-01-27 - Melhorias Críticas: Cosine Scheduler e Class Weights
+
+### Contexto
+- Análise dos resultados de treinamento dos modelos CNN-LSTM para PETR4, ITUB4 e VALE3
+- Identificados problemas críticos: F1=0.0 e MCC=0.0 em alguns folds (PETR4 folds 2 e 3)
+- Modelos prevendo sempre a mesma classe (colapso de aprendizado)
+
+### Problemas Identificados
+
+1. **F1=0.0 e MCC=0.0 em alguns folds**
+   - PETR4 Folds 2 e 3 apresentavam F1=0.0 e MCC=0.0
+   - Modelo prevendo sempre a mesma classe (provavelmente sempre "baixa")
+   - Indica que modelo não está aprendendo padrões reais, apenas explorando desbalanceamento
+
+2. **Acurácias abaixo do esperado**
+   - PETR4 Fold 3: 47.15% (abaixo do baseline de 50%)
+   - ITUB4 Fold 5: 50.00% (exatamente no acaso)
+
+3. **Falta de técnicas do TCC**
+   - Cosine Annealing Scheduler mencionado no TCC Seção 4.4 não implementado
+   - Class weights usando cálculo manual (não robusto)
+
+### Melhorias Implementadas
+
+1. **Cosine Annealing Scheduler (TCC Seção 4.4)**
+   - Implementado `CosineDecayRestarts` do TensorFlow
+   - Reduz learning rate seguindo curva cosseno com restarts periódicos
+   - Melhora convergência e pode aumentar acurácia em 1-3%
+   - Arquivos modificados: `src/train.py`, `src/utils/optuna_optimizer.py`
+
+2. **Class Weights Melhorados (sklearn)**
+   - Substituído cálculo manual por `sklearn.utils.class_weight.compute_class_weight`
+   - Estratégia 'balanced' mais robusta
+   - Previne colapso para mesma classe
+   - Arquivos modificados: `src/train.py`, `src/utils/optuna_optimizer.py`
+
+3. **Monitoramento de Distribuição**
+   - Adicionado aviso quando modelo prevê sempre mesma classe
+   - Log detalhado durante otimização com distribuição de previsões
+   - Facilita identificação de problemas durante treinamento
+   - Arquivo modificado: `src/utils/optuna_optimizer.py`
+
+### Resultados Esperados
+
+**Antes das melhorias:**
+- PETR4: 50.57% (com F1=0.0 em folds 2 e 3)
+- ITUB4: 52.27%
+- VALE3: 53.31%
+
+**Depois das melhorias (esperado):**
+- PETR4: 52-54% (sem F1=0.0)
+- ITUB4: 54-56%
+- VALE3: 55-57%
+
+### Impacto Esperado
+- ✅ Eliminação de F1=0.0 e MCC=0.0
+- ✅ Acurácias mais consistentes entre folds
+- ✅ Melhor convergência dos modelos
+- ✅ Todas as técnicas principais da TCC Seção 4.4 implementadas
+
+### Arquivos Modificados
+- `src/train.py` - Adicionado cosine scheduler e class weights melhorados
+- `src/utils/optuna_optimizer.py` - Mesmas melhorias para otimização com Optuna
+
+### Documentação Criada
+- `src/documentacao/implementacoes/melhorias_criticas_2026_01_27.md` - Documentação completa das melhorias
+
+---

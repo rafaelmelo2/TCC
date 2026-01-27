@@ -5,6 +5,8 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 from ..config import SEED
+from ..utils.focal_loss import focal_loss
+from ..utils.label_smoothing_loss import binary_crossentropy_with_label_smoothing
 
 # Fixar seed para reprodutibilidade
 tf.random.set_seed(SEED)
@@ -14,7 +16,8 @@ def criar_modelo_cnn_lstm(n_steps: int, n_features: int,
                          conv_filters: int = 64, conv_kernel_size: int = 2,
                          pool_size: int = 2, lstm_units: int = 50,
                          dropout: float = 0.2, learning_rate: float = 0.001,
-                         gradient_clip_norm: float = 1.0) -> keras.Model:
+                         gradient_clip_norm: float = 1.0, use_focal_loss: bool = False,
+                         use_label_smoothing: bool = False) -> keras.Model:
     """
     Cria modelo híbrido CNN-LSTM (Modelo Principal do TCC).
     
@@ -78,6 +81,8 @@ def criar_modelo_cnn_lstm(n_steps: int, n_features: int,
         layers.Dense(
             1, 
             activation='sigmoid',
+            kernel_initializer='glorot_uniform',  # Xavier uniform
+            bias_initializer='zeros',
             name='output_layer'
         )
     ])
@@ -89,9 +94,23 @@ def criar_modelo_cnn_lstm(n_steps: int, n_features: int,
         clipnorm=gradient_clip_norm  # Gradient clipping por norma
     )
     
+    # Escolher loss function
+    if use_focal_loss and use_label_smoothing:
+        # Focal loss + label smoothing combinados
+        loss_fn = focal_loss(gamma=5.0, alpha=0.5)
+        print("[WARN] Focal loss e label smoothing não podem ser usados juntos. Usando focal loss.")
+    elif use_focal_loss:
+        # Gamma mais alto (5.0) para focar muito mais em exemplos difíceis
+        loss_fn = focal_loss(gamma=5.0, alpha=0.5)
+    elif use_label_smoothing:
+        # Label smoothing para prevenir overconfidence
+        loss_fn = binary_crossentropy_with_label_smoothing(label_smoothing=0.2)
+    else:
+        loss_fn = 'binary_crossentropy'
+    
     model.compile(
         optimizer=optimizer,
-        loss='binary_crossentropy',
+        loss=loss_fn,
         metrics=['accuracy']
     )
     

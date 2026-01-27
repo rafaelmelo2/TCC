@@ -19,6 +19,7 @@ Guia rápido para encontrar informações específicas.
 - [Análise de Sensibilidade](implementacoes/analise_sensibilidade.md)
 - [Correções do Treinamento (2026-01-23)](implementacoes/correcoes_treinamento_2026_01_23.md)
 - [Melhorias Técnicas (2026-01-23)](implementacoes/melhorias_tecnicas_2026_01_23.md) - Gradient clipping, salvamento de modelos
+- [Melhorias Críticas (2026-01-27)](implementacoes/melhorias_criticas_2026_01_27.md) - Cosine Annealing Scheduler, Class Weights melhorados
 - [Mudanças Completas (2026-01-23/24)](implementacoes/mudancas_completas_2026_01_23_24.md) - Documentação completa de todas as implementações
 
 ### Análises
@@ -53,6 +54,10 @@ Guia rápido para encontrar informações específicas.
   - Early stopping com patience=10
   - Máximo de 100 épocas
   - Ajustes de learning rate
+- [Melhorias Críticas (2026-01-27)](implementacoes/melhorias_criticas_2026_01_27.md)
+  - Cosine Annealing Scheduler (TCC Seção 4.4)
+  - Class Weights melhorados (sklearn)
+  - Monitoramento de distribuição de previsões
 
 ### Resultados
 - [Resultados dos Baselines](implementacoes/baselines.md#resultados-walk-forward-vale3)
@@ -64,6 +69,10 @@ Guia rápido para encontrar informações específicas.
   - Correções aplicadas e impacto
   - Acurácia: ~53% (acima de baseline)
   - Análise de problemas e limitações
+- [Melhorias Críticas (2026-01-27)](implementacoes/melhorias_criticas_2026_01_27.md)
+  - Correção de F1=0.0 e MCC=0.0
+  - Implementação de técnicas do TCC faltantes
+  - Resultados esperados após melhorias
 
 ---
 

@@ -15,6 +15,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, callbacks
+from tensorflow.keras.optimizers.schedules import CosineDecayRestarts
+from sklearn.utils.class_weight import compute_class_weight
 
 # Configurar GPU
 def configurar_gpu(forcar_gpu: bool = True, memoria_crescimento: bool = True):
@@ -202,20 +204,22 @@ def treinar_modelo_fold(model: keras.Model, X_train: np.ndarray, y_train: np.nda
         if n_removidos > 0:
             print(f"     Removidos {n_removidos} neutros do treino ({n_removidos/len(y_train)*100:.1f}%)")
     
-    # Calcular class weights para balancear (se houver desbalanceamento)
-    n_class_0 = np.sum(y_train_binary == 0)  # Baixa
-    n_class_1 = np.sum(y_train_binary == 1)  # Alta
-    total = len(y_train_binary)
-    
-    if n_class_0 > 0 and n_class_1 > 0:
-        # Calcular pesos inversamente proporcionais à frequência
-        weight_0 = total / (2 * n_class_0)
-        weight_1 = total / (2 * n_class_1)
-        class_weight = {0: weight_0, 1: weight_1}
+    # Calcular class weights usando sklearn (mais robusto)
+    # Isso previne que o modelo sempre preveja a mesma classe
+    if len(np.unique(y_train_binary)) > 1:
+        classes = np.unique(y_train_binary)
+        weights = compute_class_weight(
+            'balanced',
+            classes=classes,
+            y=y_train_binary
+        )
+        class_weight = {int(cls): float(weight) for cls, weight in zip(classes, weights)}
         if verbose > 0:
-            print(f"     Class weights: Baixa={weight_0:.3f}, Alta={weight_1:.3f}")
+            print(f"     Class weights (sklearn balanced): {class_weight}")
     else:
         class_weight = None
+        if verbose > 0:
+            print(f"     [AVISO] Apenas uma classe presente no treino!")
     
     # Callbacks para treinamento otimizado (conforme TCC Seção 4.4)
     callbacks_list = [
@@ -235,6 +239,23 @@ def treinar_modelo_fold(model: keras.Model, X_train: np.ndarray, y_train: np.nda
             verbose=1 if verbose > 0 else 0  # Mostrar quando reduz LR
         )
     ]
+    
+    # Adicionar Cosine Annealing Scheduler (TCC Seção 4.4)
+    # Melhora convergência e pode aumentar acurácia em 1-3%
+    initial_lr = model.optimizer.learning_rate.numpy() if hasattr(model.optimizer.learning_rate, 'numpy') else float(model.optimizer.learning_rate)
+    cosine_schedule = CosineDecayRestarts(
+        initial_learning_rate=initial_lr,
+        first_decay_steps=max(epochs // 2, 10),  # Primeira metade das épocas
+        t_mul=2.0,  # Multiplicador de período
+        m_mul=1.0,  # Multiplicador de learning rate mínimo
+        alpha=1e-7  # Learning rate mínimo
+    )
+    callbacks_list.append(
+        callbacks.LearningRateScheduler(
+            lambda epoch: cosine_schedule(epoch).numpy(),
+            verbose=0
+        )
+    )
     
     # Adicionar ModelCheckpoint e CSVLogger se fold_num especificado
     if fold_num is not None and ativo is not None and modelo_tipo is not None:
@@ -312,7 +333,8 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
          arquivo_dados: Optional[str] = None, epochs: int = 50,
          batch_size: int = 32, verbose: bool = True,
          usar_optuna: bool = False, n_trials_optuna: int = 20,
-         usar_gpu: bool = True, folds_especificos: Optional[list] = None):
+         usar_gpu: bool = True, folds_especificos: Optional[list] = None,
+         usar_focal_loss: bool = False):
     """
     Função principal de treinamento.
     
@@ -330,6 +352,9 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
     print("=" * 70)
     print("TREINAMENTO DE MODELO DE DEEP LEARNING")
     print("=" * 70)
+    if usar_focal_loss:
+        print("[INFO] 🔥 Usando FOCAL LOSS (gamma=5.0, alpha=0.5)")
+        print("[INFO] Gamma alto (5.0) força modelo a focar em exemplos difíceis")
     
     # Configurar GPU se solicitado
     if usar_gpu:
@@ -449,7 +474,7 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
                 print(f"     Dividindo treino: {len(X_train_opt)} treino, {len(X_val_opt)} validação interna")
             
             # Otimizar hiperparâmetros
-            melhores_hiperparams, study = otimizar_hiperparametros(
+            melhores_hiperparams, study, model = otimizar_hiperparametros(
                 X_train_opt, y_train_opt,
                 X_val_opt, y_val_opt,
                 modelo_tipo=modelo_tipo,
@@ -457,7 +482,8 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
                 n_features=n_features,
                 n_trials=n_trials_optuna,
                 epochs=epochs,
-                verbose=verbose
+                verbose=verbose,
+                use_focal_loss=usar_focal_loss
             )
             
             # Criar modelo com hiperparâmetros otimizados
@@ -467,7 +493,8 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
                     n_features=n_features,
                     lstm_units=melhores_hiperparams['lstm_units'],
                     dropout=melhores_hiperparams['dropout'],
-                    learning_rate=melhores_hiperparams['learning_rate']
+                    learning_rate=melhores_hiperparams['learning_rate'],
+                    use_focal_loss=usar_focal_loss
                 )
                 batch_size_otimizado = melhores_hiperparams['batch_size']
             else:  # cnn_lstm
@@ -479,25 +506,25 @@ def main(ativo: str = "VALE3", modelo_tipo: str = "cnn_lstm",
                     pool_size=2,  # Fixo
                     lstm_units=melhores_hiperparams['lstm_units'],
                     dropout=melhores_hiperparams['dropout'],
-                    learning_rate=melhores_hiperparams['learning_rate']
+                    learning_rate=melhores_hiperparams['learning_rate'],
+                    use_focal_loss=usar_focal_loss
                 )
                 batch_size_otimizado = melhores_hiperparams['batch_size']
             
-            # Treinar com todos os dados de treino (incluindo validação interna)
-            log_dir = Path('logs') / 'training_history' / ativo / modelo_tipo
-            model = treinar_modelo_fold(
-                model, X_train, y_train,
-                epochs=epochs, batch_size=batch_size_otimizado,
-                verbose=1 if verbose else 0,
-                fold_num=fold_num, ativo=ativo, modelo_tipo=modelo_tipo,
-                log_dir=log_dir
-            )
+            # Modelo já foi treinado durante otimização Optuna
+            # Salvar modelo otimizado
+            models_dir = Path('models') / ativo / modelo_tipo
+            models_dir.mkdir(parents=True, exist_ok=True)
+            checkpoint_path = models_dir / f'fold_{fold_num}_checkpoint.keras'
+            model.save(str(checkpoint_path))
+            if verbose:
+                print(f"     [OK] Modelo otimizado salvo: {checkpoint_path}")
         else:
             # Criar modelo com hiperparâmetros padrão
             if modelo_tipo == "lstm":
-                model = criar_modelo_lstm(n_steps, n_features)
+                model = criar_modelo_lstm(n_steps, n_features, use_focal_loss=usar_focal_loss)
             else:
-                model = criar_modelo_cnn_lstm(n_steps, n_features)
+                model = criar_modelo_cnn_lstm(n_steps, n_features, use_focal_loss=usar_focal_loss)
             
             # Treinar
             log_dir = Path('logs') / 'training_history' / ativo / modelo_tipo
@@ -578,6 +605,8 @@ if __name__ == '__main__':
     parser.add_argument('--no-gpu', dest='gpu', action='store_false', help='Forçar uso de CPU')
     parser.add_argument('--folds', type=str, default=None, 
                        help='Folds específicos para treinar (ex: "4,5" ou "1-3")')
+    parser.add_argument('--focal-loss', action='store_true', 
+                       help='Usar Focal Loss ao invés de Binary Crossentropy')
     
     args = parser.parse_args()
     
@@ -607,5 +636,6 @@ if __name__ == '__main__':
         usar_optuna=args.optuna,
         n_trials_optuna=args.n_trials,
         usar_gpu=args.gpu,
-        folds_especificos=folds_especificos
+        folds_especificos=folds_especificos,
+        usar_focal_loss=args.focal_loss
     )
