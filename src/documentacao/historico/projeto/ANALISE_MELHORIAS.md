@@ -1,11 +1,11 @@
 # Análise de Melhorias Necessárias
 
 **Data:** 2026-01-27  
-**Status:** Análise dos resultados e identificação de melhorias
+**Status:** Referência (diagnóstico F1/MCC e melhorias)
 
 ---
 
-## 🔴 Problemas Identificados
+## 1. Problemas Identificados
 
 ### 1. F1=0.0 e MCC=0.0 em alguns folds
 **Problema:** PETR4 Folds 2 e 3 têm F1=0.0 e MCC=0.0
@@ -28,7 +28,7 @@
 
 ---
 
-## ✅ O que JÁ está implementado (do TCC)
+## 2. O que JÁ está implementado (do TCC)
 
 1. ✅ Walk-forward validation (Seção 4.4)
 2. ✅ Otimização bayesiana (Optuna) (Seção 4.4.2)
@@ -42,37 +42,16 @@
 
 ---
 
-## ⏳ O que FALTA implementar (do TCC)
+## 3. O que FALTA implementar (do TCC)
 
-### 1. Cosine Annealing Scheduler (Seção 4.4) 🔴 CRÍTICO
-**Status:** Não implementado  
-**Benefício esperado:** +1-3% acurácia  
-**Prioridade:** ALTA
+**Nota:** Itens 1 e 2 abaixo **já foram implementados** em 2026-01-27. Ver [melhorias_criticas_2026_01_27.md](../implementacoes/melhorias_criticas_2026_01_27.md) e [RESUMO_MELHORIAS.md](RESUMO_MELHORIAS.md) (ambos neste histórico).
 
-**Implementação necessária:**
-```python
-from tensorflow.keras.callbacks import LearningRateScheduler
-from tensorflow.keras.optimizers.schedules import CosineDecayRestarts
+### 1. Cosine Annealing Scheduler (Seção 4.4) ✅ IMPLEMENTADO
+**Status:** Implementado (2026-01-27) em `src/train.py` e `src/utils/optuna_optimizer.py`  
+**Implementação:** `CosineDecayRestarts` do TensorFlow + `LearningRateScheduler` callback.
 
-# Cosine annealing com restarts
-cosine_schedule = CosineDecayRestarts(
-    initial_learning_rate=learning_rate,
-    first_decay_steps=epochs // 2,
-    t_mul=2.0,
-    m_mul=1.0,
-    alpha=1e-7
-)
-```
-
-### 2. Melhorias em Class Weights 🔴 CRÍTICO
-**Status:** Implementação básica (pode melhorar)  
-**Problema:** Alguns folds ainda colapsam para mesma classe  
-**Prioridade:** ALTA
-
-**Melhorias:**
-- Usar `sklearn.utils.class_weight.compute_class_weight`
-- Adicionar monitoramento de distribuição de previsões
-- Considerar focal loss para classes desbalanceadas
+### 2. Melhorias em Class Weights ✅ IMPLEMENTADO
+**Status:** Implementado (2026-01-27): `sklearn.utils.class_weight.compute_class_weight`, monitoramento de distribuição de previsões, focal loss (`src/utils/focal_loss.py`). Alguns folds ainda podem colapsar (limitação do período/dados).
 
 ### 3. Features Adicionais (Seção 4.2) 🟡 MÉDIO
 **Status:** Não implementado  
@@ -106,7 +85,7 @@ cosine_schedule = CosineDecayRestarts(
 
 ---
 
-## 📋 Plano de Ação Imediato
+## 4. Plano de Ação Imediato
 
 ### Fase 1: Correções Críticas (HOJE)
 1. ✅ Implementar Cosine Annealing Scheduler
@@ -121,7 +100,7 @@ cosine_schedule = CosineDecayRestarts(
 
 ---
 
-## 🎯 Resultados Esperados após Melhorias
+## 5. Resultados Esperados após Melhorias
 
 **Atual:**
 - VALE3: 53.31%
@@ -136,7 +115,7 @@ cosine_schedule = CosineDecayRestarts(
 
 ---
 
-## 📝 Notas Técnicas
+## 6. Notas Técnicas
 
 ### Por que F1=0.0 acontece?
 Quando o modelo prevê sempre a mesma classe (ex: sempre "baixa"), temos:

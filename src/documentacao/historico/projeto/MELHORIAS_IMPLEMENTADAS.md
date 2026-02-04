@@ -1,6 +1,11 @@
 # Melhorias Implementadas - 2026-01-27
 
-## ✅ Melhorias Críticas Implementadas
+**Data:** 2026-01-27  
+**Status:** Referência (Cosine Annealing, class weights, focal loss, etc.)
+
+---
+
+## 1. Melhorias Críticas Implementadas
 
 ### 1. Cosine Annealing Scheduler (TCC Seção 4.4)
 **Status:** ✅ Implementado  
@@ -66,7 +71,7 @@ Trial 5: Pred=[1:0, -1:716], Val=[1:349, -1:367], ...
 
 ---
 
-## 📊 Resultados Esperados
+## 2. Resultados Esperados
 
 ### Antes das Melhorias:
 - VALE3: 53.31%
@@ -81,7 +86,7 @@ Trial 5: Pred=[1:0, -1:716], Val=[1:349, -1:367], ...
 
 ---
 
-## 🔄 Próximos Passos
+## 3. Próximos Passos
 
 ### Fase 2: Features Adicionais (Próximo)
 1. Amplitude high-low normalizada
@@ -99,7 +104,7 @@ Trial 5: Pred=[1:0, -1:716], Val=[1:349, -1:367], ...
 
 ---
 
-## 🧪 Como Testar
+## 4. Como Testar
 
 ### Teste Rápido (1 fold):
 ```bash
@@ -114,7 +119,7 @@ uv run python src/train.py --ativo PETR4 --modelo cnn_lstm --optuna --n-trials 5
 
 ---
 
-## 📝 Notas Técnicas
+## 5. Notas Técnicas
 
 ### Cosine Annealing Scheduler
 - Reduz learning rate seguindo curva cosseno
@@ -128,7 +133,7 @@ uv run python src/train.py --ativo PETR4 --modelo cnn_lstm --optuna --n-trials 5
 
 ---
 
-## ✅ Checklist de Validação
+## 6. Checklist de Validação
 
 - [x] Cosine scheduler implementado
 - [x] Class weights melhorados

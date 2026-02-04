@@ -23,16 +23,24 @@ from src.config import (
     TAMANHO_TREINO_BARRAS, TAMANHO_TESTE_BARRAS, EMBARGO_BARRAS,
     JANELA_TEMPORAL_STEPS, SEED
 )
+from src.utils.focal_loss import focal_loss
 
 
 def carregar_modelo_fold(ativo: str, modelo_tipo: str, fold: int) -> keras.Model:
-    """Carrega modelo salvo de um fold específico."""
+    """Carrega modelo salvo de um fold específico.
+    
+    Os checkpoints CNN-LSTM foram treinados com focal_loss(gamma=5.0, alpha=0.5).
+    A closure interna é serializada como 'focal_loss_fixed'; é preciso passá-la
+    em custom_objects para o Keras conseguir carregar o modelo.
+    """
     model_path = Path('models') / ativo / modelo_tipo / f'fold_{fold}_checkpoint.keras'
     
     if not model_path.exists():
         raise FileNotFoundError(f"Modelo não encontrado: {model_path}")
     
-    return keras.models.load_model(model_path)
+    # Mesmos gamma/alpha usados no treino (cnn_lstm_model.py)
+    custom_objects = {'focal_loss_fixed': focal_loss(gamma=5.0, alpha=0.5)}
+    return keras.models.load_model(model_path, custom_objects=custom_objects)
 
 
 def analisar_modelo_fold(model: keras.Model, ativo: str, fold_num: int,

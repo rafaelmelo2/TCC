@@ -8,14 +8,25 @@ Esta pasta contém toda a documentação técnica necessária para escrever o TC
 
 ```
 documentacao/
-├── ordem_cronologica.md          # Timeline completa de decisões e implementações
-├── decisoes_tecnicas/            # Justificativas detalhadas de decisões
-│   ├── banda_morta.md
+├── INDICE.md                     # Índice principal (comece aqui)
+├── README.md                     # Este arquivo
+├── ordem_cronologica.md          # Timeline de decisões e implementações
+├── periodo_dados.md              # Período exato dos dados
+├── decisoes_tecnicas/            # Justificativas de decisões
+│   └── banda_morta.md
+├── implementacoes/               # Metodologia e resultados atuais (TCC)
+│   ├── baselines.md
+│   ├── walk_forward_validation.md
+│   ├── resultados_consolidados_2026_02_03.md
 │   └── ...
-└── implementacoes/               # Documentação de funcionalidades
-    ├── baselines.md
-    ├── walk_forward_validation.md
-    └── ...
+├── projeto/                      # Cronograma e planejamento
+│   ├── PROXIMOS_PASSOS_CONSOLIDADO.md
+│   ├── CRONOGRAMA.md             # Plano 30 dias (TCC geral)
+│   └── CRONOGRAMA_CODIGO.md      # Checklist desenvolvimento código
+└── historico/                    # Documentação arquivada (consultar se precisar)
+    ├── README.md
+    ├── implementacoes/           # Correções e melhorias já incorporadas
+    └── projeto/                  # Análises e guias pontuais
 ```
 
 ---
@@ -39,9 +50,11 @@ documentacao/
    - Resultados obtidos
    - Referências para seções do TCC
 
-### Formato
+### Formato (padrão dos .md)
 
-- **Sempre em tópicos** (não parágrafos)
+- **Cabeçalho:** `# Título` → linha em branco → `**Data:** YYYY-MM-DD` → `**Status:** ...` → `---` → conteúdo
+- **Seções:** `## 1. Nome`, `## 2. Nome`, etc.; subseções com `###`
+- **Conteúdo:** sempre em tópicos (bullets), não parágrafos longos
 - **Dados concretos** (métricas, percentuais)
 - **Justificativas claras** (por quê)
 - **Impacto mensurável** (antes/depois)

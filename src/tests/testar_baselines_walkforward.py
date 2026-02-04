@@ -1,5 +1,16 @@
-"""Script para testar baselines com validação walk-forward."""
+"""Script para testar baselines com validação walk-forward.
 
+Conforme TCC Seção 4: comparar modelo proposto (CNN-LSTM) com baselines
+Naive/Drift, ARIMA e Prophet em validação walk-forward.
+
+Uso:
+  uv run python src/tests/testar_baselines_walkforward.py --ativo PETR4
+  uv run python src/tests/testar_baselines_walkforward.py --ativo VALE3
+  uv run python src/tests/testar_baselines_walkforward.py --ativo ITUB4
+  uv run python src/tests/testar_baselines_walkforward.py --todos  # os 3 ativos
+"""
+
+import argparse
 import os
 import sys
 import warnings
@@ -20,7 +31,12 @@ from src.models.baselines import NaiveBaseline, DriftBaseline, ARIMABaseline
 from src.models.prophet_model import ProphetBaseline
 from src.utils.validation import WalkForwardValidator
 from src.utils.metrics import calcular_metricas_preditivas, calcular_acuracia_direcional
-from src.config import TAMANHO_TREINO_BARRAS, TAMANHO_TESTE_BARRAS, EMBARGO_BARRAS
+from src.config import (
+    TAMANHO_TREINO_BARRAS,
+    TAMANHO_TESTE_BARRAS,
+    EMBARGO_BARRAS,
+    obter_nome_arquivo_dados,
+)
 
 
 def testar_baseline(baseline, nome, df_features, validator):
@@ -62,62 +78,57 @@ def testar_baseline(baseline, nome, df_features, validator):
     return results
 
 
-def main():
-    print("=" * 70)
-    print("TESTE DE BASELINES COM WALK-FORWARD VALIDATION")
-    print("=" * 70)
-    
-    ativo = "VALE3"
-    from ..config import obter_nome_arquivo_dados
+def rodar_para_ativo(ativo: str) -> bool:
+    """Executa teste de baselines walk-forward para um ativo. Retorna True se ok."""
     arquivo = f'data/raw/{obter_nome_arquivo_dados(ativo)}'
-    
+
     if not os.path.exists(arquivo):
         print(f"[ERRO] Arquivo não encontrado: {arquivo}")
-        return
-    
+        return False
+
     print(f"\n[1/4] Carregando dados de {ativo}...")
     df = carregar_dados(arquivo, verbose=False)
     print(f"[OK] Dados carregados: {df.shape}")
-    
+
     print(f"\n[2/4] Criando features...")
     df_features = criar_features(df, verbose=False)
     print(f"[OK] Features criadas: {df_features.shape}")
-    
+
     if len(df_features) < TAMANHO_TREINO_BARRAS + TAMANHO_TESTE_BARRAS + EMBARGO_BARRAS:
         train_size = min(1000, len(df_features) // 3)
         test_size = min(100, len(df_features) // 10)
     else:
         train_size = TAMANHO_TREINO_BARRAS
         test_size = TAMANHO_TESTE_BARRAS
-    
+
     print(f"\n[3/4] Criando validador (Treino: {train_size}, Teste: {test_size}, Embargo: {EMBARGO_BARRAS})...")
     validator = WalkForwardValidator(train_size=train_size, test_size=test_size, embargo=EMBARGO_BARRAS)
     folds_info = validator._gerar_folds(len(df_features))
     print(f"[OK] {len(folds_info)} folds serão gerados")
-    
+
     print(f"\n[4/4] Testando baselines...")
     resultados = {}
-    
+
     resultados['Naive'] = testar_baseline(NaiveBaseline(), 'Naive', df_features, validator)
     resultados['Drift'] = testar_baseline(DriftBaseline(), 'Drift', df_features, validator)
-    
+
     try:
         resultados['ARIMA'] = testar_baseline(ARIMABaseline(max_p=2, max_d=1, max_q=2), 'ARIMA', df_features, validator)
     except Exception as e:
         print(f"[!] ARIMA falhou: {e}")
-    
+
     try:
         resultados['Prophet'] = testar_baseline(ProphetBaseline(), 'Prophet', df_features, validator)
     except Exception as e:
         print(f"[!] Prophet falhou: {e}")
-    
+
     comparacao = []
     for nome, res in resultados.items():
         if res and 'metricas_finais' in res:
-            row = {'Baseline': nome, 'N_Folds': res['n_folds'], 'N_Teste': res['total_test_samples']}
+            row = {'Ativo': ativo, 'Baseline': nome, 'N_Folds': res['n_folds'], 'N_Teste': res['total_test_samples']}
             row.update(res['metricas_finais'])
             comparacao.append(row)
-    
+
     if comparacao:
         df_comparacao = pd.DataFrame(comparacao)
         output_dir = Path('data/processed')
@@ -126,10 +137,10 @@ def main():
         df_comparacao.to_csv(arquivo_resultados, index=False)
         print(f"\n[OK] Resultados salvos em: {arquivo_resultados}")
         print("\n" + "=" * 70)
-        print("RESULTADOS COMPARATIVOS")
+        print(f"RESULTADOS {ativo}")
         print("=" * 70)
         print(df_comparacao.to_string(index=False))
-        
+
         print("\n" + "=" * 70)
         print("MELHORES BASELINES POR MÉTRICA")
         print("=" * 70)
@@ -137,7 +148,35 @@ def main():
             if metrica in df_comparacao.columns:
                 melhor = df_comparacao.loc[df_comparacao[metrica].idxmax()]
                 print(f"{metrica.upper()}: {melhor['Baseline']} ({melhor[metrica]:.4f})")
-    
+
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Testa baselines (Naive, Drift, ARIMA, Prophet) com validação walk-forward.'
+    )
+    g = parser.add_mutually_exclusive_group(required=True)
+    g.add_argument('--ativo', choices=['PETR4', 'VALE3', 'ITUB4'], help='Ativo a testar')
+    g.add_argument('--todos', action='store_true', help='Executar para os 3 ativos (PETR4, VALE3, ITUB4)')
+    args = parser.parse_args()
+
+    if args.todos:
+        ativos = ['PETR4', 'VALE3', 'ITUB4']
+    else:
+        ativos = [args.ativo]
+
+    print("=" * 70)
+    print("TESTE DE BASELINES COM WALK-FORWARD VALIDATION")
+    print("=" * 70)
+
+    for i, ativo in enumerate(ativos, 1):
+        if len(ativos) > 1:
+            print(f"\n{'#'*70}")
+            print(f"# ATIVO {i}/{len(ativos)}: {ativo}")
+            print(f"{'#'*70}")
+        rodar_para_ativo(ativo)
+
     print("\n" + "=" * 70)
     print("TESTE CONCLUÍDO")
     print("=" * 70)

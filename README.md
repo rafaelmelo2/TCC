@@ -2,6 +2,8 @@
 
 Pipeline de predição automática de indicativos financeiros para Bolsa de Valores Considerando o Aspecto Temporal.
 
+**Documentação:** Toda a documentação técnica (implementações, decisões, cronograma, melhorias) está em [src/documentacao/](src/documentacao/) — índice em [INDICE.md](src/documentacao/INDICE.md). Comandos para rodar o pipeline: [COMANDOS_RODAR_TUDO.md](COMANDOS_RODAR_TUDO.md). Resumo para reunião com professor: [RESUMO_TCC_REUNIAO_PROFESSOR.md](RESUMO_TCC_REUNIAO_PROFESSOR.md).
+
 ## Descrição
 
 Este projeto implementa um modelo híbrido CNN+LSTM para prever a direção de movimentos de preços intradiários (barras de 15 minutos) em ações líquidas da B3.

@@ -1,6 +1,11 @@
 # Arquitetura dos Modelos de Deep Learning
 
-## Estrutura do Projeto
+**Data:** 2025-01-23  
+**Status:** Referência (estrutura `src/models/`)
+
+---
+
+## 1. Estrutura do Projeto
 
 ### Organização dos Modelos
 
@@ -21,7 +26,7 @@ src/models/
 
 ---
 
-## Modelos Implementados
+## 2. Modelos Implementados
 
 ### 1. Baselines (Estatísticos/Simples)
 
@@ -94,7 +99,7 @@ Dense(1, sigmoid) → Classificação binária
 
 ---
 
-## Como os Modelos são Usados
+## 3. Como os Modelos são Usados
 
 ### Script de Treinamento: `train.py`
 
@@ -122,7 +127,7 @@ model = criar_modelo_cnn_lstm(n_steps=60, n_features=12)
 
 ---
 
-## Parâmetros dos Modelos
+## 4. Parâmetros dos Modelos
 
 ### LSTM
 - `n_steps`: 60 barras (janela temporal)
@@ -143,7 +148,7 @@ model = criar_modelo_cnn_lstm(n_steps=60, n_features=12)
 
 ---
 
-## Como Explicar para o Professor
+## 5. Como Explicar para o Professor
 
 ### Estrutura do Projeto
 "Organizei os modelos em arquivos separados para facilitar manutenção e reutilização. Cada modelo tem sua própria implementação seguindo o padrão do projeto."
@@ -169,7 +174,7 @@ Isso permite capturar padrões em múltiplas escalas temporais, o que é importa
 
 ---
 
-## Referências no TCC
+## 6. Referências no TCC
 
 - **Seção 4.3**: Arquitetura dos Modelos
 - **Seção 3.2**: Baselines para Comparação

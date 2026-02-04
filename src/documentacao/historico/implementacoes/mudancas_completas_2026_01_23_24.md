@@ -1,8 +1,7 @@
 # Documentação Completa de Mudanças - 23-24/01/2026
 
 **Data:** 2026-01-23 a 2026-01-24  
-**Tipo:** Implementação completa de melhorias técnicas e correções  
-**Status:** Implementado e parcialmente testado
+**Status:** Implementado (consolidado; detalhes por tema em [correcoes_treinamento_2026_01_23.md](correcoes_treinamento_2026_01_23.md), [melhorias_tecnicas_2026_01_23.md](melhorias_tecnicas_2026_01_23.md), [melhorias_criticas_2026_01_27.md](melhorias_criticas_2026_01_27.md))
 
 ---
 

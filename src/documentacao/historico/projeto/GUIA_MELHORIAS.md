@@ -1,7 +1,7 @@
 # Guia de Melhorias - Como Aumentar a Acurácia
 
 **Data:** 2026-01-23  
-**Status Atual:** Acurácia 52.51% com CNN-LSTM
+**Status:** Referência (como aumentar acurácia, técnicas TCC)
 
 ---
 
@@ -333,8 +333,8 @@ uv run python src/train.py --ativo VALE3 --modelo cnn_lstm --optuna --n-trials 5
 
 ## 11. Documentação Completa
 
-- [Melhorias Técnicas](src/documentacao/implementacoes/melhorias_tecnicas_2026_01_23.md)
-- [Correções do Treinamento](src/documentacao/implementacoes/correcoes_treinamento_2026_01_23.md)
+- [Melhorias Técnicas](../implementacoes/melhorias_tecnicas_2026_01_23.md)
+- [Correções do Treinamento](../implementacoes/correcoes_treinamento_2026_01_23.md)
 
 ---
 

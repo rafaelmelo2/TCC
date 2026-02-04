@@ -1,12 +1,12 @@
-cat > /home/rafael/Arquivos/TCC/codigo/pipeline/GUIA_DADOS_TEMPO_REAL.md << 'EOF'
 # Guia: Dados Necessários para Previsão em Tempo Real
 
 **Data:** 2026-01-26  
-**Objetivo:** Explicar quais dados são necessários e como obtê-los em tempo real
+**Status:** Referência operacional  
+**Objetivo:** Explicar quais dados são necessários e como obtê-los em tempo real para previsão em tempo real.
 
 ---
 
-## 📋 Dados Necessários como Input
+## 1. Dados Necessários como Input
 
 ### Formato dos Dados
 
@@ -57,7 +57,7 @@ dados = pd.DataFrame({
 
 ---
 
-## 🔄 Como Obter Dados em Tempo Real
+## 2. Como Obter Dados em Tempo Real
 
 ### Opção 1: MetaTrader 5 (Recomendado)
 
@@ -210,7 +210,7 @@ df = df.tail(60)
 
 ---
 
-## 🚀 Script de Previsão em Tempo Real
+## 3. Script de Previsão em Tempo Real
 
 ### Versão Melhorada (aceita DataFrame diretamente)
 
@@ -235,7 +235,7 @@ print(f"Probabilidade: {resultado['probabilidade']:.2%}")
 
 ---
 
-## 📊 Fluxo Completo de Previsão em Tempo Real
+## 4. Fluxo Completo de Previsão em Tempo Real
 
 ### 1. Obter Dados Atualizados
 
@@ -276,7 +276,7 @@ else:
 
 ---
 
-## ⚠️ Importante: Normalização
+## 5. Importante: Normalização
 
 **PROBLEMA ATUAL:** O script cria um scaler novo a cada previsão.
 
@@ -286,7 +286,7 @@ else:
 
 ---
 
-## 📝 Checklist para Previsão em Tempo Real
+## 6. Checklist para Previsão em Tempo Real
 
 - [ ] Ter acesso a dados em tempo real (MT5, API, etc.)
 - [ ] Obter últimas 60 barras de 15 minutos
@@ -297,7 +297,7 @@ else:
 
 ---
 
-## 🎯 Resumo
+## 7. Resumo
 
 **Dados necessários:**
 - ✅ 60 barras de 15 minutos

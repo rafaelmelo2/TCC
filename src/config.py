@@ -206,10 +206,12 @@ HIPERPARAMETROS_PADRAO_LSTM = {
 # CONFIGURAÇÕES DE BACKTEST
 # ============================================================================
 
-# Custos de transação B3 (usado em backtest e possivelmente em análise de custos)
-CUSTO_CORRETAGEM = 10.0           # R$ fixo por operação
-CUSTO_TAXA_PROPORCIONAL = 0.0003  # 0.03% do volume negociado
-CUSTO_SLIPPAGE = 0.0001           # 0.01% de slippage
+# Custos de transação para backtest (B3 + corretora). Fontes documentadas em
+# src/documentacao/implementacoes/backtesting.md (seção Fontes).
+# Valores atualizados em fev/2025 conforme tarifas vigentes.
+CUSTO_CORRETAGEM = 0.0            # R$ por operação. Corretagem zero é padrão (Clear R$ 0; XP R$ 2,90–4,90).
+CUSTO_TAXA_PROPORCIONAL = 0.0003  # 0,03% do volume — B3 operações regulares (Neg+CCP+TTA); day trade ~0,023%.
+CUSTO_SLIPPAGE = 0.0005           # 0,05% do valor — faixa realista (0,05%–0,1%); 0,01% subestima custo.
 
 # Capital inicial padrão para backtests (usado em backtest)
 CAPITAL_INICIAL = 100000.0  # R$ 100.000

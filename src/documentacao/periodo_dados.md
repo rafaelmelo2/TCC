@@ -1,5 +1,10 @@
 # Período Exato dos Dados
 
+**Data:** 2025-01-23  
+**Status:** Referência (config em `src/config.py`)
+
+---
+
 ## Informação Crítica
 
 **IMPORTANTE**: Os arquivos de dados estão nomeados como `{TICKER}_M15_20200101_20251231.csv`, mas os dados reais **não começam em 01/01/2020**.
