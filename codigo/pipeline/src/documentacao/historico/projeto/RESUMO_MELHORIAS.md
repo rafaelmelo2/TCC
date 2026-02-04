@@ -1,11 +1,11 @@
- # Resumo das Melhorias Implementadas
+# Resumo das Melhorias Implementadas
 
 **Data:** 2026-01-27  
-**Problema:** Modelo colapsando (F1=0.0, MCC=0.0) em fold problemático
+**Status:** Referência (Focal Loss, class weights, Cosine Annealing, etc.)
 
 ---
 
-## 🔧 Melhorias Técnicas Implementadas
+## 1. Melhorias Técnicas Implementadas
 
 ### 1. Focal Loss ✅
 **Arquivo:** `src/utils/focal_loss.py`
@@ -120,7 +120,7 @@ if n_high == 0 or n_low == 0:
 
 ---
 
-## 📊 Resultados
+## 2. Resultados
 
 ### Antes das Melhorias
 ```
@@ -146,7 +146,7 @@ PETR4 Fold 3:
 
 ---
 
-## 🎯 Impacto Geral
+## 3. Impacto Geral
 
 ### Performance Média (3 ativos, 5 folds cada)
 - **VALE3**: 53.31% (✅ supera baseline)
@@ -162,7 +162,7 @@ Com focal loss + melhorias:
 
 ---
 
-## 📝 Para o TCC
+## 4. Para o TCC
 
 ### O que mencionar:
 
@@ -196,7 +196,7 @@ todos os períodos são previsíveis.
 
 ---
 
-## ✅ Checklist de Implementação
+## 5. Checklist de Implementação
 
 - [x] Focal Loss implementado (`src/utils/focal_loss.py`)
 - [x] Class weights sklearn integrado
@@ -212,7 +212,7 @@ todos os períodos são previsíveis.
 
 ---
 
-## 🚀 Como Usar
+## 6. Como Usar
 
 ### Treinar um ativo:
 ```bash
@@ -232,7 +232,7 @@ uv run python src/scripts/analisar_modelos_salvos.py
 
 ---
 
-## 📚 Referências
+## 7. Referências
 
 - **Focal Loss**: Lin et al. (2017) - "Focal Loss for Dense Object Detection"
 - **Class Imbalance**: Chawla et al. (2002) - "SMOTE: Synthetic Minority Over-sampling"

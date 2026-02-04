@@ -1,6 +1,51 @@
 # Ordem Cronológica - Desenvolvimento do TCC
 
+**Data:** 2025-01-23 a 2026-02-03  
+**Status:** Mantido (timeline de decisões e implementações)
+
 Documentação cronológica de todas as decisões técnicas, implementações e análises realizadas.
+
+---
+
+## 2026-01-27 - Limpeza de Arquivos Obsoletos
+
+### Contexto
+- Projeto acumulou vários arquivos duplicados e obsoletos durante desenvolvimento
+- Necessidade de organizar estrutura para facilitar manutenção
+- Documentos consolidados substituem versões antigas
+
+### Arquivos Removidos
+
+1. **PROXIMOS_PASSOS.md**
+   - Substituído por `PROXIMOS_PASSOS_CONSOLIDADO.md`
+   - Versão consolidada mais completa e atualizada
+   - Inclui cronograma e prioridades claras
+
+2. **ESTRATEGIA_PROXIMOS_PASSOS.md**
+   - Informações consolidadas em `PROXIMOS_PASSOS_CONSOLIDADO.md`
+   - Recomendações já implementadas ou documentadas
+
+3. **scripts/treinar_folds_4_5.sh**
+   - Script específico para folds 4 e 5 não mais necessário
+   - Funcionalidade coberta por `retreinar_completo.sh` e `treinar_outros_ativos.sh`
+   - Treinamento completo agora é padrão
+
+### Arquivos Mantidos (com justificativa)
+
+- **ANALISE_MELHORIAS.md**, **MELHORIAS_IMPLEMENTADAS.md**, **RESUMO_MELHORIAS.md**, **GUIA_MELHORIAS.md**, **TESTE_RAPIDO.md**: mantidos (desde 2026-02-03 em [historico/projeto/](historico/README.md))
+
+**Justificativa:** Cada documento tem propósito específico diferente:
+- Análise: diagnóstico de problemas
+- Implementadas: registro técnico detalhado
+- Resumo: visão executiva
+- Guia: instruções práticas
+- Teste Rápido: workflow específico
+
+### Impacto
+- ✅ Estrutura mais limpa e organizada
+- ✅ Redução de confusão sobre qual documento consultar
+- ✅ Documentação consolidada facilita manutenção
+- ✅ Scripts obsoletos removidos evitam uso incorreto
 
 ---
 
@@ -63,7 +108,7 @@ Documentação cronológica de todas as decisões técnicas, implementações e 
 - `src/train.py` - Aumentado épocas padrão
 
 ### Documentação
-- [Correções do Treinamento](implementacoes/correcoes_treinamento_2026_01_23.md) - Documentação completa
+- [Correções do Treinamento](historico/implementacoes/correcoes_treinamento_2026_01_23.md) - Documentação completa (arquivado)
 
 ### Próximos Passos
 - Avaliar resultados completos dos 5 folds
@@ -140,8 +185,8 @@ Documentação cronológica de todas as decisões técnicas, implementações e 
 - `src/utils/optuna_optimizer.py` - Gradient clipping
 
 ### Documentação
-- [Melhorias Técnicas](implementacoes/melhorias_tecnicas_2026_01_23.md) - Documentação completa
-- [Mudanças Completas](implementacoes/mudancas_completas_2026_01_23_24.md) - Documentação completa de todas as mudanças
+- [Melhorias Técnicas](historico/implementacoes/melhorias_tecnicas_2026_01_23.md) - Documentação completa (arquivado)
+- [Mudanças Completas](historico/implementacoes/mudancas_completas_2026_01_23_24.md) - Documentação completa (arquivado)
 
 ### Scripts Criados
 - `src/scripts/analisar_modelos_salvos.py` - Análise de modelos salvos
@@ -474,6 +519,6 @@ Documentação cronológica de todas as decisões técnicas, implementações e 
 - `src/utils/optuna_optimizer.py` - Mesmas melhorias para otimização com Optuna
 
 ### Documentação Criada
-- `src/documentacao/implementacoes/melhorias_criticas_2026_01_27.md` - Documentação completa das melhorias
+- `src/documentacao/historico/implementacoes/melhorias_criticas_2026_01_27.md` - Documentação completa das melhorias (arquivado)
 
 ---

@@ -1,6 +1,6 @@
 # Índice - Documentação TCC
 
-Guia rápido para encontrar informações específicas.
+**Padrão dos .md:** cabeçalho (Data, Status), seções numeradas, tópicos. Ver [README.md](README.md).
 
 ---
 
@@ -11,21 +11,29 @@ Guia rápido para encontrar informações específicas.
 - [Simplificação do Código](ordem_cronologica.md#2025-01-23---simplificação-do-código)
 - [Período Exato dos Dados](periodo_dados.md)
 
-### Implementações
+### Implementações (metodologia e resultados atuais)
+- [Arquitetura dos Modelos (LSTM, CNN-LSTM)](implementacoes/arquitetura_modelos.md)
 - [Baselines](implementacoes/baselines.md)
+- [Backtesting com Custos](implementacoes/backtesting.md) (TCC 4.5.1)
 - [Walk-Forward Validation](implementacoes/walk_forward_validation.md)
 - [Feature Engineering](implementacoes/feature_engineering.md)
 - [Métricas de Avaliação](implementacoes/metricas.md)
 - [Análise de Sensibilidade](implementacoes/analise_sensibilidade.md)
-- [Correções do Treinamento (2026-01-23)](implementacoes/correcoes_treinamento_2026_01_23.md)
-- [Melhorias Técnicas (2026-01-23)](implementacoes/melhorias_tecnicas_2026_01_23.md) - Gradient clipping, salvamento de modelos
-- [Melhorias Críticas (2026-01-27)](implementacoes/melhorias_criticas_2026_01_27.md) - Cosine Annealing Scheduler, Class Weights melhorados
-- [Mudanças Completas (2026-01-23/24)](implementacoes/mudancas_completas_2026_01_23_24.md) - Documentação completa de todas as implementações
+- [Testes Diebold-Mariano](implementacoes/testes_estatisticos_diebold_mariano.md) (TCC 4.5.2)
+- [Resultados Consolidados (2026-02-03)](implementacoes/resultados_consolidados_2026_02_03.md) – checklist, interpretação DM, limitação colapso, Fase 7
+
+### Projeto (cronograma)
+- [Próximos Passos Consolidado](projeto/PROXIMOS_PASSOS_CONSOLIDADO.md) – cronograma e prioridades
+- [Cronograma TCC (30 dias)](projeto/CRONOGRAMA.md) – plano geral dia a dia (22/01–20/02/2026)
+- [Cronograma de Desenvolvimento – Código](projeto/CRONOGRAMA_CODIGO.md) – checklist de implementação
 
 ### Análises
 - [Análise da Banda Morta](decisoes_tecnicas/banda_morta.md#análise-realizada)
 - [Correção do ARIMA](ordem_cronologica.md#2025-01-23---correção-do-problema-arima)
-- [Correções Críticas no Treinamento](implementacoes/correcoes_treinamento_2026_01_23.md)
+
+### Histórico (arquivado)
+Documentação de correções, melhorias e análises pontuais já incorporadas ao projeto. Consulta opcional.
+- [Índice do histórico](historico/README.md) – lista e descrição dos arquivos em `historico/`
 
 ---
 
@@ -34,45 +42,30 @@ Guia rápido para encontrar informações específicas.
 ### Metodologia - Engenharia de Features
 - [Feature Engineering](implementacoes/feature_engineering.md)
 - [Decisão sobre Banda Morta](decisoes_tecnicas/banda_morta.md)
-- [Aplicação Correta da Banda Morta](implementacoes/correcoes_treinamento_2026_01_23.md#problema-1-banda-morta-não-aplicada-bug-crítico)
 
 ### Metodologia - Dados
-- [Período Exato dos Dados](periodo_dados.md) - 22/10/2020 até 22/10/2025 (5 anos)
+- [Período Exato dos Dados](periodo_dados.md) – 22/10/2020 até 22/10/2025 (5 anos)
 
 ### Metodologia - Validação
 - [Walk-Forward Validation](implementacoes/walk_forward_validation.md)
 - [Análise de Sensibilidade](implementacoes/analise_sensibilidade.md)
 
-### Metodologia - Modelos Baseline
+### Metodologia - Modelos
+- [Arquitetura dos Modelos (LSTM, CNN-LSTM)](implementacoes/arquitetura_modelos.md)
 - [Baselines](implementacoes/baselines.md)
 
 ### Metodologia - Métricas
 - [Métricas de Avaliação](implementacoes/metricas.md)
+- [Backtests e Custos de Transação](implementacoes/backtesting.md) (TCC 4.5.1)
+- [Testes de Robustez e Significância (Diebold-Mariano)](implementacoes/testes_estatisticos_diebold_mariano.md) (TCC 4.5.2)
 
 ### Metodologia - Seleção de Hiperparâmetros
-- [Otimização com Optuna](implementacoes/correcoes_treinamento_2026_01_23.md#problema-3-convergência-insuficiente)
-  - Early stopping com patience=10
-  - Máximo de 100 épocas
-  - Ajustes de learning rate
-- [Melhorias Críticas (2026-01-27)](implementacoes/melhorias_criticas_2026_01_27.md)
-  - Cosine Annealing Scheduler (TCC Seção 4.4)
-  - Class Weights melhorados (sklearn)
-  - Monitoramento de distribuição de previsões
+- Otimização com Optuna em `src/train.py` e `src/utils/optuna_optimizer.py` (early stopping, Cosine Annealing, class weights). Detalhes no [histórico](historico/README.md) (melhorias_criticas_2026_01_27.md).
 
 ### Resultados
+- [Resultados Consolidados (2026-02-03)](implementacoes/resultados_consolidados_2026_02_03.md) – checklist pipeline, interpretação DM, colapso (F1/MCC), texto para TCC, Fase 7
 - [Resultados dos Baselines](implementacoes/baselines.md#resultados-walk-forward-vale3)
-  - Análise completa: Naive, Drift, ARIMA, Prophet
-  - Interpretação: todos próximos de 50% (esperado)
-  - Baseline estabelecido para comparação com deep learning
 - [Impacto da Remoção da Banda Morta](decisoes_tecnicas/banda_morta.md#impacto-mensurável)
-- [Resultados do Treinamento CNN-LSTM](implementacoes/correcoes_treinamento_2026_01_23.md#resultados-observados)
-  - Correções aplicadas e impacto
-  - Acurácia: ~53% (acima de baseline)
-  - Análise de problemas e limitações
-- [Melhorias Críticas (2026-01-27)](implementacoes/melhorias_criticas_2026_01_27.md)
-  - Correção de F1=0.0 e MCC=0.0
-  - Implementação de técnicas do TCC faltantes
-  - Resultados esperados após melhorias
 
 ---
 
@@ -84,7 +77,7 @@ Ver [ordem_cronologica.md](ordem_cronologica.md) para timeline completa.
 
 ## Como Usar
 
-1. **Para escrever metodologia:** Consultar `implementacoes/`
-2. **Para justificar decisões:** Consultar `decisoes_tecnicas/`
-3. **Para timeline:** Consultar `ordem_cronologica.md`
-4. **Para dados específicos:** Usar busca nos arquivos
+1. **Para escrever metodologia:** Consultar `implementacoes/` (e `decisoes_tecnicas/` quando for decisão).
+2. **Para resultados e próximos passos:** [resultados_consolidados_2026_02_03.md](implementacoes/resultados_consolidados_2026_02_03.md) e [PROXIMOS_PASSOS_CONSOLIDADO.md](projeto/PROXIMOS_PASSOS_CONSOLIDADO.md).
+3. **Para timeline:** [ordem_cronologica.md](ordem_cronologica.md).
+4. **Para decisões/correções passadas:** [historico/](historico/README.md).

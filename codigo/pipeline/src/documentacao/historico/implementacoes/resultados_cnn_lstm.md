@@ -1,13 +1,14 @@
-# Resultados CNN-LSTM - Walk-Forward Validation
+# Resultados CNN-LSTM - Walk-Forward Validation (histórico)
 
-**Data do Teste:** 2025-01-26  
+**Data:** 2025-01-26  
+**Status:** Histórico (resultados atuais em [resultados_consolidados_2026_02_03.md](resultados_consolidados_2026_02_03.md))  
 **Ativo:** VALE3  
 **Modelo:** CNN-LSTM Híbrido  
 **Configuração:** Hiperparâmetros padrão (sem otimização Optuna)
 
 ---
 
-## Resultados por Fold
+## 1. Resultados por Fold
 
 | Fold | Accuracy Direcional | Accuracy | F1-Score | MCC | Amostras Teste |
 |------|---------------------|----------|----------|-----|----------------|
@@ -25,7 +26,7 @@
 
 ---
 
-## Comparação com Baselines
+## 2. Comparação com Baselines
 
 | Modelo | Accuracy Direcional | Diferença vs CNN-LSTM |
 |--------|---------------------|----------------------|
@@ -37,7 +38,7 @@
 
 ---
 
-## Análise dos Resultados
+## 3. Análise dos Resultados
 
 ### 1. Performance Geral
 - **CNN-LSTM: 49.87%** vs **Baselines: 50.50%** (Naive/Prophet)
@@ -81,7 +82,7 @@ Há uma **degradação clara** de performance:
 
 ---
 
-## Interpretação
+## 4. Interpretação
 
 ### Por que o modelo não superou os baselines?
 
@@ -112,7 +113,7 @@ Há uma **degradação clara** de performance:
 
 ---
 
-## Próximos Passos Recomendados
+## 5. Próximos Passos Recomendados
 
 ### 1. Otimização com Optuna (PRIORIDADE ALTA)
 ```bash
@@ -144,7 +145,7 @@ uv run python src/train.py --ativo VALE3 --modelo lstm
 
 ---
 
-## Conclusão
+## 6. Conclusão
 
 **Resultado atual: 49.87% (ligeiramente abaixo dos baselines)**
 
@@ -160,7 +161,7 @@ O modelo está funcionando, mas não está superando baselines simples. Isso é 
 
 ---
 
-## Referências para TCC
+## 7. Referências para TCC
 
 ### Seção: Resultados - Modelo CNN-LSTM
 

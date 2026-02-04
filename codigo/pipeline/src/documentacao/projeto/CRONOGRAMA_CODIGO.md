@@ -1,11 +1,12 @@
-# 📅 CRONOGRAMA DE DESENVOLVIMENTO - CÓDIGO
+# Cronograma de Desenvolvimento - Código
 
-**Foco**: Implementação de código e funcionalidades  
-**Período**: 22 de Janeiro a 20 de Fevereiro de 2026
+**Data:** 2026-01-22  
+**Status:** Referência (checklist de implementação 22/01–20/02/2026)  
+**Foco:** Implementação de código e funcionalidades
 
 ---
 
-## ✅ PROGRESSO ATUAL
+## 1. Progresso atual
 
 ### Concluído
 - ✅ `load_data.py` - Carregamento e validação de dados
@@ -15,13 +16,14 @@
 - ✅ `baselines.py` - Naive, Drift, ARIMA
 - ✅ `metrics.py` - Métricas de avaliação
 
-### Em Andamento
-- 🔄 Walk-forward validation
-- 🔄 Scripts de treinamento
+### Concluído (adicional)
+- ✅ Walk-forward validation (`validation.py`)
+- ✅ Scripts de treinamento (`train.py`, Optuna, 3 ativos × 5 folds)
+- ✅ CNN-LSTM, backtesting, Diebold-Mariano, comparativo
 
 ---
 
-## 📋 CHECKLIST DE DESENVOLVIMENTO
+## 2. Checklist de desenvolvimento
 
 ### Semana 1: Fundação (22-28 Jan)
 
@@ -59,8 +61,8 @@
 - [x] Script de treinamento (`train.py`) ✅
 - [x] Configuração walk-forward documentada (`config.py`) ✅
 - [x] Script de análise de sensibilidade (`testar_sensibilidade_walkforward.py`) ✅
-- [ ] Setup Optuna
-- [ ] Arquitetura LSTM básica (já implementada em train.py)
+- [x] Setup Optuna ✅
+- [x] Arquitetura LSTM básica (já implementada em train.py) ✅
 
 ---
 
@@ -79,90 +81,82 @@
 - [x] Otimização no conjunto de validação interno (não no teste) ✅
 - [x] Módulo `optuna_optimizer.py` criado ✅
 - [x] Integração com `train.py` (flag `--optuna`) ✅
-- [ ] Testar otimização com LSTM
-- [ ] Testar otimização com CNN-LSTM
-- [ ] Analisar resultados Optuna
-- [ ] Walk-forward completo com modelos otimizados
+- [x] Testar otimização com LSTM ✅
+- [x] Testar otimização com CNN-LSTM ✅
+- [x] Analisar resultados Optuna ✅
+- [x] Walk-forward completo com modelos otimizados (3 ativos, 5 folds) ✅
 
 #### Dia 12-13 (02-03/02) - CNN-LSTM
 - [x] `cnn_lstm_model.py` - Arquitetura híbrida ✅
-- [ ] Otimização CNN-LSTM com Optuna
-- [ ] Hiperparâmetros: conv_filters, conv_kernel_size, lstm_units, dropout, learning_rate, batch_size
+- [x] Otimização CNN-LSTM com Optuna ✅
+- [x] Hiperparâmetros: conv_filters, conv_kernel_size, lstm_units, dropout, learning_rate, batch_size ✅
 
 #### Dia 14 (04/02) - Consolidação
-- [ ] Comparar LSTM vs CNN-LSTM
-- [ ] Preparar para Semana 3
+- [x] Comparar LSTM vs CNN-LSTM (`comparar_modelos.py`, comparativo_cnn_lstm_vs_baselines.csv) ✅
+- [x] Preparar para Semana 3 ✅
 
 ---
 
 ### Semana 3: CNN-LSTM e Backtests (05-11 Fev)
 
 #### Dia 15-16 (05-06/02) - CNN-LSTM
-- [ ] Finalizar otimização CNN-LSTM
-- [ ] Walk-forward completo
-- [ ] Avaliação completa
+- [x] Finalizar otimização CNN-LSTM ✅
+- [x] Walk-forward completo (PETR4, VALE3, ITUB4, 5 folds) ✅
+- [x] Avaliação completa (`analisar_modelos_salvos.py`) ✅
 
 #### Dia 17-18 (07-08/02) - Backtests
-- [ ] `backtesting.py` - Backtester com custos
-- [ ] Backtests para todos os modelos
-- [ ] Análise de resultados
+- [x] `backtesting.py` - Backtester com custos ✅
+- [x] Backtests para todos os modelos (long_short, long_only, 30 runs) ✅
+- [x] Análise de resultados (`historico_backtest.csv`) ✅
 
 #### Dia 19-20 (09-10/02) - Análises
-- [ ] Testes em múltiplos ativos
-- [ ] Análise comparativa
-- [ ] Documentação
+- [x] Testes em múltiplos ativos (PETR4, VALE3, ITUB4) ✅
+- [x] Análise comparativa (`comparar_modelos.py`) ✅
+- [x] Documentação ✅
 
 #### Dia 21 (11/02) - Fechamento
-- [ ] Consolidação de resultados
-- [ ] Preparação para testes estatísticos
+- [x] Consolidação de resultados ✅
+- [x] Preparação para testes estatísticos ✅
 
 ---
 
 ### Semana 4: Testes e Robustez (12-18 Fev)
 
 #### Dia 22-23 (12-13/02) - Testes Estatísticos
-- [ ] `diebold_mariano.py` - Teste DM
-- [ ] Comparações estatísticas
-- [ ] Análise por regimes
+- [x] `diebold_mariano.py` - Teste DM ✅
+- [x] Comparações estatísticas (`rodar_testes_estatisticos.py`, `gerar_tabelas_graficos_dm.py`) ✅
+- [x] Análise por regimes (`--regimes`, `--brier`) ✅
 
 #### Dia 24-25 (14-15/02) - Sensibilidade
 - [x] Análise de sensibilidade a janelas walk-forward (`testar_sensibilidade_walkforward.py`) ✅
   - [x] Configurações: mais_permissivo, principal, mais_conservador, mais_treino, embargo_dia ✅
-- [ ] Executar análise de sensibilidade completa
+- [x] Executar análise de sensibilidade completa (walk-forward por ativo) ✅
 - [ ] Análise de sensibilidade a features
-- [ ] Análise de sensibilidade a custos
+- [x] Análise de sensibilidade a custos (`rodar_backtest.py --sensibilidade`) ✅
 - [ ] Análise de sensibilidade a hiperparâmetros (variações dos valores otimizados)
 
 #### Dia 26-27 (16-17/02) - Consolidação
-- [ ] Consolidar todos os resultados
-- [ ] Gerar visualizações
-- [ ] Preparar dados para escrita
+- [x] Consolidar todos os resultados (resultados_consolidados_2026_02_03.md) ✅
+- [ ] Gerar visualizações (Fase 7)
+- [x] Preparar dados para escrita (tabelas DM, comparativo, backtest) ✅
 
 #### Dia 28 (18/02) - Finalização Código
 - [ ] Revisão final do código
-- [ ] Documentação
+- [x] Documentação (INDICE, implementacoes, historico) ✅
 - [ ] Entrega técnica
 
 ---
 
-## 🎯 PRÓXIMAS TAREFAS IMEDIATAS
+## 3. Próximas tarefas (Fase 7)
 
-1. **Walk-Forward Validation** (`validation.py`)
-   - Implementar WalkForwardValidator
-   - Testar com baselines
-
-2. **Prophet Baseline** (`prophet_model.py`)
-   - Implementar ProphetBaseline
-   - Integrar com pipeline
-
-3. **Preparação Deep Learning**
-   - Criar sequências temporais
-   - Setup de treinamento
+- [ ] Visualizações para o TCC (gráficos performance, calibração, comparação baselines)
+- [ ] Revisão final do código e entrega técnica
+- [ ] Opcional: sensibilidade a features, sensibilidade a hiperparâmetros
 
 ---
 
-## 📊 ESTATÍSTICAS
+## 4. Estatísticas
 
-- **Módulos criados**: 6/15
-- **Progresso**: ~40%
-- **Próximo marco**: Walk-forward validation
+- **Módulos principais:** concluídos (load_data, validate_data, config, feature_engineering, baselines, prophet_model, validation, metrics, prepare_sequences, train, lstm_model, cnn_lstm_model, optuna_optimizer, backtesting, diebold_mariano)
+- **Pipeline 1–5:** concluído (baselines, análise CNN-LSTM, comparativo, testes DM, backtests)
+- **Progresso:** ~95% (falta Fase 7: visualizações, consolidação final)

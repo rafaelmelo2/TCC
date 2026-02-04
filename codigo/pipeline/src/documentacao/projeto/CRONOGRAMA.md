@@ -1,12 +1,12 @@
-# 📅 CRONOGRAMA TCC2 - 30 DIAS DE GUERRA
+# Cronograma TCC2 - 30 dias
 
-**Período**: 22 de Janeiro a 20 de Fevereiro de 2026  
-**Objetivo**: Completar implementação, análises e escrita do TCC2  
-**Status**: 🔴 EM ANDAMENTO
+**Data:** 2026-01-22  
+**Status:** Referência (plano original 22/01–20/02/2026)  
+**Objetivo:** Completar implementação, análises e escrita do TCC2
 
 ---
 
-## 📊 Visão Geral
+## 1. Visão Geral
 
 | Semana | Período | Foco Principal | Entregáveis Principais |
 |--------|---------|----------------|------------------------|

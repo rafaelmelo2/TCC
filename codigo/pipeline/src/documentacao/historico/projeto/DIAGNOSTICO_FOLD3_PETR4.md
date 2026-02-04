@@ -1,11 +1,12 @@
 # Diagnóstico: Fold 3 PETR4 - Modelo Colapsando
 
 **Data:** 2026-01-27  
+**Status:** Referência (diagnóstico colapso de classe)  
 **Problema:** F1=0.0, MCC=0.0, modelo prevê sempre classe -1 (baixa)
 
 ---
 
-## 📊 Evidências
+## 1. Evidências
 
 ### Durante Otimização (Optuna):
 ```
@@ -28,7 +29,7 @@ Trial 15: Pred=[1:0, -1:781], std=0.000 ⚠️ TOTALMENTE COLAPSADO
 
 ---
 
-## 🔍 Análise
+## 2. Análise
 
 ### O que as melhorias NÃO resolveram:
 1. ✅ Cosine Annealing Scheduler → Implementado mas não ajudou
@@ -49,7 +50,7 @@ Trial 15: Pred=[1:0, -1:781], std=0.000 ⚠️ TOTALMENTE COLAPSADO
 
 ---
 
-## 🛠️ Soluções Propostas
+## 3. Soluções Propostas
 
 ### 1. Focal Loss (CRÍTICO) 🔴
 **O que é:** Loss que penaliza mais erros em exemplos difíceis
@@ -138,7 +139,7 @@ X_train_resampled, y_train_resampled = smote.fit_resample(
 
 ---
 
-## 📋 Plano de Ação Recomendado
+## 4. Plano de Ação Recomendado
 
 ### Prioridade ALTA (Fazer AGORA):
 1. **Implementar Focal Loss** ← Mais importante
@@ -154,7 +155,7 @@ X_train_resampled, y_train_resampled = smote.fit_resample(
 
 ---
 
-## 🎯 Expectativa Realista
+## 5. Expectativa Realista
 
 ### Com Focal Loss:
 - Fold 3 PETR4: 47.15% → **50-52%** (esperado)
@@ -170,7 +171,7 @@ X_train_resampled, y_train_resampled = smote.fit_resample(
 
 ---
 
-## 📝 Notas Técnicas
+## 6. Notas Técnicas
 
 ### Por que Focal Loss funciona?
 - Binary crossentropy trata todos os exemplos igualmente

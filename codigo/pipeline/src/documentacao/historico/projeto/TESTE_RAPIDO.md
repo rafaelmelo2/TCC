@@ -1,11 +1,12 @@
 # Teste Rápido de Validação - Passo a Passo
 
 **Data:** 2026-01-23  
+**Status:** Guia operacional  
 **Objetivo:** Testar melhorias antes de rodar treinamento completo durante a noite
 
 ---
 
-## 🎯 Estratégia
+## 1. Estratégia
 
 1. **Teste Rápido** (~30 min): 10 trials, poucos folds
 2. **Análise**: Script automático decide se prosseguir
@@ -13,7 +14,7 @@
 
 ---
 
-## 📋 Passo 1: Executar Teste Rápido
+## 2. Passo 1: Executar Teste Rápido
 
 ```bash
 cd ~/Arquivos/TCC/codigo/pipeline
@@ -32,7 +33,7 @@ uv run python src/train.py \
 
 ---
 
-## 📊 Passo 2: Analisar Resultados
+## 3. Passo 2: Analisar Resultados
 
 ### Opção A: Script Automático (RECOMENDADO)
 
@@ -88,7 +89,7 @@ ls -lh models/VALE3/cnn_lstm/
 
 ---
 
-## ✅ Critérios de Aprovação
+## 4. Critérios de Aprovação
 
 O teste é **APROVADO** se:
 
@@ -108,7 +109,7 @@ O teste é **APROVADO** se:
 
 ---
 
-## 🚀 Passo 3A: SE APROVADO - Rodar Completo
+## 5. Passo 3A: SE APROVADO - Rodar Completo
 
 ```bash
 # Copiar e colar para rodar durante a noite
@@ -144,7 +145,7 @@ uv run python src/scripts/analisar_modelos_salvos.py --ativo VALE3 --modelo cnn_
 
 ---
 
-## 🔍 Passo 3B: SE REPROVADO - Investigar
+## 6. Passo 3B: SE REPROVADO - Investigar
 
 ### Problemas Possíveis
 
@@ -212,7 +213,7 @@ ls -la models/
 
 ---
 
-## 📝 Checklist de Execução
+## 7. Checklist de Execução
 
 **Antes de dormir:**
 - [ ] Executei teste rápido (10 trials)
@@ -230,7 +231,7 @@ ls -la models/
 
 ---
 
-## 🎯 Resultados Esperados
+## 8. Resultados Esperados
 
 ### Teste Rápido (2 folds)
 
@@ -251,7 +252,7 @@ ls -la models/
 
 ---
 
-## 🛠️ Comandos de Emergência
+## 9. Comandos de Emergência
 
 ### Se o treinamento travar
 
@@ -288,7 +289,7 @@ cp -r models/VALE3 models/VALE3_backup_$(date +%Y%m%d)
 
 ---
 
-## 📞 Troubleshooting
+## 10. Troubleshooting
 
 ### Erro: "Out of memory (GPU)"
 
@@ -314,7 +315,7 @@ chmod -R 755 models/
 
 ---
 
-## 📊 Monitoramento em Tempo Real
+## 11. Monitoramento em Tempo Real
 
 ### Terminal 1: Logs
 
@@ -336,7 +337,7 @@ watch -n 10 "cat data/processed/VALE3_cnn_lstm_walkforward.csv"
 
 ---
 
-## ✅ Conclusão
+## 12. Conclusão
 
 **Fluxo completo:**
 
