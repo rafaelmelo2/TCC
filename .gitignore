@@ -1,3 +1,7 @@
+# Windows: metadados de origem (internet/outra zona) — não versionar
+*:Zone.Identifier
+*.Zone.Identifier
+
 .env
 .venv
 __pycache__
@@ -11,4 +15,30 @@ __pycache__
 env/
 artigos/
 backup/
+
+# LaTeX (TCC UFG) — gerados ao compilar, não versionar
+TCC UFG/*.acn
+TCC UFG/*.aux
+TCC UFG/*.bbl
+TCC UFG/*.brf
+TCC UFG/*.cmap
+TCC UFG/*.bcf
+TCC UFG/*.blg
+TCC UFG/*.fdb_latexmk
+TCC UFG/*.fls
+TCC UFG/*.glo
+TCC UFG/*.idx
+TCC UFG/*.ilg
+TCC UFG/*.ind
+TCC UFG/*.ist
+TCC UFG/*.loa
+TCC UFG/*.lof
+TCC UFG/*.log
+TCC UFG/*.lot
+TCC UFG/*.mw
+TCC UFG/*.nlo
+TCC UFG/*.out
+TCC UFG/*.run.xml
+TCC UFG/*.synctex.gz
+TCC UFG/*.toc
 

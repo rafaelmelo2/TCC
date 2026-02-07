@@ -1,0 +1,93 @@
+% ------------------------------------------------------------------------
+% UFGRC: Modelo de Trabalho Acadêmico em conformidade com 
+% ABNT NBR 14724:2011
+% ------------------------------------------------------------------------
+\PassOptionsToPackage{acronym}{glossaries}
+\documentclass[tcc1, pos-defesa, english, brazil]{packages/ufgrc}
+
+% Pacotes adicionais
+\usepackage{rotating}
+\usepackage[all,knot,arc,import,poly]{xy}
+\graphicspath{{../images/}}
+
+% \hypersetup{colorlinks=true}Q
+\usepackage{tabularx,booktabs,array}
+\usepackage{float} % para usar [H]
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X} % coluna com quebra automática
+
+% Dados da capa e folha de rosto
+\titulo{Predição Automática de Indicativos Financeiros para Bolsa de Valores Considerando o Aspecto Temporal}
+\autor[Melo, R. S.]{Rafael da Silva Melo}
+\orientador[Orientador]{Prof. Dr.}{Márcio de Souza Dias}
+\genero{M}
+\data{01}{08}{2025}
+\membrobanca{Marcio Antonio Duarte}{Universidade Federal de Catalão}
+\membrobanca{Thiago Jabur Bittar}{Universidade Federal de Catalão}
+
+% Resumos
+\textoresumo[brazil]{
+
+
+O trabalho introduz um modelo híbrido de aprendizado profundo, utilizando uma combinação de redes neurais LSTM + CNN para prever indicadores financeiros da bolsa brasileira B3 — Brasil, Bolsa, Balcão — com base em dados de séries temporais intradiárias. 
+
+A análise incorpora dados de liquidez, volatilidade e volume negociado, juntamente com engenharia de características e uma metodologia de validação cruzada temporalmente consciente para melhorar a robustez e a repetibilidade dos resultados.
+
+Sua arquitetura foi construída para inferir cenários de estresse e choques de mercado, algo fora do alcance de métodos clássicos como ARIMA ou Prophet. Um importante marco é que produz valores muito precisos, o que importa muito mais para negociantes da bolsa e gerentes de risco.
+
+Um pipeline baseado em Python será construído para ser usado na reprodução e geração de dados, além da agregação de dados e análise subsequente na qual este estudo se baseia. Essas contribuições implicam em uma maior estabilidade em ambientes voláteis e insights que podem ser transferidos para vários ativos financeiros.
+}{predição, indicadores financeiros, séries temporais, bolsa de valores, aprendizado profundo}
+
+\textoresumo[english]{
+The paper introduces a hybrid deep learning model that combines LSTM and CNN neural networks to predict financial indicators of the Brazilian exchange B3 — Brasil, Bolsa, Balcão — based on intraday time-series data.
+
+The analysis incorporates liquidity, volatility, and traded volume data, together with feature engineering and a time-aware cross-validation methodology to improve the robustness and replicability of the results.
+
+Its architecture was designed to infer stress scenarios and market shocks, something beyond the reach of classical methods such as ARIMA or Prophet. A key advantage is that it produces highly accurate values, which matters much more to stock traders and risk managers.
+
+A Python-based pipeline will be built to support reproducibility and data generation, as well as data aggregation and the subsequent analysis on which this study relies. These contributions imply greater stability in volatile environments and insights that can be transferred to multiple financial assets.
+}{prediction, financial indicators, time series, stock exchange, deep learning}
+
+% Inicio do documento
+% (Capa, folhas, listas e sumário são gerados automaticamente pela classe.)
+\begin{document}
+
+\chapter{Introdução}
+\label{ch:introducao}
+\input{tex/introducao}
+
+\chapter{Fundamentação Teórica}
+\label{ch:fundamentacao}
+\input{tex/fundamentacao-teorica}       
+
+\chapter{Trabalhos Relacionados}
+\label{ch:trabalhos-relacionados}
+\input{tex/trabalhos-relacionados} 
+
+\chapter{Próximos passos}
+\label{ch:proximos-passos}
+\input{tex/proximos-passos}
+
+\chapter{Considerações finais}
+\label{ch:consideracoes-finais}
+\input{tex/consideracoes-finais}
+
+% === ELEMENTOS PÓS-TEXTUAIS =============================================
+
+
+% Referências (estilo ABNT alfabético em inglês)
+\bibliographystyle{packages/abntexalfenglish}
+\bibliography{references}
+
+% Glossário
+\chapter{Glossário}
+\input{tex/glossario}
+% \printglossaries
+
+% Siglas
+\chapter{Siglas}
+\input{tex/siglas} 
+
+\glsaddall
+\printglossaries
+
+\end{document}

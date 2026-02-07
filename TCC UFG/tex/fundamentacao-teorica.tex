@@ -1,0 +1,266 @@
+\section{Mercado financeiro em geral} \label{sec:mercado}
+
+Em primeiro lugar, é preciso compreender que o mercado financeiro é um espaço institucionalizado no qual diversos agentes econômicos negociam diferentes tipos de ativos, como títulos de dívida, \textit{commodities}, derivativos e moedas \cite{MishkinEakins2018}. 
+
+% Entre esses ativos, encontram-se as ações, que representam frações do capital social de empresas de capital aberto, negociadas regularmente nas bolsas de valores\cite{Lei6404}. A posse de ações transforma investidores em acionistas, ou seja, proprietários parciais das empresas emissoras, conferindo-lhes direitos específicos, como o recebimento proporcional de lucros distribuídos sob forma de dividendos, além da participação indireta nas decisões corporativas. A valorização das ações depende tanto do desempenho financeiro da empresa quanto das expectativas futuras em relação a ela, o que torna sua negociação fortemente suscetível à percepção dos investidores e à dinâmica econômica geral.
+
+As ações também fazem parte desses ativos, frações adequadas do capital social de empresas de capital aberto cuja negociação é realizada regularmente por meio das bolsas de valores \cite{Lei6404}. Investidores que compram uma ação tornam-se acionistas, ou proprietários parciais das corporações que emitiram tais ações, e, consequentemente, têm certos direitos legais (o direito de receber sua parte proporcional dos dividendos distribuídos pela corporação e, muitas das vezes, o direito de votar em decisões corporativas indiretamente). Isso significa que as ações não são apenas sobre como a empresa ganha dinheiro na realidade, mas também sobre o que os investidores acham que ela gerará no futuro — portanto, a negociação de ações nada mais é do que uma percepção entre as pessoas e as dinâmicas econômicas gerais.
+
+A B3 opera em um ambiente regulado que garante segurança jurídica e transparência às operações realizadas pelos participantes, permitindo que investidores forneçam recursos às empresas ou ao governo em troca de remuneração futura, geralmente sob forma de juros, dividendos ou ganhos de capital advindos da valorização dos ativos adquiridos de acordo com a \cite{Lei6385}. 
+
+Existem muitas bolsas de valores espalhadas por todo o mundo, cada uma operando sob regulamentações específicas, negociando ativos próprios e refletindo as particularidades econômicas e culturais das regiões onde estas estão inseridas. Exemplos notórios incluem a Bolsa de Nova York \cite{NYSE}, a Nasdaq \cite{Nasdaq} nos Estados Unidos, a Bolsa de Londres no Reino Unido \cite{LSE}, e a Bolsa de Valores de São Paulo no Brasil \cite{B3}.
+
+
+
+\subsection{Regulação e Estrutura da B3 como Infraestrutura de Mercado}
+
+Considerando o funcionamento do mercado financeiro brasileiro, é essencial destacar o papel central da B3 \cite{b3_quem_somos}. A B3 é reconhecida como uma das principais empresas de infraestrutura de mercado financeiro no mundo, atuando nos ambientes de bolsa e de balcão organizado \cite{b3_quem_somos}.
+
+Neste contexto, a B3 atua como contraparte central, integrando funções de registro, custódia, liquidação e supervisão em uma cadeia verticalmente estruturada. Essa estrutura assegura a formação adequada de preços e a ampla divulgação das ofertas no livro central, com o objetivo de proteger os investidores e garantir eficiência ao mercado \cite{b3_servicos,b3_quem_somos}.
+
+Logo, os participantes do mercado — corretoras, formadores de mercado, provedores de tecnologia e emissores — devem operar conforme os procedimentos estabelecidos pela B3, incluindo padrões de conexão como DMA, co-location e PNP, além da manutenção de sistemas de auditoria e controles internos descritos no Manual de Procedimentos Operacionais de Negociação \cite{b3_manual_negociacao}.
+
+
+
+
+\subsection{Conectividade e Ambientes de Negociação}
+
+Para que os modelos de predição sejam robustos, é essencial compreender os diferentes tipos de conexão ao ambiente de negociação da B3. Segundo o Manual de Procedimentos Operacionais de Negociação da B3, as conexões ao ambiente de negociação são classificadas conforme sua origem e hospedagem — incluindo acesso via mesa de operações, assessores e conexão direta patrocinada (DMA) \cite{b3_manual_negociacao}. Essa última, conhecida como DMA (Direct Market Access), permite que investidores ou provedores enviem ordens diretamente ao sistema de negociação, sem intermediação manual, reduzindo latência e aumentando a eficiência na execução de trades \cite{b3_manual_negociacao}.
+
+Além do mais, a B3 oferece o serviço de \textit{co-location}, onde servidores de corretoras ou investidores são instalados fisicamente em data centers da bolsa (como COLO0/COLO1), diminuindo ainda mais a latência em relação ao DMA tradicional fora do centro de dados da B3 \cite{b3_manual_negociacao}. Essa configuração é especialmente importante para estratégias de alta frequência (HFT), nas quais milissegundos influenciam diretamente os retornos.
+
+Portanto, ao lidar com dados de alta frequência em seu modelo de predição é fundamental considerar que os atrasos (latência) e o tipo de conexão (DMA, co-location ou assessor) impactam a qualidade e a reprodutibilidade dos resultados no ambiente real de negociação.
+
+
+
+
+\subsection{Ativos}
+
+Os ativos financeiros são instrumentos ou contratos negociados no mercado financeiro, com características e funções específicas, permitindo aos investidores diversificar seus investimentos de acordo com diferentes perfis de risco e expectativas de retorno \cite{MishkinEakins2018, FabozziModigliani2009}. Conforme introduzido na \autoref{sec:mercado}, esses ativos incluem \textbf{ações, títulos públicos e privados, moedas, derivativos e commodities} \cite{FabozziModigliani2009}. Cada categoria apresenta particularidades quanto ao comportamento dos preços, liquidez e risco associado, tornando imprescindível uma análise detalhada antes de qualquer decisão de investimento. 
+
+Os preços desses ativos são influenciados por fatores variados, desde condições climáticas e ambientais até eventos geopolíticos e econômicos globais \cite{WorldBank2020}, o que faz deles ativos voláteis, cujos preços podem oscilar significativamente em curtos períodos. Além disso, muitos desses ativos são interligados, e variações no preço de um deles podem influenciar diretamente os demais, aumentando a complexidade das análises financeiras e exigindo dos investidores estratégias consistentes e informações atualizadas para tomadas de decisão mais assertivas \cite{MishkinEakins2018}.
+
+
+
+
+\subsection{Principais conceitos utilizados no mercado financeiro}
+
+Descrever a direção predominante do movimento dos preços ao longo do tempo caracteriza o que chamamos de \textbf{tendência}. Quando um ativo apresenta uma sequência consistente de preços ascendentes, diz-se que há uma \textbf{tendência de alta}; quando ocorre o inverso, com preços descendentes de forma persistente, trata-se de uma \textbf{tendência de baixa}. Se os preços não manifestam uma direção clara, oscilando em faixas relativamente estáveis, caracteriza-se como ausência de tendência ou \textbf{mercado lateralizado} \cite{BodieKaneMarcus2021}.
+
+Além do conceito de tendência, outros termos importantes são frequentemente utilizados para descrever os movimentos e comportamentos observados na bolsa de valores. Um desses termos é a \textbf{volatilidade}, que representa o grau de oscilação dos preços dos ativos ao longo de um determinado período, refletindo a instabilidade ou a incerteza do mercado naquele momento \cite{MishkinEakins2018}. Quando se fala em \textbf{liquidez}, refere-se à facilidade com que um ativo pode ser convertido em dinheiro sem causar grande impacto no seu preço. Um ativo com alta liquidez pode ser negociado rapidamente, enquanto um ativo com baixa liquidez possui menos compradores e vendedores, dificultando sua negociação imediata \cite{FabozziModigliani2009}.
+
+Outro termo amplamente utilizado é o \emph{dividendo}, que corresponde a uma parcela dos lucros que as empresas distribuem periodicamente aos acionistas como forma de remuneração pelo investimento realizado \cite{Lei6404,BodieKaneMarcus2021}.
+
+É comum ouvir falar em \textbf{bear market} e \textbf{bull market}. O primeiro descreve períodos prolongados de queda nos preços das ações e pessimismo generalizado no mercado. Por outro lado, um \textbf{bull market} refere-se a fases caracterizadas por aumentos contínuos e generalizados dos preços dos ativos financeiros, acompanhados por otimismo dos investidores em relação ao futuro econômico \cite{BodieKaneMarcus2021}.
+
+
+Por fim, \textbf{Índice de mercado} diz respeito a indicadores que medem o desempenho médio de um conjunto de ativos negociados em bolsa \cite{Daycoval}, como o Ibovespa no Brasil ou o S\&P 500 nos Estados Unidos, servindo como referência para avaliar o comportamento geral do mercado financeiro.
+
+
+\subsection{Indicadores técnicos}
+
+Além dos índices de mercado, existem também os chamados indicadores técnicos. Eles são muito usados na análise gráfica, justamente para tentar entender como os preços se comportam e, a partir disso, decidir o melhor momento de comprar ou vender um ativo. A diferença é que, enquanto os índices de mercado mostram o desempenho geral de um grupo de ações ou ativos, os indicadores técnicos olham para cada ativo separadamente. Eles funcionam com base em cálculos matemáticos feitos sobre o histórico de preços e sobre o volume de negociações, tentando transformar esses números em sinais que ajudem o investidor a agir com mais segurança.
+
+Além dos índices de mercado tradicionais, existem outros tipos de indicadores, denominados indicadores técnicos, utilizados principalmente na análise gráfica para avaliar o comportamento dos preços e tomar decisões relacionadas à compra e venda de ativos. Diferentemente dos índices de mercado, que avaliam o desempenho geral de um conjunto específico de ativos, os indicadores técnicos são aplicados individualmente em cada ativo, com base em cálculos matemáticos realizados sobre os preços históricos e volumes de negociação \cite{Murphy1999}.
+
+Entre os indicadores técnicos mais utilizados, destacam-se:
+
+\begin{itemize}
+    \item \textbf{Bandas de Bollinger}: indicam a volatilidade e possíveis níveis de suporte e resistência dos preços \cite{Bollinger2001};
+    \item \textbf{Médias Móveis}: suavizam os dados históricos e ajudam a identificar a direção predominante dos preços \cite{Murphy1999};
+    \item \textbf{Índice de Força Relativa (RSI)}: mede a força e a velocidade dos movimentos dos preços para avaliar possíveis situações de sobrecompra ou sobrevenda;
+    \item \textbf{MACD (Moving Average Convergence Divergence)}: busca identificar mudanças nas tendências por meio das interações entre médias móveis.
+\end{itemize}
+
+A Figura \ref{fig:indicadores-tecnicos2} ilustra apenas como exemplo didático a aplicação prática desses indicadores em um gráfico de candles com periodicidade de 15 minutos. 
+As \textbf{Médias Móveis de 9, 21 e 50 períodos} suavizam o comportamento dos preços e ajudam a identificar tendências de curto, médio e longo prazo \cite{Murphy1999}. 
+Em torno das velas estão as \textbf{Bandas de Bollinger (20x2)}, que se expandem ou se contraem conforme a volatilidade do mercado, sinalizando possíveis regiões de suporte e resistência \cite{Bollinger2001}. 
+Na parte inferior do gráfico, as \textbf{janelas do Índice de Força Relativa (RSI) com 9, 21 e 50 períodos} medem a força do movimento dos preços, indicando potenciais situações de sobrecompra ou sobrevenda \cite{Murphy1999}.
+
+
+\begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
+  \centering
+  \includegraphics[width=0.9\linewidth]{indicadores-tecnicos2.png}
+  \caption{Mini-chart de 15 minutos da ação PETR4 (Petrobras), com candles, Médias Móveis de 9, 21 e 50 períodos, Bandas de Bollinger (20x2) e RSI de 9, 21 e 50. Fonte: Yahoo Finance, adaptado pelo autor.}
+  \label{fig:indicadores-tecnicos2}
+\end{figure}
+
+
+Esses indicadores são ferramentas essenciais para investidores e analistas técnicos, permitindo uma melhor compreensão dos movimentos de preços e auxiliando na definição de estratégias para investimentos em curto, médio ou longo prazo. \cite{Murphy1999}
+
+
+\subsection{Preço real, o que acontece}
+
+Normalmente, ao acompanharmos o mercado financeiro, prestamos atenção no preço final das ações. Aliás, é exatamente esse valor que vemos estampado nos jornais e sites especializados após o fechamento da bolsa \cite{MishkinEakins2018}. Só que, enfim, esse número por si só conta apenas parte da história do que realmente aconteceu durante o pregão. A verdade é que, ao longo do dia, acontecem inúmeras transações de compra e venda, fazendo com que o preço oscile diversas vezes—às vezes, até bruscamente—antes de chegar ao valor definitivo no encerramento do dia \cite{Murphy1999}.
+
+Suponha-se que uma ação abra o pregão com preço elevado devido a notícias positivas divulgadas no dia anterior. Isso não garante que ela vá continuar assim durante todo o período. Na verdade, pode ocorrer o oposto: em poucas horas, influenciada por novas informações ou pela movimentação de grandes investidores, o preço pode despencar \cite{BodieKaneMarcus2021}. Por isso, apenas olhar o preço final é insuficiente para entender o comportamento completo da ação. É aí que surgem métricas mais especializadas.
+
+O \textbf{preço de abertura}, por exemplo, revela o ponto inicial do dia e pode já sinalizar tendências imediatas devido a transações realizadas antes do pregão oficial—o chamado pre-market. Já o preço máximo alcançado durante o dia nos diz muito sobre a força compradora, sendo um sinal claro do otimismo momentâneo dos investidores \cite{Murphy1999}. Se esse preço máximo estiver muito distante do fechamento, talvez seja sinal de alerta, indicando uma possível reversão de tendência. O inverso ocorre com o preço mínimo, que reflete o maior nível de pessimismo momentâneo. Caso esteja próximo ao preço de fechamento, talvez seja sinal de recuperação da confiança dos investidores no decorrer do dia \cite{Pring2014}.
+
+Além disso, o volume de negociação também é uma parte integrante de toda essa narrativa. Em suma, é o total transacionado em reais durante o dia. Isso pode revelar muito sobre o interesse dos investidores naquela ação.
+
+Uma grande empresa como a Vale ou a Petrobras pode movimentar milhões, enquanto uma pequena movimenta pouco. Por exemplo, um aumento repentino no volume geralmente indica a chegada de algum evento significativo. Por outro lado, uma diminuição no volume pode mostrar o interesse diminuindo e também implicar que a tendência pode estar se revertendo de sua direção atual.
+
+Por fim, é essencial destacar que essas métricas podem e devem ser analisadas em conjunto. Cada uma delas fornece pistas importantes, mas é a combinação de todas que permite uma leitura mais precisa e rica sobre o que realmente aconteceu com os preços durante o dia na bolsa. Na prática, é esse conjunto completo de informações que possibilita aos investidores e analistas técnicos tomarem decisões mais assertivas e também ajuda redes neurais a preverem com mais acurácia os movimentos futuros do mercado \cite{Murphy1999,BodieKaneMarcus2021}.
+
+
+\subsubsection{Representação dos preços em Candlesticks}
+
+ O gráfico \ref{fig:candlesticks} de candlestick é uma das formas mais intuitivas de representar as oscilações de preço de ativos financeiros. Cada vela informa, em um determinado intervalo de tempo, os preços de abertura, fechamento, máxima e mínima, como dito na imagem.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{candlesticks.png}
+  \caption{Candlesticks. Fonte: \citeonline{Giacomel2016}.}
+  \label{fig:candlesticks}
+\end{figure}
+
+Quando o fechamento é superior à abertura, a vela tende a ser clara, sinalizando valorização; se inferior, escura, indicando desvalorização. Essa configuração visual permite não apenas uma leitura rápida das tendências, mas também auxilia na identificação de possíveis reversões. De acordo com estudo recente de Phankokkruad e Worasuwannarak (2025), padrões como Doji e Hammer são usados como indicativos de mudança de direção nos preços e demonstram aplicabilidade em modelos preditivos baseados em redes neurais \cite{phankokkruad2025}.
+
+
+\section{Estacionariedade e transformações usuais}
+
+Mesmo quando os preços compartilham uma raiz unitária, embora os níveis de preços sejam comumente referidos como não estacionários em pesquisas e práticas financeiras, as flutuações de curto prazo podem frequentemente ser modeladas adequadamente por processos aproximadamente estacionários. É por isso que é uma tradição já estabelecida na área trabalhar com retornos e não com preços de ações simples \cite{campbell1997,tsay2010}. Neste texto, eles usam retornos logarítmicos definidos por \(r_t = \ln(P_t) - \ln(P_{t-1})\), o que torna a série temporal estacionária em relação à escala e permite composições aditivas ao longo do tempo \cite{campbell1997}.
+
+Para avaliar a estacionaridade, podemos usar os seguintes testes complementares: o teste ADF (Augmented Dickey–Fuller), que tem como hipótese nula a existência de uma raiz unitária, e o KPSS, que assume como nula que os dados são estacionários em torno de um nível/tendência. Evita-se conclusões parciais através de uma leitura conjunta \cite{saiddickey1984}.
+
+Para controle de escala e heterocedasticidade, são executadas transformações z-score móveis ou monotônicas (por exemplo, Box–Cox), ajustadas apenas nos dados de treinamento e depois aplicadas ao conjunto de validação/teste para evitar vazamento de dados \cite{hyndman2021fpp3}.
+
+Em algumas séries intradiárias, também se remove a tendência do efeito sazonal da periodicidade diária (abertura/fechamento), seja por meio de dummies intradiários ou subtraindo a média por faixa de tempo, removendo variações sistemáticas que não se generalizam fora do padrão diário \cite{dacorogna2001}.
+
+
+\subsection{Volatilidade e Liquidez Intradiária}
+
+Segundo o Manual de Procedimentos Operacionais de Negociação da B3 (2019), mecanismos como a atuação de formadores de mercado, a estruturação das fases de negociação e parâmetros de lote mínimo influenciam significativamente os padrões intradiários de liquidez e volatilidade \cite{b3_manual_negociacao}. Observa-se, por exemplo, que há picos de volatilidade na abertura e no fechamento da sessão, enquanto o período intermediário costuma apresentar menor atividade.
+
+A \emph{volatilidade intradiária} pode ser mensurada por indicadores como o desvio‐padrão de retornos em janelas móveis de 1, 5 ou 15 minutos \cite{andersen1997intraday}. Andersen \& Bollerslev (1997) demonstraram que a volatilidade não é constante ao longo do dia, concentrando-se em horários específicos e gerando efeitos de heterocedasticidade e autocorrelação nos retornos \cite{andersen1997intraday}.  
+
+Por sua vez, a \emph{liquidez} refere-se à facilidade de negociação de um ativo sem afetar substancialmente seu preço, sendo frequentemente avaliada por medidas como:  
+\begin{itemize}
+  \item {Volume médio por minuto};  
+  \item {Spread bid–ask}, diferença entre o maior preço que alguém está disposto a pagar por um ativo e o menor preço pelo qual alguém está disposto a vendê-lo;  
+  \item {Índice de iliquidez de Amihud}, que relaciona o retorno absoluto ao volume negociado \cite{amihud2002illiquidity};  
+  \item {Profundidade do livro de ofertas}, capturando o total de ordens disponíveis em níveis próximos ao melhor preço \cite{hasbrouck2007empirical}.  
+\end{itemize}
+
+Estudos empíricos mostram que períodos de baixa liquidez tendem a apresentar maior volatilidade, o que prejudica a acurácia de modelos preditivos baseados em padrões técnicos \cite{dufour2000time}. Além disso, ativos com elevada liquidez exibem maior previsibilidade em horizontes de curtíssimo prazo, justificando a seleção desses papéis como base de dados para este trabalho.
+
+Do ponto de vista metodológico, a variação intradiária de volatilidade e liquidez introduz dois principais desafios ao modelo:  
+\begin{enumerate}
+  \item \textbf{Heterocedasticidade} — volatilidade variável ao longo do dia requer o uso de modelos capazes de capturar regimes de alta e baixa variância (ex.: GARCH intradiário);  
+  \item \textbf{Autocorrelação temporal} — séries de duração de ordens e inter‐arrival times impactam a independência dos retornos, demandando abordagens como Autoregressive Conditional Duration \cite{engle1998acd}.  
+\end{enumerate}
+
+Dessa forma, a análise conjunta de volatilidade e liquidez intradiária fornece ao novo modelo, maior robustez e sensibilidade aos diferentes momentos da sessão, permitindo antecipar cenários de risco e otimizar as decisões de predição.
+
+
+\subsection{Componente Temporal em Predição de Séries Financeiras}
+
+Na predição de séries financeiras, o componente temporal é o elemento estruturante que vai além da simples ordem cronológica dos dados. Primeiro, efeitos sazonais e de calendário — como feriados, janelas de pré-abertura e fechamento — geram variações sistemáticas em volume e volatilidade que precisam ser modeladas explicitamente para evitar vieses sazonais \cite{hyndman_2018}. Em seguida, a escolha do tamanho da janela de análise (\textit{rolling window}) implica em um \textit{trade-off}: janelas muito longas diluem choques pontuais, enquanto janelas muito curtas amplificam ruídos e podem induzir sobreajuste \cite{hyndman_2018}.  
+
+No gráfico da Figura \ref{fig:trade-off}, esse equilíbrio é ilustrado visualmente: à medida que aumentamos o tamanho da janela de análise, reduzimos o impacto do ruído de curto prazo, mas também perdemos a capacidade de reagir rapidamente a mudanças repentinas no mercado. Por outro lado, janelas muito curtas capturam com mais agilidade as variações recentes, porém amplificam flutuações aleatórias que podem induzir ao sobreajuste. Dessa forma, a figura evidencia o dilema central entre estabilidade e sensibilidade, que precisa ser considerado na escolha do horizonte temporal para modelagem de séries financeiras.
+
+\begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
+  \centering
+  \includegraphics[width=0.3\linewidth]{trade-off.png}
+  \caption{\textit{Trade-off} do tamanho da janela. Fonte: o autor}
+  \label{fig:trade-off}
+\end{figure}
+
+
+Para avaliar corretamente esse \textit{trade-off} e estimar a performance out-of-sample, empregam-se técnicas de validação temporal avançada, tais como \textit{time series cross-validation} com bloqueio por períodos e backtesting walk-forward, que previnem o \textit{look-ahead bias} e fornecem indicadores realistas de acurácia \cite{bergmeir2012}. Adicionalmente, modelos de mudança de regime (\textit{regime-switching}), como o proposto por Hamilton (1989), capturam transições abruptas entre fases de mercado (e.g., bull vs. bear), ajustando a sensibilidade do algoritmo conforme o regime vigente \cite{hamilton1989switching}.  
+
+No contexto deste trabalho, integrar todos esses elementos temporais — sazonalidades, janelas de análise otimizadas, validação avançada, detecção de regimes e embeddings de tempo — torna o modelo mais sensível tanto a movimentos rápidos quanto a evoluções estruturais, garantindo predições mais estáveis e acuradas em diferentes momentos da sessão de negociação.
+
+
+
+% \subsection{Arquiteturas de Deep Learning aplicadas a Séries Temporais Financeiras}
+
+% VOCÊ PRECISA EXPLICAR MELHOR SOBRE SÉRIES TEMPORAIS, ESTÁ MUITO POBRE. COLOQUE UM EXEMPLO DE UMA SÉRIE TEMPORAL VOLTADA PARA BOLSA DE VALORES!!! E A ARQUITETURA DO LSTM? COLOQUE UMA FIGURA ILUSTRANDO O FUNCIONAMENTO DO LSTM, LEMBRANDO QUE TODA FIGURA PRECISA SER REFERENCIADA NO TEXTO E EXPLICADA, MESMO QUE EM ALTO NÍVEL. O MESMO VC VAI FAZER PARA TRANSFORMER... OK? SÓ TOME CUIDADO, DE SER RASO D+, POIS TEM MAIS CONCEITOS ENVOLVIDOS EM DEEP LEARNING E SÉRIES TEMPORAIS E VC PRECISA ESCREVER DE UMA FORMA MAIS COMPLETA POSSÍVEL PARA AS PESSOAS QUE VÃO LER O SEU TRABALHO, DESDE PESSOAS LEIGAS ATÉ AS ENTENDIDAS DO ASSUNTO!!!
+
+
+% A modelagem de séries temporais financeiras com aprendizado profundo avançou significativamente nos últimos anos, com o surgimento de arquiteturas especializadas capazes de lidar com dependências complexas e padrões não estacionários. Entre as abordagens mais consolidadas estão as redes recorrentes do tipo \textit{Long Short-Term Memory} (LSTM) e \textit{Gated Recurrent Unit} (GRU), desenvolvidas para capturar relações sequenciais e manter informações relevantes por longos períodos temporais \cite{cho2014learning}. Essas redes têm se mostrado eficazes na previsão de cotações, especialmente em ambientes onde os dados seguem padrões temporais marcados por autocorrelação.
+
+% Entretanto, redes LSTM e GRU apresentam limitações quanto ao paralelismo e à eficiência computacional, além de dificuldades em capturar long-range dependencies em janelas muito extensas. Frente a essas restrições, arquiteturas baseadas em mecanismos de atenção, como o \textit{Transformer}, ganharam relevância. Introduzido por Vaswani et al. (2017), o Transformer utiliza atenção auto-regressiva para ponderar cada ponto da série com todos os demais, permitindo identificar padrões de forma paralela e com maior capacidade de generalização \cite{vaswani2017attention}.
+
+% A aplicação de Transformers em finanças ainda é recente, mas promissora. Modelos como o \textit{Temporal Fusion Transformer} (TFT), proposto por Lim et al. (2021), combinam múltiplas fontes de entrada (temporais, categóricas e contínuas), camadas de atenção interpretáveis e mecanismos de seleção dinâmica de variáveis, tornando-se especialmente adequados para dados financeiros com variáveis exógenas e múltiplas frequências \cite{lim2021temporal}. 
+
+% Além disso, estudos recentes mostram que, em ambientes de alta frequência e alta volatilidade — como em dados de \textit{tick-by-tick} — os Transformers superam LSTM em métricas como RMSE e \textit{directional accuracy} \cite{wu2020deep}. Isso se deve, principalmente, à capacidade do modelo de tratar longas janelas de observação sem perder estabilidade na retropropagação.
+
+% Assim, a escolha arquitetural deve ser orientada não apenas pela natureza sequencial dos dados, mas também pelas características operacionais do mercado alvo (frequência, ruído, não linearidade), sendo o Transformer e suas variantes uma tendência crescente na modelagem de séries temporais financeiras.
+
+
+
+
+
+\subsection{Séries Temporais e a Aplicação de Deep Learning em Finanças}
+
+A modelagem de dados financeiros frequentemente se baseia no conceito de  séries temporais, que consistem em uma sequência de observações coletadas em intervalos de tempo regulares. Uma série temporal é mais do que uma simples lista de números. A sua característica fundamental é a dependência temporal, onde o valor de uma observação em um determinado momento pode ser influenciado por valores passados. No contexto da bolsa de valores, uma série temporal pode ser composta pelos preços de fechamento diário de uma ação, pelo volume de negociações a cada minuto ou por qualquer outra métrica que evolua ao longo do tempo.
+
+Para ilustrar, considere a Tabela \ref{tab:exemplo_serie_temporal}, que apresenta uma série temporal multivariada hipotética para a ação PETR4, com dados intradiários coletados a cada 15 minutos. Cada linha representa um ponto no tempo, e as colunas (variáveis) representam diferentes métricas financeiras, como os preços de abertura, máxima, mínima, fechamento e o volume negociado. A análise dessa série busca identificar padrões, tendências e sazonalidades que possam ser utilizados para prever os movimentos futuros dos preços.
+
+\begin{table}[H]
+\centering
+\caption{Exemplo de Série Temporal Multivariada da Ação PETR4 (intervalo de 15 minutos)}
+\label{tab:exemplo_serie_temporal}
+\begin{tabular}{lccccc}
+\hline
+\textbf{Timestamp} & \textbf{Abertura (R\$)} & \textbf{Máxima (R\$)} & \textbf{Mínima (R\$)} & \textbf{Fechamento (R\$)} & \textbf{Volume} \\
+\hline
+2025-08-18 10:00 & 30,50 & 30,65 & 30,48 & 30,62 & 1.250.000 \\
+2025-08-18 10:15 & 30,62 & 30,70 & 30,55 & 30,68 &   890.000 \\
+2025-08-18 10:30 & 30,68 & 30,69 & 30,50 & 30,52 & 1.100.000 \\
+2025-08-18 10:45 & 30,52 & 30,58 & 30,45 & 30,55 &   950.000 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+A modelagem de séries temporais financeiras com aprendizado profundo avançou significativamente, com o surgimento de arquiteturas especializadas capazes de lidar com dependências complexas e padrões não estacionários. A seguir, detalham-se duas das arquiteturas mais influentes neste domínio: LSTM e Transformer.
+
+\subsubsection{Redes Recorrentes Long Short-Term Memory (LSTM)}
+
+As Redes Neurais Recorrentes (RNNs) foram projetadas para lidar com dados sequenciais, possuindo "loops" que permitem que a informação persista ao longo do tempo. Contudo, as RNNs tradicionais enfrentam o problema do desaparecimento do gradiente (vanishing gradient), o que as impede de aprender dependências de longo prazo, uma característica essencial para séries temporais financeiras.
+
+Para superar essa limitação, Hochreiter e Schmidhuber (1997) propuseram a arquitetura Long Short-Term Memory (LSTM), uma variante sofisticada de RNN. A principal inovação da LSTM é sua unidade de memória, composta por um estado de célula (cell state) e três portões (gates) que regulam o fluxo de informação. O estado de célula atua como uma esteira rolante, transportando informações relevantes ao longo da sequência com poucas alterações. Os portões são estruturas neurais que, por meio de funções de ativação sigmoide, decidem qual informação deve ser adicionada ou removida do estado de célula.
+
+A Figura \ref{fig:arquitetura-lstm} ilustra o funcionamento de uma célula LSTM. Seus componentes são:
+
+\begin{itemize}
+    \item \textbf{Portão de Esquecimento (Forget Gate)}: Decide qual informação do estado de célula anterior ($C_{t-1}$) deve ser descartada. Ele analisa a entrada atual ($X_t$) e o estado oculto anterior ($h_{t-1}$) para gerar um valor entre 0 (esquecer completamente) e 1 (manter completamente).
+    \item \textbf{Portão de Entrada (Input Gate)}: Determina quais novas informações serão armazenadas no estado de célula. Ele é composto por duas partes: uma camada sigmoide que decide quais valores serão atualizados e uma camada tanh que cria um vetor de novos valores candidatos.
+    \item \textbf{Portão de Saída (Output Gate)}: Define qual será a saída da célula. A saída é baseada no estado da célula filtrado, que passa por uma camada tanh para normalização e, em seguida, é multiplicado pela saída da camada sigmoide do portão.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{arquitetura-lstm.png}
+    \caption{Arquitetura de uma célula de memória LSTM, ilustrando o estado de célula e os três portões (esquecimento, entrada e saída) que regulam o fluxo de informação. Fonte: Adaptado de \cite{colah2015lstm}.}
+    \label{fig:arquitetura-lstm}
+\end{figure}
+
+Essa estrutura de portões permite que a LSTM aprenda a reter informações por longos períodos, tornando-a particularmente eficaz na previsão de cotações, onde eventos passados podem influenciar significativamente os preços futuros.
+
+\subsubsection{Arquitetura Transformer e o Mecanismo de Atenção}
+
+Apesar de seu sucesso, as LSTMs e outras redes recorrentes possuem uma limitação inerente: seu processamento é sequencial. Isso significa que, para processar o décimo ponto de uma série, é preciso antes ter processado os nove anteriores, o que dificulta a paralelização e a captura de dependências entre pontos muito distantes na sequência.
+
+Para resolver essas questões, \cite{vaswani2017attention} introduziram a arquitetura Transformer, que abandona a recorrência e se baseia inteiramente no mecanismo de atenção (attention mechanism). A ideia central da atenção, especificamente da auto-atenção (self-attention), é permitir que o modelo pondere a importância de todas as outras posições da sequência de entrada ao processar uma única posição. Em vez de passar a informação sequencialmente, o Transformer pode "olhar" para toda a série temporal de uma só vez e identificar quais pontos do passado são mais relevantes para prever o futuro.
+
+A arquitetura do Transformer, ilustrada na Figura \ref{fig:arquitetura-transformer}, é composta por dois blocos principais: o Codificador (Encoder) e o Decodificador (Decoder). Seus componentes-chave incluem:
+
+\begin{itemize}
+    \item \textbf{Auto-Atenção Multi-Cabeças (Multi-Head Self-Attention)}: Em vez de calcular a atenção uma única vez, o modelo o faz múltiplas vezes em paralelo (as "cabeças"), permitindo que ele se concentre em diferentes aspectos da sequência. Por exemplo, uma cabeça pode focar na tendência de curto prazo, enquanto outra foca em padrões sazonais de longo prazo.
+    \item \textbf{Codificação Posicional (Positional Encoding)}: Como o modelo não processa os dados em ordem, a informação sobre a posição de cada ponto na sequência é adicionada aos dados de entrada. Isso garante que a ordem cronológica da série temporal seja preservada.
+    \item \textbf{Camadas Feed-Forward}: Após as camadas de atenção, cada posição passa por uma rede neural feed-forward para processamento adicional.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\linewidth]{arquitetura-transformer.png}
+\caption{A arquitetura do modelo Transformer, destacando os blocos de codificador e decodificador, as camadas de atenção multi-cabeças e as redes feed-forward. Fonte: Adaptado de Vaswani et al. (2017) \cite{vaswani2017attention}.}
+\label{fig:arquitetura-transformer}\end{figure}
+
+A aplicação de Transformers em finanças é recente, porém bastante promissora. Modelos como o Temporal Fusion Transformer (TFT) proposto por \cite{lim2021temporal},combinam múltiplas fontes de dados e camadas de atenção interpretáveis, adequando-se a dados financeiros complexos. Estudos recentes como esse, mostram que, em ambientes de alta frequência, os Transformers podem superar as LSTMs \cite{wu2020deep}, principalmente devido à sua capacidade de modelar dependências de longo prazo de forma mais eficaz e estável .
+
+Assim, a escolha arquitetural deve ser orientada não apenas pela natureza sequencial dos dados, mas também pelas características operacionais do mercado alvo, sendo o Transformer e suas variantes uma tendência crescente na modelagem de séries temporais financeiras.
