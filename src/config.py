@@ -156,6 +156,11 @@ SEED = 42
 # Janela temporal para modelos de deep learning (usado em train e modelos)
 JANELA_TEMPORAL_STEPS = 60  # Número de barras históricas para prever próxima
 
+# Candidatos para otimização de janela via Optuna (script otimizar_janela_optuna.py)
+# Resultados ficam em data/processed/<DIR_RESULTADOS_OPTUNA_JANELA>/ para não misturar com treino normal
+JANELA_TEMPORAL_CANDIDATOS = [16, 32, 64]  # look-back em barras (1–2 alternativas: ex. [16, 64])
+DIR_RESULTADOS_OPTUNA_JANELA = "optuna_janela"  # subdiretório sob data/processed/
+
 # ============================================================================
 # HIPERPARÂMETROS DE MODELOS (para otimização com Optuna)
 # ============================================================================
