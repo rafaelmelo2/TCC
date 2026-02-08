@@ -1,0 +1,204 @@
+
+Este capítulo detalha os procedimentos que foram adotados para desenvolver e avaliar o modelo de predição de séries temporais financeiras proposto. A metodologia foi estruturada em cinco etapas principais: 1) Aquisição e Descrição dos Dados; 2) Pré-processamento e Engenharia de Atributos; 3) Arquitetura dos Modelos; 4) Desenho Experimental e Treinamento; e 5) Métricas de Avaliação.
+
+\begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
+  \centering
+  \includegraphics[height=0.5\textheight]{proximos-passos-mermaid2.png}
+  \caption{Guia adotado para construção de modelo. Fonte: o autor.}
+  \label{fig:proximos-passos-mermaid2}
+\end{figure}
+
+\section{Aquisição e Descrição dos Dados}
+
+A seleção e a qualidade dos dados são determinantes para previsões intradiárias confiáveis. Para mitigar vieses comuns, adotamos três diretrizes: controle de survivorship bias, ajustes corporativos e consistência temporal. Para evitar vazamentos de informação entre janelas e avaliar desempenho de forma realista, estruturamos o histórico em partições temporais sequenciais com embargo entre treino e teste, conforme práticas recomendadas para séries financeiras \cite{lopezdeprado2018,bergmeir2012}. Além disso, respeitamos regras operacionais e fases de negociação da B3 ao longo do período analisado \cite{b3_manual_negociacao}.
+
+\begin{itemize}
+    \item \textbf{Ativos:} Selecionamos um conjunto fixo de três ações líquidas negociadas na B3: PETR4, VALE3 e ITUB4, mantido constante ao longo de todo o período. A escolha por alta liquidez visa reduzir \emph{spreads} e \emph{gaps}, diminuir \emph{slippage} e estabilizar métricas em \emph{backtests}.
+    
+    \item \textbf{Ajustes e integridade:} As séries foram ajustadas por desdobramentos e \textbf{grupamentos} (\emph{reverse splits}) e por proventos (dividendos/JCP/bonificações). Conferimos fuso horário e horários de pregão; removemos barras com registros anômalos (preço/volume ausentes, zeros ou \emph{spikes} espúrios). Para reduzir efeitos de microestrutura --- como \emph{bid--ask bounce} e periodicidades intradiárias --- empregamos banda morta na rotulagem (threshold de 0,1\%) e checagens de consistência \cite{hasbrouck2007empirical,andersen1997intraday}.
+    
+    \item \textbf{Período e frequência:} Utilizamos barras de 15 minutos. O período efetivo dos dados abrange de 22 de outubro de 2020 a 22 de outubro de 2025 (cinco anos completos), em função da disponibilidade de histórico no MetaTrader~5 para a granularidade escolhida. A análise de sensibilidade em 5~min e 30~min para avaliar robustez à granularidade está prevista em etapas posteriores \cite{andersen1997intraday}.
+    
+    \item \textbf{Fontes:} Os dados foram obtidos via plataforma MetaTrader~5, com histórico consolidado e \emph{timestamping} consistente \cite{b3_servicos}.
+\end{itemize}
+
+\section{Pré-processamento e Engenharia de Atributos}
+
+\begin{itemize}
+    \item \textbf{Normalização:} Aplicamos \emph{Min--Max} (ou \emph{Z--Score} em análise de sensibilidade), ajustada exclusivamente no conjunto de treino de cada etapa do \emph{walk-forward} para evitar \emph{data leakage}. O mesmo procedimento vale para quaisquer transformações ou imputações \cite{lopezdeprado2018,bergmeir2012}.
+    
+    \item \textbf{Criação de atributos:} Além de OHLCV, calculamos: (i) retornos logarítmicos ($r_t = \ln P_t - \ln P_{t-1}$) e variações de volume; (ii) amplitude \emph{high--low} e medidas de volatilidade móvel (janela de 20 períodos); (iii) indicadores consagrados como MME 9/21/50, Bandas de Bollinger (20 períodos, 2 desvios-padrão) e RSI 9/21/50, que auxiliam na captura de padrões locais e regimes de volatilidade \cite{Bollinger2001,Murphy1999}.
+\end{itemize}
+
+\section{Arquitetura dos Modelos}
+
+Adotamos uma abordagem que combina modelos de referência e arquiteturas modernas, em ordem crescente de complexidade, viabilizando comparações consistentes. A seleção foi guiada por literatura de previsão de séries temporais e pelas particularidades da negociação eletrônica na B3, onde frequência dos dados, fases do pregão e tipos de ordens afetam a formação de preços \cite{b3_manual_negociacao,hyndman_2018,box_2015,taylor_2018,hochreiter_1997,borovykh_2017}.
+
+\begin{itemize}
+    \item \textbf{Naive / Drift (Baseline 0):} Regras simples (repetir a direção da última barra; regressão linear curta) para estabelecer piso de desempenho.
+    
+    \item \textbf{ARIMA (Baseline 1):} Modelo estatístico para dependências lineares; parâmetros $(p,d,q)$ identificados via ACF/PACF, seguindo o procedimento Box--Jenkins \cite{box_2015}.
+    
+    \item \textbf{Prophet (Baseline 2):} Referência para sazonalidades diárias/semanais; incluído de forma crítica dado o contexto intradiário de 15~min \cite{taylor_2018}.
+    
+    \item \textbf{LSTM Puro (Baseline 3):} Duas camadas LSTM empilhadas seguidas de camada densa para previsão; adequado a dependências de longo prazo \cite{hochreiter_1997}.
+
+    \item \textbf{Híbrido CNN--LSTM (Proposta):} Convoluções 1D extraem padrões locais na janela temporal; camadas LSTM capturam dependências de maior alcance. A saída sigmoide gera probabilidade de alta no próximo intervalo, buscando equilibrar movimentos bruscos e tendências persistentes \cite{borovykh_2017}.
+\end{itemize}
+
+\section{Desenho Experimental e Treinamento}
+
+\begin{itemize}
+    \item \textbf{Validação \emph{walk-forward}:} Dividimos o histórico em blocos sequenciais. Em cada etapa, treinamos no bloco $k$ e avaliamos em $k{+}1$, aplicando \textbf{embargo temporal} de $h$ barras (com $h$ igual ao horizonte de previsão) para reduzir dependências geradas por janelas sobrepostas/rotulagem próxima \cite{lopezdeprado2018,bergmeir2012}. O processo se repete até o fim da série.
+    
+    \item \textbf{Seleção de hiperparâmetros:} Em cada etapa do \emph{walk-forward}, realizamos otimização bayesiana (\emph{Optuna}) no conjunto de validação interno para janela $N$, filtros da CNN, unidades LSTM, \emph{dropout}, \emph{learning rate} etc.; o melhor conjunto é re-treinado no bloco $k$ e aferido em $k{+}1$ \cite{akiba2019}.
+    
+    \item \textbf{Treinamento e estabilidade:} Utilizamos AdamW, \emph{early stopping}, \emph{gradient clipping} e \emph{schedulers} (\emph{one-cycle}/cosine). Fixamos sementes e versionamos dependências para reprodutibilidade \cite{loshchilov2019}.
+    
+    \item \textbf{Função de custo:} \emph{Binary Cross-Entropy} para classificação probabilística da direção.
+    
+    \item \textbf{Ambiente:} Python~3.12; TensorFlow/Keras; Pandas/Scikit-learn.
+\end{itemize}
+
+\section{Métricas de Avaliação}
+
+\begin{itemize}
+    \item \textbf{Acurácia direcional (foco):} Métrica alinhada à decisão prática (comprar/vender), com \emph{banda morta} para amortecer ruído de microestrutura \cite{hasbrouck2007empirical}.
+    
+    \item \textbf{Qualidade probabilística:} \emph{Brier Score} e \emph{Log-Loss} capturam calibração e discriminação; curvas de confiabilidade (ECE) avaliam calibração global \cite{brier1950,guo2017}. Balanced Accuracy, F1-score e MCC auxiliam quando há desequilíbrio entre classes.
+    
+    \item \textbf{Métricas de trading:} Retorno líquido, índice de Sharpe e \emph{max drawdown} quantificam impacto após custos e \emph{slippage} \cite{sharpe1994}.
+\end{itemize}
+
+
+
+A métrica principal é a \textbf{acurácia direcional} (\emph{hit rate}) após banda morta. Para refletir qualidade probabilística e possível desbalanceamento, reportamos: Brier Score, Log-Loss, Balanced Accuracy, F1, MCC e AUC-PR; avaliamos \textbf{calibração} via curvas de confiabilidade (ECE). Para utilidade prática, executamos \emph{backtests} simples (entrada/saída) com custos de transação e \emph{slippage} explícitos, reportando retorno líquido, Sharpe, \emph{max drawdown} e \emph{profit factor}.
+
+\subsection{Backtests e Custos de Transação}
+
+Executamos \emph{backtests} \emph{long-only} e \emph{long/short} condicionados às probabilidades previstas e a limiares calibrados. Custos fixos e proporcionais (corretagem, emolumentos) e \emph{slippage} são descontados; também reportamos \emph{turnover} e sensibilidade a custos (análise de estresse), em conformidade com as práticas e estruturas de custos divulgadas pela B3 \cite{b3_servicos}.
+
+\subsection{Testes de Robustez e Significância}
+
+Comparamos a série de perdas/erros do modelo proposto contra os \emph{baselines} por meio do teste de Diebold--Mariano, avaliando significância de diferenças de acurácia direcional e Brier. Segmentamos resultados por regimes de volatilidade (calmaria vs.\ choques) para verificar estabilidade \cite{diebold1995}.
+
+\subsection{Reprodutibilidade}
+
+Todo o fluxo foi versionado (dados, código e artefatos). Os scripts executáveis (\texttt{prepare\_data.py}, \texttt{train.py}, \texttt{evaluate.py}, \texttt{backtest.py}) utilizam sementes fixas e manifesto de dependências, permitindo replicação e extensão dos experimentos.
+
+\section{Ameaças à Validade}
+\begin{itemize}
+    \item \textbf{Qualidade de dados:} Inconsistências de \emph{timestamp} ou \emph{spikes} podem afetar métricas; mitigamos com filtros, ajustes e checagens de integridade.
+    \item \textbf{Vazamento de informação:} Evitado com ajuste exclusivamente no treino, validação \emph{walk-forward} e embargo temporal \cite{lopezdeprado2018,bergmeir2012}.
+    \item \textbf{Seleção de ativos:} O viés de sobrevivência é mitigado ao fixar universo ou usar composição histórica do índice.
+    \item \textbf{Sobreajuste de hiperparâmetros:} Otimização aninhada e regularização (\emph{dropout}, \emph{weight decay}) reduzem risco; relatamos sensibilidade.
+\end{itemize}
+
+
+\section{Cronograma PFC2}
+
+O cronograma de execução do PFC2 foi elaborado com base nos próximos passos definidos no projeto, distribuindo as atividades em etapas mensais de setembro de 2025 a janeiro de 2026. A Tabela~\ref{tab:cronograma-pfc2} apresenta as principais tarefas, os períodos de realização e os entregáveis correspondentes.
+
+
+% -------------------------------------------------------------------
+% Cronograma de Execução do PFC2
+% -------------------------------------------------------------------
+\setlength{\tabcolsep}{4pt}
+\newcommand{\markx}{\textbf{X}}
+
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{5.5cm}   % Coluna das etapas
+  >{\centering\arraybackslash}m{1.05cm}    % Set
+  >{\centering\arraybackslash}m{1.05cm}    % Out
+  >{\centering\arraybackslash}m{1.05cm}    % Nov
+  >{\centering\arraybackslash}m{1.05cm}    % Dez
+  >{\centering\arraybackslash}m{1.05cm}    % Jan/26
+  >{\raggedright\arraybackslash}p{5.5cm}}  % Entregáveis / Marcos
+  \caption{Cronograma de Execução do PFC2 (Set/2025--Jan/2026)}
+  \label{tab:cronograma-pfc2} \\
+  \toprule
+  \textbf{Etapa (conforme Próximos Passos)} 
+    & \textbf{Set} 
+    & \textbf{Out} 
+    & \textbf{Nov} 
+    & \textbf{Dez} 
+    & \textbf{Jan/26} 
+    & \textbf{Entregáveis / Marcos} \\
+  \midrule
+  \endfirsthead
+
+  \toprule
+  \textbf{Etapa (conforme Próximos Passos)} 
+    & \textbf{Set} 
+    & \textbf{Out} 
+    & \textbf{Nov} 
+    & \textbf{Dez} 
+    & \textbf{Jan/26} 
+    & \textbf{Entregáveis / Marcos} \\
+  \midrule
+  \endhead
+
+  \bottomrule
+  \endfoot
+
+  % ----------------- Linhas da Tabela -----------------
+
+  Aquisição e auditoria de dados (2020--2025, 15m); 
+  ajustes corporativos; integridade temporal 
+    & \markx &   &   &   &   & 
+      Dataset auditado; checklist de integridade; universo de ativos definido. \\
+
+  Pré-processamento e engenharia de atributos 
+  (retornos log, vol. móvel, MME 9/21/50, RSI, Bollinger) 
+    &   & \markx &   &   &   & 
+      \texttt{prepare\_data.py} e \texttt{features.py} est\'aveis; dataset pronto p/ treino. \\
+
+  Particionamento e desenho experimental 
+  (\textit{walk-forward}, embargo temporal, seeds, versionamento) 
+    &   & \markx &   &   &   & 
+      Folds definidos; protocolo de avaliação documentado; ambiente reprodutível. \\
+
+  Baselines: Naive/Drift, ARIMA, Prophet 
+  (execução nos 1--2 primeiros blocos) 
+    &   & \markx &   &   &   & 
+      Relatório curto com desempenho por bloco. \\
+
+  Modelo proposto (CNN--LSTM) e LSTM puro: 
+  implementação, treino e \textit{tuning} por bloco 
+    &   &   & \markx &   &   & 
+      \texttt{train.py}/\texttt{evaluate.py} funcionais; logs de hiperparâmetros. \\
+
+  Avaliação preditiva: 
+  hit rate (banda morta), Brier, Log-Loss, Balanced Acc., 
+  F1, MCC, AUC-PR; calibração (ECE) 
+    &   &   & \markx &   &   & 
+      Tabela consolidada por modelo/fold; curvas de confiabilidade. \\
+
+  Backtests (long-only e long/short) com custos e \textit{slippage}; 
+  sensibilidade a custos e \textit{turnover} 
+    &   &   & \markx & \markx &   & 
+      \texttt{backtest.py}; relat\'orio operacional (retorno, Sharpe, drawdown). \\
+
+  Robustez e significância: 
+  Diebold--Mariano; regimes de volatilidade; sensibilidade (5/30m) 
+    &   &   &   & \markx &   & 
+      Tabelas de p-valores; gráficos por regime; nota técnica. \\
+
+  Reprodutibilidade: 
+  manifesto de dependências; organização de repositório/artefatos; README executável 
+    &   &   &   & \markx & \markx & 
+      Repositório final organizado; scripts e experimentos replicáveis. \\
+
+  Redação de Resultados, Discussão e Ameaças à Validade 
+    &   &   &   & \markx & \markx & 
+      Capítulos redigidos com figuras e tabelas; limitações descritas. \\
+
+  Revisão ABNT (citações/refs, listas, numeração) e formatação final 
+    &   &   &   &   & \markx & 
+      Checklist ABNT concluído; PDF final para submissão. \\
+
+  \textbf{Entrega e preparação para defesa} 
+  (slides, roteiro, ensaio) 
+    &   &   &   &   & \markx & 
+      Slides prontos; ensaio cronometrado; materiais anexos. \\
+\end{longtable}
