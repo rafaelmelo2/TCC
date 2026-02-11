@@ -24,8 +24,8 @@ DATA_FIM_DADOS = datetime(2025, 10, 22)      # 5 anos completos a partir do iní
 # Formato usado nos nomes de arquivos (mantido para compatibilidade)
 # NOTA: Os arquivos mantêm o nome antigo (20200101_20251231) mas contêm
 # dados apenas de 22/10/2020 até 22/10/2025
-FORMATO_DATA_ARQUIVO_INICIO = "20200101"  # Nome do arquivo (não a data real)
-FORMATO_DATA_ARQUIVO_FIM = "20251231"     # Nome do arquivo (não a data real)
+FORMATO_DATA_ARQUIVO_INICIO = "20201022"  # Nome do arquivo (não a data real)
+FORMATO_DATA_ARQUIVO_FIM = "20251022"     # Nome do arquivo (não a data real)
 
 
 def obter_nome_arquivo_dados(ticker: str, timeframe: str = "M15") -> str:
@@ -98,11 +98,11 @@ THRESHOLD_BANDA_MORTA = 0.001  # 0.1% - movimentos menores são considerados neu
 # para evitar overfitting de configuração (cherry-picking). Para análise de
 # sensibilidade, ver: src/tests/testar_sensibilidade_walkforward.py
 
-BARRAS_POR_DIA = 26  # Aproximadamente (10h-17h = 7h = 28 barras, menos algumas)
+BARRAS_POR_DIA = 28  # Pregão 10:00--17:00 = 28 barras de 15 min por dia útil
 
 # CONFIGURAÇÃO PRINCIPAL (escolhida a priori)
-TAMANHO_TREINO_BARRAS = 252 * 26  # ~1 ano de dados (6.552 barras)
-TAMANHO_TESTE_BARRAS = 21 * 26    # ~1 mês de dados (546 barras)
+TAMANHO_TREINO_BARRAS = 252 * 28  # ~1 ano de dados (7.056 barras)
+TAMANHO_TESTE_BARRAS = 21 * 28    # ~1 mês de dados (588 barras)
 EMBARGO_BARRAS = 5                # 5 barras de embargo (~2 horas)
 
 # CONFIGURAÇÕES PARA ANÁLISE DE SENSIBILIDADE
@@ -111,37 +111,37 @@ EMBARGO_BARRAS = 5                # 5 barras de embargo (~2 horas)
 CONFIGURACOES_SENSIBILIDADE = [
     {
         'nome': 'mais_permissivo',
-        'treino': 252 * 26,  # 1 ano
-        'teste': 21 * 26,     # 1 mês
-        'embargo': 1,         # 1 barra (~4 minutos)
+        'treino': 252 * 28,  # 1 ano
+        'teste': 21 * 28,     # 1 mês
+        'embargo': 1,         # 1 barra (~15 minutos)
         'descricao': 'Configuração mais permissiva: embargo mínimo'
     },
     {
         'nome': 'principal',
-        'treino': 252 * 26,  # 1 ano
-        'teste': 21 * 26,     # 1 mês
+        'treino': 252 * 28,  # 1 ano
+        'teste': 21 * 28,     # 1 mês
         'embargo': 5,         # 5 barras (~2 horas) - CONFIGURAÇÃO PRINCIPAL
         'descricao': 'Configuração principal escolhida a priori'
     },
     {
         'nome': 'mais_conservador',
-        'treino': 252 * 26,  # 1 ano
-        'teste': 21 * 26,     # 1 mês
-        'embargo': 10,        # 10 barras (~4 horas)
+        'treino': 252 * 28,  # 1 ano
+        'teste': 21 * 28,     # 1 mês
+        'embargo': 10,        # 10 barras (~2,5 horas)
         'descricao': 'Configuração mais conservadora: embargo maior'
     },
     {
         'nome': 'mais_treino',
-        'treino': 378 * 26,  # 1.5 anos
-        'teste': 21 * 26,     # 1 mês
+        'treino': 378 * 28,  # 1.5 anos
+        'teste': 21 * 28,     # 1 mês
         'embargo': 5,         # 5 barras
         'descricao': 'Mais dados de treino: 1.5 anos'
     },
     {
         'nome': 'embargo_dia',
-        'treino': 252 * 26,  # 1 ano
-        'teste': 21 * 26,     # 1 mês
-        'embargo': 26,        # 1 dia completo
+        'treino': 252 * 28,  # 1 ano
+        'teste': 21 * 28,     # 1 mês
+        'embargo': 28,        # 1 dia completo
         'descricao': 'Embargo de 1 dia completo (máxima separação)'
     }
 ]

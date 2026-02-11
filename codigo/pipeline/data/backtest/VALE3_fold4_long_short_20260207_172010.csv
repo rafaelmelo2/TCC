@@ -1,2 +1,0 @@
-data_hora,ativo,fold,estrategia,retorno_liquido,sharpe_ratio,max_drawdown,profit_factor,turnover,n_trades,custo_total_reais,capital_inicial,capital_final,n_barras
-20260207_172010,VALE3,4,long_short,-0.0005540845544521289,0.05416064467310128,-0.04925682682336773,1.0023492178363058,0.026748971193415638,27,1123.283443579359,100000.0,99944.59154455479,486

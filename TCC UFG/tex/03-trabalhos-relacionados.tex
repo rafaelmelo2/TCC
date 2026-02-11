@@ -1,0 +1,383 @@
+
+% AQUI TB, VC PRECISA REFERENCIAR AS FIGURAS/TABELAS NO SEU TEXTO, EXPLICANDO ELAS NO SEU DOCUMENTO. POIS, VC NÃO FEZ AQUI NESTE CAPÍTULO TB!!!
+
+%  TOME CUIDADO COM AS AFIRMAÇÕES FORTES, COMO ALGUMAS FEITAS NA SUBSEÇÃO 3.1.6. POIS, VC AINDA NÃO FEZ NENHUM EXPERIMENTO PARA TIRAR ALGUMA CONCLUSÃO OU TER ALGUMA AFIRMAÇÃO BASEADA NAS SUAS OBSERVAÇÕES. SENDO ASSIM, QUANDO FIZER ALGUMA ANÁLISE CRÍTICA É PRECISO SE BASEAR EM AFIRMAÇÕES DADAS EM TRABALHOS CONCLUSIVOS... OK! ASSIM, PEÇO QUE VC REVISE A SUA SUBSEÇÃO 3.1.6.... OK!
+
+A literatura sobre \emph{forecasting} de séries temporais financeiras é vasta, com abordagens que evoluíram dos modelos estatísticos clássicos para arquiteturas híbridas integrando \emph{machine learning}, redes neurais e indicadores técnicos.
+
+\section{Modelos Clássicos e Estatísticos}
+
+Os modelos estatísticos tradicionais, especialmente os da família ARIMA (Auto\-regressive Integrated Moving Average), baseiam‑se na metodologia Box–Jenkins \cite{box_2015}, integrando componentes autoregressivo (AR), de média móvel (MA) e de diferenciação (I) para lidar com séries não estacionárias.
+
+Rotela Jr. et al.\cite{rotela2014arima} ajustaram o modelo ARIMA para previsão usando uma longa série histórica mensal do Ibovespa (1995–2013), otimizando em relação ao erro MAPE, e obtiveram valores mais baixos, o que indica um bom ajuste nos dados agregados.
+
+Outros estudos comparativos indicam que a precisão do ARIMA se deteriora à medida que o horizonte de previsão aumenta, enquanto outros modelos, como o LSTM, são mais robustos em cenários de janela mais longa e não lineares \cite{assis2022predicao}.
+
+
+A principal limitação do ARIMA reside em sua premissa de que todas as informações relevantes estão contidas em valores passados da própria série — o que ignora fontes externas, como indicadores técnicos, choques exógenos ou eventos de mercado súbitos. Além disso, sua sensibilidade a pontos de inflexão subestima impactos abruptos como crises e anúncios de política econômica — situações frequentes no contexto da B3 \cite{b3_manual_negociacao}.
+
+Assim sendo, embora o ARIMA forneça boa interpretabilidade e seja eficiente para previsões de curto prazo em séries estacionárias, ele revela fragilidade frente à alta volatilidade, dependências não lineares e dinâmicas multivariadas típicas do mercado acionário brasileiro. Desse modo, para o ambiente da B3 — marcado por ruído, sazonalidade e eventos exógenos — esses modelos demonstram limitações relevantes que justificam a exploração de arquiteturas mais sofisticadas e híbridas.
+
+
+
+
+\section{Aprendizado de Máquina e Modelos Híbridos}
+
+Métodos de previsão híbridos unem instrumentos estatísticos tradicionais (por exemplo, ARIMA) com algoritmos de aprendizado de máquina ou aprendizado profundo (como LSTM, XGBoost), a fim de colher os benefícios das características lineares e não lineares para dados de séries temporais financeiras.
+
+Estes são alguns exemplos do padrão de complementação demonstrado em vários estudos recentes. Gonçalves (2023) analisou um modelo híbrido onde foram comparados modelos ARIMA e LSTM aplicados nos preços diários do índice IBX50 no Brasil, entre 2012 e 2022. ARIMA oferece boa previsão fora da amostra para o período próximo ao treinamento, mas LSTM é sempre melhor para horizontes de previsão mais longos \cite{goncalves2023impacto}. Já Kashif \& Ślepaczuk (2024) propuseram o modelo LSTM‑ARIMA, onde os resíduos gerados pelo ARIMA são incorporados como entrada adicional à LSTM, resultando em ganhos consistentes em múltiplos índices de ações globais \cite{kashif2024lstm}. Além disso, Nasir et al. (2025) introduziram uma estrutura híbrida que combina ARIMA, decomposição LMD (Local Mean Decomposition) e algoritmos clássicos de ML como XGBoost e Random Forest, demonstrando melhoria significativa em RMSE, MAE e acurácia direcional \cite{nasir2025lmd}.
+
+Quanto aos resultados empíricos, Gonçalves (2023) observou que o desempenho do ARIMA diminui progressivamente conforme o horizonte de previsão se estende, enquanto o LSTM se mostra mais robusto em janelas maiores de predição \cite{goncalves2023impacto}. No trabalho de Kashif \& Ślepaczuk, o modelo híbrido LSTM‑ARIMA superou tanto o ARIMA quanto a LSTM isoladamente, alcançando métricas superiores em retorno ajustado ao risco em índices como S\&P 500, FTSE 100 e CAC 40 \cite{kashif2024lstm}. Nasir et al. (2025) relataram que a combinação com LMD + XGBoost incrementou a precisão em torno de 10–15 \% em comparação com modelos individuais, além de melhorar a consistência direcional das previsões \cite{nasir2025lmd}.
+
+Do ponto de vista crítico, tais modelos híbridos oferecem vantagens claras, como conseguir aprender tanto as partes lineares — bem captadas pelo ARIMA — quanto as dependências temporais não lineares, padrões sazonais complexos, por meio de LSTM ou XGBoost. Contudo, apresentam alguns desafios relevantes:
+
+\begin{itemize}
+  \item Dependência de grandes volumes de dados para treinar redes profundas, o que pode ser limitante nos ativos menos líquidos da B3.
+  \item Complexidade computacional e necessidade de tuning rigoroso (por exemplo, validação temporal walk‑forward), o que exige infraestrutura e expertise avançados.
+  \item Risco de sobreajuste, especialmente em mercados voláteis ou com mudanças estruturais repentinas.
+\end{itemize}
+
+Como ilustra a \autoref{fig:validacao-temporal-walk-forward}, aplica-se uma validação temporal do tipo walk-forward com embargo opcional $h$. Em cada \textit{fold} $i$, o modelo é treinado apenas com dados passados e tem seus hiperparâmetros selecionados por busca bayesiana (Optuna) em uma validação interna contida no bloco de treino. Em seguida, impõe-se um período de embargo de $h$ observações entre o fim do treino/validação e o início do conjunto de teste para mitigar vazamento de informação. O desempenho é então medido no próximo bloco temporal (\textit{Teste} $i{+}1$), estritamente posterior. O procedimento se repete ao longo do tempo (folds $1,\dots,k$), produzindo uma sequência de avaliações fora da amostra; as métricas finais são agregadas sobre os blocos de teste, e o modelo pode ser retreinado no maior prefixo disponível com os hiperparâmetros selecionados. Esse protocolo é crucial para séries financeiras e, em especial, para modelos híbridos, pois respeita a causalidade temporal e reduz sobreajuste.
+
+\begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
+  \centering
+  \includegraphics[width=0.6\linewidth]{validacao-temporal-walk-forward.png}
+  \caption{Validação temporal walk-forward com seleção bayesiana de hiperparâmetros. Fonte: autor.}
+  \label{fig:validacao-temporal-walk-forward}
+\end{figure}
+
+Dada a alta volatilidade, sazonalidade intradiária e nível de impacto exógeno da B3, incluindo política monetária e crises regionais \cite{hasbrouck2007empirical,andersen1997intraday}, modelos híbridos podem se tornar preferíveis, mas apenas com boa calibração e validação em seu próprio intervalo de tempo. Eles são superiores aos clássicos em trajetórias de médio e longo prazo e permitem captar padrões que são inalcançáveis para métodos lineares. Deve-se mostrar timidez na transformação de estratégias de investimento, avaliação de risco, estabilidade fora da amostra etc.
+
+Em síntese, os modelos híbridos representam uma evolução lógica em relação aos modelos puramente estatísticos, conciliando interpretabilidade e robustez, e surgem como abordagem promissora para aplicações em predição de séries financeiras na B3.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Redes Neurais Profundas}
+
+As redes neurais profundas, especialmente aquelas com estrutura recorrente como as LSTM (Long Short‑Term Memory), foram idealizadas por Hochreiter e Schmidhuber \cite{hochreiter_1997}. Essas arquiteturas superam os desafios do desvanecimento/explosão de gradiente em sequências longas por meio do “carrossel de erro” (constant error carousel), permitindo que a rede capte dependências tardias essenciais \cite{hochreiter_1997}.
+
+Em aplicações financeiras, as LSTM têm sido amplamente adotadas para previsão de séries temporais não estacionárias. Estudos como Siami‑Namini \& Siami Namin (2018) demonstraram que LSTM supera ARIMA de forma consistente, reduzindo a taxa de erro em cerca de 84–87\% nos dados analisados \cite{siami2018arima_vs_lstm}. Além disso, Fjellström (2022) utilizou um ensemble de LSTMs paralelos para classificação binária de movimentos de preço, obtendo resultados mais estáveis com menor volatilidade de previsão \cite{fjellstrom2022ensemble}. 
+
+Mais recentemente, Kabir et al. (2025) propuseram o modelo híbrido LSTM‑mTrans‑MLP, integrando LSTM com módulos Transformer e perceptron multicamada. Essa abordagem demonstrou desempenho robusto em diversos ativos (Bitcoin, índices chineses e ações globais), com melhorias substanciais em precisão e sensibilidade \cite{kabir2025lstm_trans_mlp}.
+
+Quanto aos resultados práticos, o trabalho original de Hochreiter \& Schmidhuber (1997) mostrou que LSTM pode resolver tarefas com atrasos de tempo superiores a mil steps e aprender significativamente mais rápido que redes recorrentes tradicionais ou Elman nets \cite{hochreiter_1997}. No estudo de Siami‑Namini, observa-se que a LSTM reduz drasticamente os erros em relação ao ARIMA — especialmente em mercados voláteis. Fjellström evidenciou que o ensemble de LSTMs reduz a variabilidade nos resultados, favorecendo previsões diretas de movimento de preço mais estáveis. Já Kabir et al. apresentaram melhoria de desempenho mesmo em mercados altamente não lineares e ruidosos \cite{kabir2025lstm_trans_mlp}.
+
+Crucialmente, as redes LSTM são uma escolha particularmente boa para séries temporais financeiras, pois podem modelar dependências não lineares e memória de longo prazo melhor do que RNNs convencionais. No entanto, elas exigem:
+
+\begin{itemize}
+  \item Aprendizado em Lote: Um grande volume de dados é usado para jogar pelo seguro, porque a B3 possui valores mobiliários com baixa liquidez e o overfitting pode se tornar um problema.
+  \item Ajustes computacionais pesados e ajuste fino de hiperparâmetros (portas, taxas de aprendizado, etc.) requerem uma infraestrutura robusta.
+  \item Risco em termos de perda de estabilidade contra dados ruidosos ou eventos exógenos inesperados.
+\end{itemize}
+
+No contexto da B3 (alta volatilidade, sazonalidade intradiária e relação com eventos macroeconômicos), as LSTMs podem ter um bom desempenho, desde que seja utilizada validação temporal suficiente para evitar o overfitting, especialmente em um ambiente de conjunto ou com módulos Transformer.
+
+Redes neurais profundas, especialmente LSTM e o modelo híbrido com variante Transformer mostrado neste trabalho, representam uma ampla evolução em relação aos modelos clássicos por duas razões principais: elas podem capturar relações temporais complexas a partir de grandes conjuntos de dados; e provam previsões mais estáveis em um ambiente de mercado real.
+
+
+
+
+
+
+
+
+
+\section{Transformers para Séries Temporais}
+
+Os modelos baseados em Transformer, originalmente propostos por Vaswani et al. (2017), têm sido adaptados para séries temporais graças ao mecanismo de atenção que captura dependências de longo alcance e interações multivariadas de forma eficiente \cite{wen2022survey}.
+
+No contexto financeiro e de séries temporais, trabalhos como Costa \& Machado (2023) aplicaram o Transformer à predição de preços de ações do Ibovespa e concluíram que o modelo superou ARIMA e LSTM em cerca de 60\% dos casos testados \cite{costa2023ibovespa}. Em estudos mais gerais, Wen et al. (2022) apresentam uma revisão sistemática dos Transformers para análise temporal, destacando suas forças e limitações na parte estrutural e de aplicação \cite{wen2022survey}. Outro avanço significativo foi o modelo Non-stationary Transformer (Liu et al., 2022), que propõe módulos de “series stationarization” e “de-stationary attention” para lidar eficazmente com dados não estacionários, reduzindo o MSE em até ~49\% em relação a outras variantes como Informer e Reformer \cite{liu2022nonstationary}.
+
+Além disso, Nie et al. (2022) introduziram o PatchTST, que segmenta séries em "patches" temporais canal-independentes para reduzir complexidade e melhorar previsões de longo prazo, superando modelos Transformer convencionais em benchmarks públicos \cite{nie2023patchtst}.
+
+Os resultados empíricos demonstram que:
+\begin{itemize}
+\item Costa \& Machado conseguiram maior precisão do Transformer em relação a modelos clássicos (ARIMA e LSTM) em séries do mercado brasileiro \cite{costa2023ibovespa}.
+  \item Liu et al. reduziram MSE em ~49\% comparando com Transformers tradicionais, Informer e Reformer, na tarefa de prever séries não estacionárias \cite{liu2022nonstationary}.
+  \item Nie et al. relataram que o PatchTST oferece previsões robustas e mais acurácia em longo horizonte com menor carga computacional \cite{nie2023patchtst}.
+\end{itemize}
+
+
+Sob análise crítica, os Transformers apresentam pontos fortes e limitações:
+
+\begin{itemize}
+  \item Vantagem clara na modelagem de dependências de longo prazo e interações multivariadas sem recorrer à recursividade.
+  \item Risco de perda de informação temporal devido à invariância à permutação na autoatenção, especialmente se o encoding posicional não for bem calibrado \cite{zeng2022effectiveness}.
+  \item Complexidade computacional elevada, com necessidade de variantes modificadas como Informer, Autoformer ou PatchTST para tornar o modelo escalável em grandes horizontes temporais.
+  \item Em cenários com títulos de baixa liquidez na B3, os Transformers exigem volume substancial de dados, o que pode ser desafiador.
+\end{itemize}
+
+Em síntese, os Transformers representam uma evolução promissora para o mercado da B3 pela capacidade de capturar padrões complexos e não estacionários. Entretanto, exigem adaptações específicas, validação robusta e infraestrutura computacional adequada para realmente superar métodos como LSTM e modelos híbridos em cenários reais da bolsa brasileira.
+
+
+
+
+\section{LLMs atuais aplicados a Séries Temporais Financeiras}
+
+Recentemente, os \emph{Large Language Models} (LLMs) passaram a ser explorados como ferramentas de previsão de séries temporais financeiras, aproveitando sua capacidade de raciocínio sequencial e contextual. Em vez de operar diretamente sobre séries numéricas, esses modelos são adaptados por meio de técnicas como transformação de padrões temporais em tokens de linguagem, aprendizado em poucos exemplos (\emph{few‑shot}) ou inferência sem ajuste (\emph{zero‑shot}) \cite{noguer2024llm_financial}.
+
+Um estudo conduzido por Noguer I Alonso \& Franklin (2024/25) testou modelos como TimeGPT, NBEATS, NHITS, PatchTST e KAN em dados de ações de empresas globais (Google, Apple, Meta, entre outras), mostrando que variantes baseadas em LLMs, especialmente TimeGPT Long Horizon, tiveram desempenho superior em cenários estáveis, enquanto modelos especializados como PatchTST se destacaram em condições mais voláteis \cite{noguer2024llm_financial}.
+
+Jiang et al. (2025), por meio do framework LLM‑PS, integraram módulos de convolução multi‑escala e um componente de “time‑to‑text”, permitindo ao LLM captar padrões semânticos e temporais de séries não estacionárias. O método obteve precisão de ponta tanto em previsões de curto quanto longo prazo, em regimes com poucos dados ou sem ajuste fino \cite{tang2025llm_ps}.
+
+Além disso, trabalhos como LLM4TS (Chang et al., 2023) apresentaram esquema de alinhamento e fine‑tuning adaptativo de LLMs pré‑treinados para séries temporais, alcançando redução média de ~6,8\% no MSE em cenários few‑shot em comparação com modelos treinados do zero \cite{chang2023llm4ts}. Jin et al. (2023) criaram a arquitetura Time‑LLM, que reprograma LLMs em tarefas de forecasting unificando prompts como prefixos, e demonstrou desempenho competitivo frente a modelos especializados, inclusive em cenários zero-shot \cite{jin2023time_llm}.
+
+Mais recentemente, o modelo \textbf{DeepSeek‑TS+} foi proposto como uma estrutura unificada para previsão de séries multivariadas com múltiplos produtos, integrando atenção latente multi‑cabeça (MLA) com uma política adaptativa de otimização por grupos (GRPO) \cite{deepseek2025ts}. Essa arquitetura apresentou ganhos significativos sobre GRUs e modelos ARMA em ambientes dinâmicos, com melhor capacidade de adaptação e robustez temporal. Em paralelo, o modelo \textbf{SMETimes}, baseado em LLMs leves com menos de 3 bilhões de parâmetros, demonstrou superioridade em relação a modelos maiores (~7B), tanto em desempenho quanto em economia de recursos, sugerindo que arquiteturas otimizadas podem ser mais eficazes em contextos como o da B3 \cite{fan2025smetimes}.
+
+
+Os resultados indicam que:
+\begin{itemize}
+  \item LLMs são eficazes em cenários com poucos dados (few‑shot ou zero‑shot), sendo úteis quando séries são curtas ou ativos têm baixa liquidez.
+  \item Frameworks como LLM‑PS e LLM4TS aprimoram o modelo com módulos que capturam padrões temporais e escrevem sequências numéricas em linguagem natural, resultando em previsão mais contextualizada.
+  \item Modelos como Time‑LLM e DeepSeek‑TS+ oferecem versatilidade e capacidade adaptativa robusta, inclusive em cenários com múltiplas variáveis e dinâmicas não lineares.
+  \item LLMs otimizados, como o SMETimes, viabilizam previsões precisas com menor custo computacional — um diferencial importante em aplicações reais.
+\end{itemize}
+
+Embora essas abordagens mostrem potencial sob escrutínio, elas também apresentam algumas deficiências:
+
+\begin{itemize}
+   \item A conversão de dados numéricos em linguagem pode criar abstração de informações e perda de precisão sem a tokenização adequada.
+  \item O desempenho tende a decair em séries sem padrão claro (ruído elevado, ausência de sazonalidade ou tendência), conforme evidenciado por Tang et al. (2024) \cite{tang2024llm_properties}.
+  \item Extrapolar para alta frequência, uma característica comum do B3, exige uma reformulação em grande escala do pipeline de tokenização e das representações temporais.
+\end{itemize}
+
+Em conclusão, os LLMs otimizados fundidos e de cabeça dupla com módulos dinâmicos temporais especializados podem refletir um método promissor para o tipo de problema 3 com desequilíbrio extremo censurado e dados de séries temporais esparsas que poderiam ser complementares às abordagens típicas e híbridas ao lidar com o B3.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Síntese Crítica}
+
+% Ao revisar trabalhos relacionados, observa-se uma evolução bem definida dos métodos empregados para prever séries financeiras. Modelos tradicionais/estatísticos (pense em ARIMA), por outro lado, permanecem em voga devido à sua natureza interpretável e bom desempenho para séries estacionárias. Mas eles têm limitações claras em mercados não lineares e significativamente voláteis, como o mercado brasileiro.
+
+% O uso de técnicas de aprendizado de máquina em modelos híbridos também proporcionou grandes ganhos de robustez. Essas combinações de ARIMA, LSTM ou SVM com outros modelos, como Random Forest ou XGBoost, de fato, demonstraram sucesso em capturar diferentes aspectos dos dados da série, ao custo de ruído de cruzamento de fenômenos e ajuste pesado de hiperparâmetros. É nesse contexto que as abordagens híbridas se tornam prováveis preenchimentos entre a flexibilidade e uma previsibilidade estrutural clássica.
+
+% Com a ascensão das redes neurais profundas, especialmente LSTM, observa-se maior capacidade de aprendizado temporal. Esses modelos são eficazes para capturar padrões de longo prazo, mesmo sob ruído elevado. No entanto, sua demanda por grandes volumes de dados e poder computacional os torna desafiadores em ambientes com ativos menos líquidos.
+
+% Mais recentemente, os Transformers vêm se destacando como uma inovação disruptiva. Com arquiteturas adaptadas ao domínio temporal — como Informer, Autoformer e PatchTST — esses modelos demonstram desempenho superior em tarefas de previsão de longo prazo e séries multivariadas. Apesar disso, exigem mecanismos de estabilização, como normalização posicional e segmentação em patches, para contornar problemas relacionados à não estacionariedade e escalabilidade.
+
+
+% Mais recentemente, também temos Modelos de Linguagem de Grande Escala (LLMs) como novas ferramentas para auxiliar no treinamento de preditores de séries temporais através de métodos como reprogramação de tarefas usando prompts e treinamento com poucos exemplos com representação em linguagem natural de séries.
+
+% Modelos como TimeGPT, LLM-PS e LLM4TS mostraram que ainda é possível fazer previsões precisas em dados sem muito sinal ou com ruído moderado. Eles trazem outro nível de interpretação semântica e contextual que é utilizado principalmente na B3 (Análise Fundamentalista), onde fatores qualitativos, como notícias econômicas ou fatos políticos, alteram diretamente o comportamento dos preços.
+
+% No entanto, seus resultados ainda são muito sensíveis a técnicas precisas de tokenização e alinhamento temporal, e os próprios modelos requerem um poder computacional extenso. Assim, os LLMs de baixo custo se apresentam como uma escolha secundária em relação às arquiteturas tradicionais (particularmente quando usados em conjunto com fontes textuais externas à categoria ou séries raras).
+
+% Portanto, podemos afirmar que nenhum modelo único pode ser capaz de fornecer a solução para todos os desafios observados na B3. O cenário brasileiro exige soluções híbridas e adaptativas, capazes de lidar com alta volatilidade, múltiplas fontes de dados e eventos exógenos frequentes. O presente trabalho propõe avançar nessa direção, com uma abordagem que integra múltiplos paradigmas de aprendizado — estatístico, profundo e atencional — visando maior estabilidade, precisão e aplicabilidade prática no ambiente real de negociação da bolsa brasileira.
+
+% AUMENTE O TAMANHO DA TABELA DA FIGURA 7 PARA FICAR BEM VISÍVEL, PODE COLOCAR ELA NO FORMATO PAISAGEM, OCUPANDO TODA A PÁGINA. EXPLIQUE ELA E CITE-A NA SUA EXPLICAÇÃO... OK!
+
+
+
+
+% Subseção 3.1.6 — Síntese Crítica (revisada para tom cauteloso e com embasamento em literatura) 
+
+Ao revisar os trabalhos relacionados, observa-se que a literatura documenta uma evolução das abordagens de previsão de séries financeiras, indo de modelos estatísticos clássicos a arquiteturas profundas e híbridas. Modelos tradicionais como a família ARIMA permanecem relevantes pela interpretabilidade e pelo desempenho observado em séries aproximadamente estacionárias \cite{box_2015,hyndman_2018,rotela2014arima}. Por outro lado, há relatos de limitações quando a dinâmica é fortemente não linear, multivariada ou sujeita a mudanças de regime e elevada volatilidade \cite{makridakis2018statistical,derbentsev2020machine}.
+
+Abordagens híbridas que combinam modelos estatísticos com técnicas de aprendizado de máquina e profundo têm sido associadas, em determinados cenários, a ganhos de robustez e desempenho fora da amostra, ao custo de maior complexidade de modelagem e sensibilidade a hiperparâmetros \cite{goncalves2023impacto,kashif2024lstm,nasir2025lmd}. A literatura também recomenda validação temporal cuidadosa (por exemplo, esquemas específicos para séries) e procedimentos sistemáticos de ajuste para mitigar sobreajuste \cite{bergmeir2012,lopezdeprado2018,akiba2019}.
+
+No campo das redes neurais, LSTM e variantes correlatas têm sido empregadas para capturar dependências de longo prazo e padrões não lineares em séries financeiras, com resultados competitivos em diferentes horizontes de previsão \cite{hochreiter_1997,siami2018arima_vs_lstm,fjellstrom2022ensemble}. Há ainda propostas de ensembles e modelos híbridos que integram módulos recorrentes e atencionais \cite{kabir2025lstm_trans_mlp}. Em termos práticos, a necessidade de dados e de recursos computacionais pode ser um fator restritivo em ativos de baixa liquidez, aspecto discutido na literatura de microestrutura e liquidez \cite{amihud2002illiquidity}.
+
+Arquiteturas baseadas em \emph{Transformers} vêm sendo adaptadas ao domínio temporal e reportam resultados competitivos em horizontes longos e séries multivariadas, incluindo estudos no contexto brasileiro \cite{wen2022survey,costa2023ibovespa}. Diversas variantes propõem mecanismos de estabilização e estratégias para lidar com não estacionariedade e eficiência computacional, como módulos de ``stationarization'' e atenção modificada \cite{liu2022nonstationary} ou segmentação em \emph{patches} temporais \cite{nie2023patchtst}. Ao mesmo tempo, análises críticas questionam condições em que tais modelos de atenção superam abordagens alternativas, sugerindo cautela na generalização de resultados \cite{zeng2022effectiveness}.
+
+Mais recentemente, modelos de linguagem de grande escala (LLMs) foram explorados como apoio à previsão de séries temporais por meio de reprogramação de tarefas, \emph{few-shot} e integrações que capturam padrões semânticos e temporais \cite{lathuilere2024timegpt,chang2023llm4ts,jin2023time_llm, noguer2024llm_financial,tang2025llm_ps}. A literatura também discute sensibilidades relacionadas à tokenização, alinhamento temporal e custos computacionais, recomendando atenção a limitações e preferências dos modelos nessas tarefas \cite{tang2024llm_properties}.
+
+Em síntese, os estudos revisados não apontam consenso em torno de um modelo único e universalmente superior para os desafios de previsão no mercado acionário, especialmente em ambientes voláteis e sujeitos a eventos exógenos \cite{makridakis2018statistical,wen2022survey}. Nesse cenário, linhas de pesquisa sobre soluções híbridas e adaptativas aparecem como promissoras para conciliar interpretabilidade, flexibilidade e desempenho. Este trabalho, portanto, investigará uma abordagem que integra paradigmas estatístico, profundo e atencional, com foco em estabilidade, precisão e aplicabilidade prática a cenários representativos do mercado brasileiro. 
+
+Para uma visão de conjunto dos grupos de modelos discutidos, ver as Tabelas \ref{tab:metodo-dados} a \ref{tab:metodo-fragilidades}.
+
+
+
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/trabalhos-correlatos.png}
+%   \caption{Síntese dos modelos revisados. Fonte: o autor.}
+%   \label{fig:trabalhos-correlatos}
+% \end{figure}
+
+
+\begin{table}[H]
+  \centering
+  \caption{Método vs. Dados exigidos. Fonte: o autor.}
+  \label{tab:metodo-dados}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}
+  \begin{tabularx}{\textwidth}{>{\bfseries}l Y}
+    \toprule
+    Método & Dados exigidos \\
+    \midrule
+    Modelos estatísticos (ARIMA/ARIMAX) &
+    Série univariada; estacionária (ou diferenciada); histórico razoável ($\approx$100--300+ pontos); regressores opcionais via ARIMAX. \\
+    LSTM &
+    Muitos dados; normalização; janelas de \textit{lookback}; \textit{tuning} de hiperparâmetros. \\
+    Transformers (PatchTST, Non-stationary) &
+    Janelas longas; multivariadas; melhor com grande volume de dados. \textit{Patching} reduz \textit{tokens}; módulos de estacionarização ajudam. \\
+    Híbridos (ARIMA+LSTM; LMD+XGBoost) &
+    Dados para ambos os blocos; etapas de decomposição e resíduos; \textit{pipeline} mais complexo. \\
+    LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) &
+    Pré-processo \textit{time-to-text}/\textit{prompting}; poucos dados funcionam (few/zero-shot); sem treino pesado. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+
+\begin{table}[H]
+  \centering
+  \caption{Método vs. Custo computacional. Fonte: o autor.}
+  \label{tab:metodo-custo}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}
+  \begin{tabularx}{\textwidth}{>{\bfseries}l Y}
+    \toprule
+    Método & Custo computacional \\
+    \midrule
+    Modelos estatísticos (ARIMA/ARIMAX) & Baixo (CPU). Ajuste Box--Jenkins/auto-ARIMA. \\
+    LSTM & Médio--alto (GPU recomendável). \\
+    Transformers (PatchTST, Non-stationary) & Alto (atenção quadrática). Variantes reduzem custo. \\
+    Híbridos (ARIMA+LSTM; LMD+XGBoost) & Alto (múltiplos modelos/etapas). \\
+    LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) & Alto na inferência; baixo/zero custo de treino adicional; modelos menores mitigam. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Método vs. Pontos fortes. Fonte: o autor.}
+  \label{tab:metodo-fortes}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}
+  \begin{tabularx}{\textwidth}{>{\bfseries}l Y}
+    \toprule
+    Método & Pontos fortes \\
+    \midrule
+    Modelos estatísticos (ARIMA/ARIMAX) & Interpretável; bom curto prazo; \textit{baseline} sólido. \\
+    LSTM & Capta dependências longas e não-linearidades; bom para múltiplas \textit{features}/indicadores. \\
+    Transformers (PatchTST, Non-stationary) & Modela dependências de longo alcance; bom em horizontes longos e séries multivariadas. \\
+    Híbridos (ARIMA+LSTM; LMD+XGBoost) & Combina linear e não-linear; ganhos consistentes em métricas e acurácia direcional. \\
+    LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) & Generalizam com pouco dado; integram sinais textuais (notícias) e numéricos. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+
+\begin{table}[H]
+  \centering
+  \caption{Método vs. Fragilidades. Fonte: o autor.}
+  \label{tab:metodo-fragilidades}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}
+  \begin{tabularx}{\textwidth}{>{\bfseries}l Y}
+    \toprule
+    Método & Fragilidades \\
+    \midrule
+    Modelos estatísticos (ARIMA/ARIMAX) & Não-linearidades e quebras de regime; piora em horizontes longos; multivariadas limitadas. \\
+    LSTM & Exige dados; risco de \textit{overfitting}; sensível a mudanças de regime sem validação temporal. \\
+    Transformers (PatchTST, Non-stationary) & Custo elevado; risco de má codificação temporal; debate sobre ganhos vs. modelos lineares simples. \\
+    Híbridos (ARIMA+LSTM; LMD+XGBoost) & Complexidade; \textit{tuning} pesado; risco de sobreajuste; manutenção mais difícil. \\
+    LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) & Tokenização pode perder precisão; maturidade menor; desempenho cai em ruído extremo/alta frequência. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+
+%  TESTE
+
+% \begin{table}[H]
+%   \centering
+%   \caption{Método vs. Adequação à B3. Fonte: o autor.}
+%   \label{tab:metodo-b3}
+%   \scriptsize
+%   \setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}
+%   \begin{tabularx}{\textwidth}{>{\bfseries}l Y}
+%     \toprule
+%     Método & Adequação à B3 \\
+%     \midrule
+%     Modelos estatísticos (ARIMA/ARIMAX) &
+%     Média em séries agregadas (diária/mensal). Fraca para intradiário muito volátil. \\
+%     LSTM &
+%     Boa em ativos líquidos (minutos--diário) com \textit{walk-forward} e regularização. \\
+%     Transformers (PatchTST, Non-stationary) &
+%     Alta quando há muito dado (índices líquidos); requer calibração para a não-estacionariedade da B3. \\
+%     Híbridos (ARIMA+LSTM; LMD+XGBoost) &
+%     Alta se houver infraestrutura e validação robusta; captura sazonalidade intradiária e ruído. \\
+%     LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) &
+%     Promissor para ativos ilíquidos e integração de texto; limitado para HFT intradiário sem engenharia forte. \\
+%     \bottomrule
+%   \end{tabularx}
+% \end{table}
+
+
+% \begin{table}[H]
+%   \centering
+%   \caption{Checklist de seleção de modelo (derivado das Tabelas \ref{tab:metodo-dados} a \ref{tab:metodo-b3}).}
+%   \label{tab:checklist-modelos}
+%   \scriptsize
+%   \setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.15}
+%   \begin{tabularx}{\textwidth}{
+%       >{\raggedright\arraybackslash}X
+%       >{\centering\arraybackslash}p{1.55cm}
+%       >{\centering\arraybackslash}p{1.25cm}
+%       >{\centering\arraybackslash}p{1.85cm}
+%       >{\centering\arraybackslash}p{1.55cm}
+%       >{\centering\arraybackslash}p{1.9cm}}
+%     \toprule
+%     \textbf{Critério (quando escolher\ldots)} &
+%     \textbf{ARIMA/\\ARIMAX} &
+%     \textbf{LSTM} &
+%     \textbf{Transformer\\(PatchTST, Non-stat.)} &
+%     \textbf{Híbrido\\(ARIMA+\ldots)} &
+%     \textbf{LLMs s/ séries\\(Time-LLM etc.)} \\
+%     \midrule
+%     Poucos dados / série curta & \cmark & \xmark & \xmark & \dmark & \cmark \\
+%     Série univariada e necessidade de \textbf{interpretabilidade} & \cmark & \dmark & \xmark & \xmark & \xmark \\
+%     Dados \textbf{multivariados} e janelas longas & \xmark & \cmark & \cmark & \cmark & \dmark \\
+%     Horizonte \textbf{curto} (agora $\to$ poucos passos) & \cmark & \dmark & \dmark & \dmark & \dmark \\
+%     Horizonte \textbf{longo} & \xmark & \dmark & \cmark & \cmark & \dmark \\
+%     \textbf{Custo computacional} baixo disponível & \cmark & \dmark & \xmark & \xmark & \xmark \\
+%     \textbf{Infra simples} (pipeline enxuto) & \cmark & \dmark & \xmark & \xmark & \dmark \\
+%     Sensível a \textbf{mudanças de regime} / não-estacionariedade & \dmark & \xmark & \dmark\,(com calibração) & \dmark & \xmark \\
+%     \textbf{Intradiário} volátil (minutos) em ativos \emph{líquidos} & \xmark & \cmark & \cmark & \cmark & \xmark \\
+%     Precisa integrar \textbf{textos/notícias} com números & \dmark & \dmark & \dmark & \dmark & \cmark \\
+%     \textbf{Baixa latência} na inferência & \cmark & \dmark & \xmark & \xmark & \xmark \\
+%     Foco em \textbf{acurácia direcional} (subida/queda) & \dmark & \cmark & \cmark & \cmark & \dmark \\
+%     \bottomrule
+%   \end{tabularx}
+
+%   \vspace{2pt}
+%   \par\footnotesize
+%   Legenda: \cmark{} recomendado; \dmark{} depende de dados/infra e \emph{tuning}; \xmark{} desaconselhado dadas restrições.\\
+%   Baseado nos campos ``Dados exigidos'', ``Custo'', ``Pontos fortes'',
+%   ``Fragilidades'' e ``Adequação à B3'' das suas tabelas.
+% \end{table}
+
+

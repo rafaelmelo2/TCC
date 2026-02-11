@@ -1,0 +1,103 @@
+[19:31:12] CMD: src/scripts/visualizar_features.py --ativo PETR4
+   Building pipeline-tcc @ file:///home/rafael/Arquivos/TCC/codigo/pipeline
+Downloading nvidia-cublas-cu12 (554.3MiB)
+Downloading nvidia-cudnn-cu12 (627.4MiB)
+Downloading nvidia-cuda-nvcc-cu12 (38.7MiB)
+Downloading nvidia-cuda-runtime-cu12 (3.3MiB)
+Downloading nvidia-cusparse-cu12 (349.5MiB)
+Downloading nvidia-cuda-nvrtc-cu12 (85.4MiB)
+Downloading nvidia-curand-cu12 (65.1MiB)
+Downloading nvidia-cusolver-cu12 (322.5MiB)
+Downloading nvidia-cufft-cu12 (191.6MiB)
+Downloading nvidia-nvjitlink-cu12 (37.9MiB)
+Downloading nvidia-nccl-cu12 (276.3MiB)
+Downloading nvidia-cuda-cupti-cu12 (10.3MiB)
+      Built pipeline-tcc @ file:///home/rafael/Arquivos/TCC/codigo/pipeline
+ Downloaded nvidia-cuda-runtime-cu12
+ Downloaded nvidia-cuda-cupti-cu12
+ Downloaded nvidia-nvjitlink-cu12
+ Downloaded nvidia-cuda-nvcc-cu12
+ Downloaded nvidia-curand-cu12
+ Downloaded nvidia-cuda-nvrtc-cu12
+ Downloaded nvidia-cufft-cu12
+ Downloaded nvidia-nccl-cu12
+ Downloaded nvidia-cusolver-cu12
+ Downloaded nvidia-cusparse-cu12
+ Downloaded nvidia-cublas-cu12
+ Downloaded nvidia-cudnn-cu12
+Uninstalled 1 package in 6ms
+Installed 13 packages in 6ms
+======================================================================
+VISUALIZAÇÃO DE FEATURES (por ano)
+======================================================================
+Ativo: PETR4
+
+[ERRO] Arquivo não encontrado: /home/rafael/Arquivos/TCC/codigo/pipeline/data/raw/PETR4_M15_20200101_20251231.csv
+Arquivos em data/raw/:
+  - PETR4_M15_20201022_20251022.csv
+  - ITUB4_M15_20201022_20251022.csv
+  - VALE3_M15_20201022_20251022.csv
+[19:32:07] CMD: src/scripts/visualizar_features.py --ativo VALE3
+======================================================================
+VISUALIZAÇÃO DE FEATURES (por ano)
+======================================================================
+Ativo: VALE3
+
+[ERRO] Arquivo não encontrado: /home/rafael/Arquivos/TCC/codigo/pipeline/data/raw/VALE3_M15_20200101_20251231.csv
+Arquivos em data/raw/:
+  - PETR4_M15_20201022_20251022.csv
+  - ITUB4_M15_20201022_20251022.csv
+  - VALE3_M15_20201022_20251022.csv
+[19:32:08] CMD: src/scripts/visualizar_features.py --ativo ITUB4
+======================================================================
+VISUALIZAÇÃO DE FEATURES (por ano)
+======================================================================
+Ativo: ITUB4
+
+[ERRO] Arquivo não encontrado: /home/rafael/Arquivos/TCC/codigo/pipeline/data/raw/ITUB4_M15_20200101_20251231.csv
+Arquivos em data/raw/:
+  - PETR4_M15_20201022_20251022.csv
+  - ITUB4_M15_20201022_20251022.csv
+  - VALE3_M15_20201022_20251022.csv
+[19:32:09] CMD: src/tests/testar_baselines_walkforward.py --todos
+Importing plotly failed. Interactive plots will not work.
+2026-02-10 19:32:11.839831: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+[19:32:13] CMD: src/train.py --ativo PETR4 --modelo cnn_lstm --epochs 100 --optuna --n-trials 20 --gpu
+Importing plotly failed. Interactive plots will not work.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1770762738.173384   48856 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 4082 MB memory:  -> device: 0, name: NVIDIA GeForce GTX 1660 SUPER, pci bus id: 0000:07:00.0, compute capability: 7.5
+======================================================================
+TREINAMENTO DE MODELO DE DEEP LEARNING
+======================================================================
+[INFO] 1 GPU(s) física(s) detectada(s):
+     GPU 0: /physical_device:GPU:0
+          Detalhes: {'compute_capability': (7, 5), 'device_name': 'NVIDIA GeForce GTX 1660 SUPER'}
+          Memória com crescimento habilitado
+[INFO] Dispositivos disponíveis:
+     /device:CPU:0 (CPU)
+     /device:GPU:0 (GPU)
+[OK] TensorFlow configurado para usar GPU!
+[OK] Teste de GPU bem-sucedido!
+[OK] GPU configurada e pronta para uso!
+[ERRO] Arquivo não encontrado: data/raw/PETR4_M15_20200101_20251231.csv
+[19:32:18] CMD: src/train.py --ativo VALE3 --modelo cnn_lstm --epochs 100 --optuna --n-trials 20 --gpu
+Importing plotly failed. Interactive plots will not work.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1770762742.060143   48999 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 4082 MB memory:  -> device: 0, name: NVIDIA GeForce GTX 1660 SUPER, pci bus id: 0000:07:00.0, compute capability: 7.5
+======================================================================
+TREINAMENTO DE MODELO DE DEEP LEARNING
+======================================================================
+[INFO] 1 GPU(s) física(s) detectada(s):
+     GPU 0: /physical_device:GPU:0
+          Detalhes: {'compute_capability': (7, 5), 'device_name': 'NVIDIA GeForce GTX 1660 SUPER'}
+          Memória com crescimento habilitado
+[INFO] Dispositivos disponíveis:
+     /device:CPU:0 (CPU)
+     /device:GPU:0 (GPU)
+[OK] TensorFlow configurado para usar GPU!
+[OK] Teste de GPU bem-sucedido!
+[OK] GPU configurada e pronta para uso!
+[ERRO] Arquivo não encontrado: data/raw/VALE3_M15_20200101_20251231.csv
+[19:32:22] CMD: src/train.py --ativo ITUB4 --modelo cnn_lstm --epochs 100 --optuna --n-trials 20 --gpu
+[19:32:24] CMD: src/scripts/analisar_modelos_salvos.py --ativo PETR4 --modelo cnn_lstm

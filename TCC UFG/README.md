@@ -31,7 +31,7 @@ cd TCC
 
 | Sistema | Comando / como instalar |
 |--------|-------------------------|
-| **Linux (Debian/Ubuntu/WSL)** | `sudo apt update && sudo apt install -y texlive-latex-extra texlive-lang-portuguese latexmk` |
+| **Linux (Debian/Ubuntu/WSL)** | `sudo apt update && sudo apt install -y texlive-latex-extra texlive-lang-portuguese texlive-science latexmk` |
 | **Linux (instalação mais completa)** | `sudo apt install -y texlive-full` |
 | **Windows** | [MiKTeX](https://miktex.org/download) ou [TeX Live](https://tug.org/texlive/) — durante a instalação, marque opção de adicionar ao PATH. |
 | **macOS** | [MacTeX](https://www.tug.org/mactex/) ou `brew install --cask mactex` |

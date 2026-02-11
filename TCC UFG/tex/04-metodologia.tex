@@ -1,0 +1,446 @@
+% ============================================================================
+% Capítulo 4 — Metodologia
+% ============================================================================
+Este capítulo detalha os procedimentos adotados para desenvolver e avaliar o modelo proposto. A metodologia está organizada nas Seções 4.1 a 4.8, cobrindo: aquisição e tratamento de dados, pré-processamento e engenharia de atributos, modelos (baselines e proposto), desenho experimental e treinamento, métricas de avaliação, backtests com custos, testes de robustez e significância e, por fim, diretrizes de reprodutibilidade.
+% ---------------------------------------------------------------------------
+% Figura: guia de construção do modelo
+% ---------------------------------------------------------------------------
+\begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
+  \centering
+  \includegraphics[height=0.5\textheight]{proximos-passos-mermaid2.png}
+  \caption{Guia adotado para construção de modelo. Fonte: o autor.}
+  \label{fig:proximos-passos-mermaid2}
+\end{figure}
+
+% ---------------------------------------------------------------------------
+\section{Aquisição e descrição dos dados}
+% ---------------------------------------------------------------------------
+
+A seleção do conjunto de dados e o controle de qualidade são fatores centrais para obter previsões intradiárias confiáveis. Para reduzir vieses recorrentes em bases financeiras, adotaram-se três diretrizes: (i) mitigação de \emph{survivorship bias}, (ii) ajustes por eventos corporativos e (iii) consistência temporal do histórico. A fim de evitar vazamento de informação entre janelas e estimar o desempenho de maneira mais realista, o período foi organizado em partições temporais sequenciais, com embargo entre treino e teste, conforme recomendações para séries financeiras \cite{lopezdeprado2018,bergmeir2012}. Adicionalmente, foram respeitadas as regras operacionais e as fases de negociação da B3 ao longo do intervalo analisado \cite{b3_manual_negociacao}.
+
+% --- Subseção: Fonte e universo
+\subsection{Fonte e universo}
+Os dados foram obtidos via plataforma MetaTrader~5 (MT5), com histórico consolidado e \emph{timestamping} consistente no fuso do pregão \cite{b3_servicos}. O universo contempla \textbf{três ativos} de alta liquidez negociados na B3: PETR4 (Petrobras), VALE3 (Vale) e ITUB4 (Itaú Unibanco). Esses ativos foram mantidos fixos durante todo o período para mitigar \emph{survivorship bias}. O critério de liquidez busca reduzir \emph{spreads}, \emph{gaps} e \emph{slippage}, além de tornar as métricas mais estáveis em \emph{backtests}.
+
+% --- Subseção: Recorte temporal e granularidade
+\subsection{Recorte temporal e granularidade}
+Foram utilizadas barras de \textbf{15 minutos} (timeframe M15). O período efetivo compreende \textbf{22 de outubro de 2020} a \textbf{22 de outubro de 2025} (cinco anos), condicionado pela disponibilidade de histórico no MT5 para a granularidade selecionada \cite{andersen1997intraday}.
+
+% --- Subseção: Variáveis
+\subsection{Variáveis}
+Cada barra contém as variáveis padrão de preço e volume: \textbf{OHLCV} --- abertura (\emph{open}), máxima (\emph{high}), mínima (\emph{low}), fechamento (\emph{close}) e volume em contratos (\emph{volume\_real}). Incluem-se ainda \emph{volume\_ticks} (número de ticks por barra) e \emph{spread} (diferença bid-ask no \emph{timestamp}), empregadas em checagens de qualidade e na análise de microestrutura. As \emph{features} adicionais (retornos logarítmicos, volatilidade móvel, MME, RSI, Bandas de Bollinger) são construídas na etapa de engenharia de atributos (Seção~4.2).
+
+% --- Subseção: Tratamento de qualidade
+\subsection{Tratamento de qualidade}
+As séries foram ajustadas por desdobramentos e \textbf{grupamentos} (\emph{reverse splits}) e por proventos (dividendos, JCP e bonificações). Também foram verificados o fuso horário e os horários de pregão; em seguida, removeram-se barras com registros anômalos (preço ou volume ausentes, valores zerados e \emph{spikes} espúrios). Para atenuar efeitos de microestrutura --- como \emph{bid--ask bounce} e periodicidades intradiárias --- adotou-se uma banda morta na rotulagem (threshold de 0,1\%) e checagens de consistência \cite{hasbrouck2007empirical,andersen1997intraday}.
+
+% --- Subseção: Estatística descritiva do dataset
+\subsection{Estatística descritiva do dataset}
+A Tabela~\ref{tab:estatistica-dados} resume o volume de dados por ativo e no consolidado. Observa-se um total em torno de 36 mil barras por ativo, o que corresponde a aproximadamente 1\,302 dias de pregão (considerando 28 barras de 15~min por dia útil). O arquivo consolidado (\texttt{todos\_ativos\_M15}) totaliza 109\,432 registros.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Estatística descritiva do dataset intradiário (barras de 15~min).}
+  \label{tab:estatistica-dados}
+  \begin{tabular}{lrrrr}
+    \toprule
+    \textbf{Ativo} & \textbf{Barras} & \textbf{Primeira data} & \textbf{Última data} & \textbf{Dias (aprox.)} \\
+    \midrule
+    PETR4 & 36\,465 & 22/10/2020 & 22/10/2025 & 1\,302 \\
+    VALE3 & 36\,486 & 22/10/2020 & 22/10/2025 & 1\,303 \\
+    ITUB4 & 36\,481 & 22/10/2020 & 22/10/2025 & 1\,303 \\
+    \midrule
+    \textbf{Consolidado} & \textbf{109\,432} & 22/10/2020 & 22/10/2025 & --- \\
+    \bottomrule
+  \end{tabular}
+  \fonte{O autor, a partir de dados MT5.}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\section{Pré-processamento e engenharia de atributos}
+% ---------------------------------------------------------------------------
+
+Nesta etapa, o foco é transformar o OHLCV intradiário em uma base consistente para treino.
+Além de melhorar a estabilidade numérica dos modelos, o pré-processamento também reduz riscos
+clássicos em séries financeiras, especialmente o \emph{data leakage}.
+Em termos práticos, tudo o que usa estatísticas do conjunto de dados precisa respeitar a ordem do tempo.
+Caso contrário, o modelo “aprende” padrões que só existiriam com informação do futuro.
+
+% --- Subseção: Normalização e prevenção de data leakage
+\subsection{Normalização e prevenção de \emph{data leakage}}
+As \emph{features} numéricas são normalizadas antes do treinamento dos modelos de deep learning.
+O método padrão é \textbf{Min--Max}, mapeando os valores para a faixa $[0,1]$.
+Esse tipo de escala costuma favorecer o treinamento de redes por manter as entradas em magnitude controlada.
+Como verificação de robustez, mantemos disponível também o \emph{Z-Score}, usado em análises de sensibilidade.
+
+O ponto central não é apenas “normalizar”, mas \textbf{quando} normalizar.
+Em cada etapa do \emph{walk-forward}, o normalizador é ajustado (\emph{fit})
+\textbf{exclusivamente} no bloco de treino.
+Em seguida, aplicamos apenas a transformação (\emph{transform}) ao bloco de teste.
+Isso garante que estatísticas calculadas no futuro (por exemplo, mínimo, máximo, média ou desvio)
+não contaminem o processo de treino \cite{lopezdeprado2018,bergmeir2012}.
+O mesmo princípio é aplicado a qualquer outra transformação dependente dos dados,
+como imputação ou tratamento de outliers.
+
+Esse fluxo está organizado como pipeline no script \texttt{prepare\_sequences.py}.
+Na prática, ele garante que treino e teste permaneçam isolados no tempo,
+o que torna os resultados mais próximos de um cenário operacional real.
+
+% --- Subseção: Atributos calculados
+\subsection{Atributos calculados}
+A construção dos atributos parte do OHLCV, mas evita usar preços brutos como entrada direta da rede.
+O primeiro passo é calcular retornos logarítmicos, que são mais adequados para análise de variação
+e ajudam a reduzir efeitos de escala entre ativos:
+\[
+r_t = \ln P_t - \ln P_{t-1}.
+\]
+A partir desses retornos e das séries de preços, são extraídos indicadores técnicos
+que capturam tendência, força relativa e regimes de volatilidade.
+Os principais atributos utilizados são:
+
+\begin{itemize}
+  \item \textbf{Volatilidade realizada}: janela móvel de 20 períodos (desvio-padrão dos retornos).
+  \item \textbf{MME} (médias móveis exponenciais): períodos 9, 21 e 50.
+  \item \textbf{RSI} (Relative Strength Index): períodos 9, 21 e 50 \cite{Murphy1999}.
+  \item \textbf{Bandas de Bollinger}: período 20 e 2 desvios-padrão \cite{Bollinger2001}.
+        Além das bandas superior, inferior e média, calculamos:
+        (i) a largura (\emph{width}) e (ii) a posição relativa do preço (\emph{position}).
+\end{itemize}
+
+Para os modelos sequenciais (LSTM e CNN--LSTM), a entrada final considera \textbf{12 variáveis}:
+três MME, três RSI, cinco variáveis das Bandas de Bollinger e a volatilidade.
+Essa escolha busca um equilíbrio: as \emph{features} são ricas o suficiente para capturar padrões locais,
+mas evitam que a rede dependa diretamente de níveis de preço.
+Em outras palavras, o modelo tende a aprender mais sobre dinâmica e regime do que sobre “valor nominal”.
+
+O \emph{target} é direcional e utiliza \textbf{banda morta} de 0,1\%.
+A motivação é reduzir ruído de microvariações e evitar que movimentos muito pequenos sejam tratados
+como “sinais” relevantes.
+A regra de rotulagem é:
+
+\begin{itemize}
+  \item $r_{t+1} > 0{,}1\% \Rightarrow$ alta (1);
+  \item $r_{t+1} < -0{,}1\% \Rightarrow$ baixa ($-1$);
+  \item caso contrário: neutro (0).
+\end{itemize}
+
+Após a remoção das observações neutras, o problema é tratado como classificação binária,
+mapeando baixa/alta para duas classes (por exemplo, 0/1), compatível com a camada sigmoide.
+Isso reduz ambiguidade na classe e tende a melhorar a separação entre alta e baixa,
+ao custo de menor volume de amostras.
+
+% --- Subseção: Janela temporal (lookback) e trade-off
+\subsection{Janela temporal (\emph{lookback}) e trade-off}
+Os modelos de sequência trabalham com uma \textbf{janela deslizante} de histórico.
+Neste trabalho, adotamos como padrão \textbf{60 barras} de 15 minutos,
+o que equivale a aproximadamente 15 horas de pregão
+(na prática, próximo de dois dias úteis, dependendo da distribuição ao longo das sessões).
+
+Para cada instante $t$, a entrada é construída como uma matriz com as últimas 60 observações:
+\[
+\mathbf{X}_t = [\mathbf{x}_{t-60}, \ldots, \mathbf{x}_{t-1}],
+\]
+e o \emph{target} associado é a direção do retorno na barra $t$.
+
+A escolha de 60 passos não é “mágica”; ela representa um compromisso entre fatores que puxam
+para lados opostos:
+
+\begin{itemize}
+  \item \textbf{Contexto}: janelas maiores ajudam a capturar dependências de curto e médio prazo,
+        além de padrões intradiários recorrentes.
+  \item \textbf{Ruído e overfitting}: janelas longas demais podem diluir sinais recentes,
+        aumentar a complexidade efetiva e favorecer ajuste a ruídos.
+  \item \textbf{Viabilidade amostral}: cada nova sequência consome 60 barras de histórico;
+        quanto maior o \emph{lookback}, menor o número de amostras disponíveis.
+\end{itemize}
+
+No pipeline, o valor padrão está definido em \texttt{config.py}
+(\texttt{JANELA\_TEMPORAL\_STEPS = 60}).
+Além da janela padrão (60), foram avaliadas janelas alternativas (16, 32 e 64 barras) por meio de otimização bayesiana (Optuna), a fim de verificar sensibilidade do desempenho ao \emph{lookback}.
+
+% ---------------------------------------------------------------------------
+\section{Modelos - baselines e proposto}
+% ---------------------------------------------------------------------------
+
+Adotamos uma abordagem que combina modelos de referência e arquiteturas modernas, em ordem crescente de complexidade, viabilizando comparações consistentes. A seleção foi guiada por literatura de previsão de séries temporais e pelas particularidades da negociação eletrônica na B3 \cite{b3_manual_negociacao,hyndman_2018,box_2015,taylor_2018,hochreiter_1997,borovykh_2017}.
+
+% --- Subseção: Baselines e justificativa
+\subsection{Baselines e justificativa.} Os \emph{baselines} servem para estabelecer um piso de desempenho e verificar se modelos mais complexos trazem ganho real sobre regras simples e métodos clássicos. 
+
+\begin{itemize}
+  \item \textbf{Naive}: repete a última direção observada (retorno $>0$ $\rightarrow$ alta, $<0$ $\rightarrow$ baixa); não usa histórico além da barra anterior. 
+
+  \item \textbf{Drift}: assume tendência linear (média dos retornos no treino) e propaga essa deriva para obter a direção no passo seguinte; representa um piso um pouco mais informativo que o Naive. 
+
+  \item \textbf{ARIMA}: modelo estatístico Box--Jenkins para dependências lineares; a ordem $(p,d,q)$ é escolhida por busca em grade (por exemplo, $p,q \leq 3$, $d \leq 2$) minimizando AIC nos dados de treino, e o forecast é convertido em sinal direcional \cite{box_2015}.
+
+  \item \textbf{Prophet}: modelo de decomposição aditiva com sazonalidades diária e semanal; incluído como referência de método moderno de séries temporais, ainda que o contexto intradiário de 15~min coloque em questão a relevância de sazonalidade semanal \cite{taylor_2018}. 
+
+  \item \textbf{LSTM puro}: uma camada LSTM seguida de camada densa com sigmoide; baseline de deep learning que usa apenas dependências temporais de longo prazo, sem estágio convolucional \cite{hochreiter_1997}. A comparação do LSTM puro com o híbrido CNN--LSTM permite avaliar o ganho da extração de padrões locais.
+\end{itemize}
+
+
+
+% --- Subseção: Modelo proposto CNN-LSTM
+\subsection{Modelo proposto: CNN--LSTM.} O modelo principal é um \textbf{híbrido CNN--LSTM} que combina convolução 1D (padrões locais na janela temporal) e LSTM (dependências de maior alcance). A entrada é uma matriz $\mathbf{X} \in \mathbb{R}^{N \times T \times F}$, com $N$ amostras, $T=60$ passos de tempo e $F=12$ features. O fluxo é: \begin{itemize}
+  \item \textbf{Conv1D}: 64 filtros, \emph{kernel size} 2, ativação ReLU, aplicado sobre $(T, F)$ — extrai padrões em janelas de 2 barras;
+  \item \textbf{MaxPooling1D}: \emph{pool size} 2 — reduz o comprimento temporal pela metade e aumenta robustez a ruído;
+  \item \textbf{LSTM}: 50 unidades com \emph{dropout} 0,2 — processa a sequência reduzida e captura dependências de médio prazo;
+  \item \textbf{Dense(1, sigmoide)}: saída probabilidade de ``alta'' no próximo intervalo.
+\end{itemize} O otimizador é AdamW com \emph{learning rate} 0,001 e \emph{gradient clipping} por norma (máx.\ 1,0); a função de custo padrão é \emph{Binary Cross-Entropy}. A arquitetura está implementada em \texttt{cnn\_lstm\_model.py} e ilustrada na Figura~\ref{fig:arquitetura-cnn-lstm}.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering
+    \vspace{0.5em}
+    \textbf{Entrada:} $(n\_steps=60,\; n\_features=12)$ \\
+    $\downarrow$ \\
+    \textbf{Conv1D}(64 filtros, kernel=2, ReLU) $\rightarrow$ padrões locais \\
+    $\downarrow$ \\
+    \textbf{MaxPooling1D}(pool\_size=2) $\rightarrow$ redução temporal \\
+    $\downarrow$ \\
+    \textbf{LSTM}(50 unidades, dropout=0,2) $\rightarrow$ dependências temporais \\
+    $\downarrow$ \\
+    \textbf{Dense}(1, sigmoide) $\rightarrow$ $P(\text{alta})$
+    \vspace{0.5em}
+  }}
+  \caption{Arquitetura do modelo híbrido CNN--LSTM (proposta). Fonte: o autor, a partir de \texttt{cnn\_lstm\_model.py}.}
+  \label{fig:arquitetura-cnn-lstm}
+\end{figure}
+
+% --- Subseção: Hiperparâmetros e tuning
+\subsection{Hiperparâmetros e tuning.} Os hiperparâmetros principais do CNN--LSTM são: número de \textbf{filtros} da Conv1D (32, 64 ou 128), \textbf{tamanho do kernel} (2 ou 3), \textbf{unidades LSTM} (32, 50 ou 64), \textbf{dropout} (0,1; 0,2 ou 0,3), \textbf{learning rate} (10$^{-4}$, 10$^{-3}$ ou 10$^{-2}$) e \textbf{batch size} (16, 32 ou 64). O \emph{pool size} foi mantido fixo em 2. O \textbf{critério de busca} é a otimização bayesiana via Optuna \cite{akiba2019}: em cada etapa do \emph{walk-forward}, o conjunto de treino é dividido em treino interno e validação interna (80\%/20\%); o Optuna maximiza a acurácia direcional no conjunto de \textbf{validação interna}, sem usar o conjunto de teste, evitando vazamento de informação. Os hiperparâmetros vencedores são então usados para treinar um modelo no mesmo par treino/validação interna (80\%/20\%); \textbf{não há re-treino no bloco de treino completo} (100\% do fold) --- o modelo efetivamente avaliado no teste é o treinado no 80\% com os melhores hiperparâmetros. Os espaços de busca estão definidos em \texttt{config.py} (\texttt{HIPERPARAMETROS\_CNN\_LSTM}, \texttt{HIPERPARAMETROS\_LSTM}); os valores padrão (sem Optuna) são 64 filtros, kernel 2, 50 unidades LSTM, dropout 0,2 e learning rate 0,001, em linha com a literatura e com o modelo de referência \cite{borovykh_2017}.
+
+% ---------------------------------------------------------------------------
+\section{Desenho experimental e treinamento}
+% ---------------------------------------------------------------------------
+
+Esta seção descreve como o experimento foi organizado no tempo e como os modelos foram treinados.
+A regra geral é sempre preservar a ordem cronológica.
+Ou seja: não se realiza embaralhamento, preservando a ordem temporal.
+Isso evita leituras “do futuro” e deixa a avaliação mais próxima do uso real.
+
+% --- Subseção: Protocolo temporal (walk-forward) e particionamento
+\subsection{Protocolo temporal (\emph{walk-forward}) e particionamento}
+O histórico de cada ativo é dividido em \textbf{blocos sequenciais}, seguindo validação
+\emph{walk-forward} \cite{lopezdeprado2018,bergmeir2012}.
+Em cada \textbf{fold}, usamos:
+
+\begin{itemize}
+  \item \textbf{Treino}: cerca de \textbf{1 ano} em barras
+  \[
+    252 \times 28 = 7\,056 \text{ barras (M15)},
+  \]
+  considerando 28 barras de 15~min por dia útil (pregão 10:00--17:00).
+  \item \textbf{Embargo}: \textbf{5 barras} (aprox.\ 2 horas).
+  \item \textbf{Teste}: cerca de \textbf{1 mês}
+  \[
+    21 \times 28 = 588 \text{ barras}.
+  \]
+\end{itemize}
+
+O fold seguinte começa logo após o fim do teste do fold anterior.
+Assim, treino e teste nunca se sobrepõem, e a ordem do tempo é mantida.
+Com o volume efetivo do dataset (em torno de 36 mil barras por ativo),
+obtêm-se tipicamente \textbf{5 folds} por ativo.
+A implementação desse particionamento está na classe
+\texttt{WalkForwardValidator} (\texttt{validation.py}),
+que gera os intervalos:
+
+\begin{itemize}
+  \item \texttt{train\_start:train\_end}
+  \item \texttt{embargo\_start:embargo\_end}
+  \item \texttt{test\_start:test\_end}
+\end{itemize}
+
+O pipeline completo é executado por \texttt{rodar\_pipeline\_completo.sh}
+para PETR4, VALE3 e ITUB4.
+Os artefatos são salvos de forma organizada em:
+
+\begin{itemize}
+  \item \texttt{models/<ativo>/<modelo>/}
+  \item \texttt{data/processed/}
+  \item \texttt{logs/training\_history/}
+\end{itemize}
+
+% --- Subseção: Treinamento (épocas, batch, early stopping, sementes)
+\subsection{Treinamento: épocas, \emph{batch}, \emph{early stopping} e sementes}
+Os modelos de deep learning (CNN--LSTM e LSTM) são treinados por fold,
+com no máximo \textbf{100 épocas}.
+Para evitar treino desnecessário e reduzir \emph{overfitting},
+aplicamos \emph{early stopping}:
+se a \emph{loss} de validação não melhora por \textbf{10 épocas} seguidas,
+o treino é interrompido e os pesos da melhor época são restaurados.
+O tamanho do \emph{batch} é \textbf{32} por padrão,
+ou o valor definido pelo Optuna (\textbf{16}, \textbf{32} ou \textbf{64}).
+Também utilizamos recursos comuns para estabilizar o treinamento:
+
+\begin{itemize}
+  \item \textbf{\emph{ReduceLROnPlateau}}: reduz o \emph{learning rate} em 50\%
+        após 5 épocas sem melhoria (\emph{min\_lr} $=10^{-7}$).
+  \item \textbf{\emph{CosineDecayRestarts}}: agenda o decaimento do \emph{learning rate} em ciclos.
+  \item \textbf{\emph{Gradient clipping}}: norma máxima 1,0 no otimizador AdamW.
+\end{itemize}
+
+Para reprodutibilidade, fixamos a semente global em \textbf{42}
+(\texttt{SEED = 42} em \texttt{config.py}).
+Ela é aplicada a NumPy e TensorFlow no início do processo e na construção dos modelos.
+
+O histórico de cada fold (por época) é registrado em:
+\[
+\texttt{logs/training\_history/<ativo>/<modelo>/fold\_<N>\_history.csv}.
+\]
+
+% --- Subseção: Tuning de hiperparâmetros (por bloco, não aninhado)
+\subsection{Tuning de hiperparâmetros: por bloco, não aninhado}
+A busca de hiperparâmetros é feita \textbf{por fold}.
+Ou seja: cada bloco tem seu próprio tuning, respeitando o tempo,
+mas sem validação cruzada aninhada (que seria mais cara computacionalmente).
+
+Dentro de cada fold, o conjunto de treino é dividido em:
+
+\begin{itemize}
+  \item \textbf{80\%} para treino interno
+  \item \textbf{20\%} para validação interna
+\end{itemize}
+
+A otimização bayesiana (Optuna) maximiza a métrica escolhida
+(por exemplo, acurácia direcional) na validação interna,
+com um número fixo de \textbf{trials} (por exemplo, 20 no
+\texttt{rodar\_pipeline\_completo.sh}) \cite{akiba2019}.
+
+O melhor conjunto de hiperparâmetros é então usado para treinar o modelo
+final no mesmo par treino/validação interna (80\%/20\%).
+Esse modelo --- treinado no 80\% do bloco de treino do fold, com os hiperparâmetros
+escolhidos pelo Optuna --- é o que é salvo e usado para prever no \textbf{teste}
+daquele mesmo fold; não se re-treina em 100\% do treino após o tuning.
+
+O ponto importante é que o \textbf{teste não participa} do tuning.
+A sequência fica bem definida:
+
+\begin{center}
+\textbf{treino} $\rightarrow$ \textbf{validação interna} $\rightarrow$ \textbf{embargo} $\rightarrow$ \textbf{teste}
+\end{center}
+
+A função de custo adotada é \emph{Binary Cross-Entropy}.
+O ambiente de execução utiliza Python~3.12, TensorFlow/Keras, Pandas e Scikit-learn.
+As dependências são gerenciadas por \texttt{uv}
+e o pipeline é orquestrado por \texttt{rodar\_pipeline\_completo.sh}
+\cite{loshchilov2019}.
+
+% ---------------------------------------------------------------------------
+\section{Métricas de Avaliação}
+% ---------------------------------------------------------------------------
+
+Nesta etapa, a preocupação é dupla.
+Primeiro, medir se o modelo acerta a direção do movimento, que é o que importa para a decisão.
+Segundo, entender se as probabilidades produzidas são confiáveis, e não apenas “estimativas probabilísticas pouco calibradas”.
+Por isso, combinamos métricas de classificação (direção) com métricas probabilísticas (calibração),
+e complementamos com \emph{backtests} para traduzir acerto estatístico em impacto financeiro.
+
+% --- Subseção: Métrica principal e justificativa
+\subsection{Métrica principal e justificativa.}
+A métrica central para comparar os modelos é a \textbf{acurácia direcional}
+(\emph{hit rate}): a proporção de vezes em que a previsão de \emph{alta} ou \emph{baixa}
+coincide com a direção realizada no período seguinte.
+Como trabalhamos com dados intradiários, pequenas oscilações podem ser puro ruído de microestrutura.
+Por isso, a acurácia direcional é calculada \textbf{após} aplicar uma \textbf{banda morta} na rotulagem.
+Retornos com valor absoluto abaixo de 0,1\% são tratados como neutros e \textbf{excluídos}
+do cálculo da métrica.
+Na prática, isso aproxima a avaliação do que seria uma decisão real (comprar/vender),
+e reduz a influência de movimentos muito pequenos, onde o \emph{spread} e o \emph{bid--ask bounce}
+podem dominar \cite{hasbrouck2007empirical}.
+
+Para dar contexto além do \emph{hit rate}, reportamos também métricas clássicas de classificação:
+\textbf{accuracy}, \textbf{Balanced Accuracy}, \textbf{F1-score} e \textbf{MCC}
+(Matthews Correlation Coefficient).
+Essas métricas ajudam quando há desequilíbrio entre classes ou quando a taxa de acerto isolada
+pode esconder um modelo que acerta muito um lado e erra o outro.
+Em especial, o MCC é útil por resumir a matriz de confusão de forma mais estável
+em cenários desbalanceados.
+
+Por fim, como acerto direcional não garante lucro, avaliamos a utilidade prática com \emph{backtests}.
+Neles, incluímos custos de transação e \emph{slippage} explícitos.
+Reportamos então retorno líquido, índice de Sharpe, \emph{max drawdown} e \emph{profit factor}
+\cite{sharpe1994}.
+A intenção aqui é simples: verificar se um ganho estatístico vira ganho operacional
+quando atrito de mercado entra na conta.
+
+% --- Subseção: Métricas probabilísticas e calibração
+\subsection{Métricas probabilísticas e calibração.}
+Como a saída do modelo é probabilística (camada sigmoide),
+não basta saber se ele “acertou” a classe.
+Também importa saber se ele está \textbf{bem calibrado}.
+Um modelo pode acertar bastante, mas ser excessivamente confiante,
+ou o oposto: prever probabilidades tímidas mesmo quando o sinal é forte.
+Isso afeta diretamente decisões por limiar (\emph{threshold})
+e regras de entrada/saída.
+
+Para medir qualidade probabilística, utilizamos \textbf{Log-Loss} e \textbf{Brier Score}.
+Ambos penalizam previsões erradas de forma sensível à confiança:
+errar com 0,99 “custa” mais do que errar com 0,55.
+Valores menores indicam previsões mais consistentes e, em geral, melhor calibração
+\cite{brier1950}.
+
+A calibração é analisada de forma direta com \textbf{curvas de confiabilidade} (\emph{reliability diagrams}) e com o \textbf{ECE} (Expected Calibration Error) \cite{guo2017}.
+A ideia do ECE é quantificar o desvio médio entre probabilidade prevista e frequência observada.
+Um modelo bem calibrado produz probabilidades interpretáveis:
+se ele prevê 70\%, espera-se que, em média, cerca de 70\% daqueles casos aconteçam.
+Isso é especialmente útil para escolher limiares operacionais de forma racional
+(e não por tentativa e erro).
+
+% --- Subseção: Agregação dos resultados entre folds
+\subsection{Agregação dos resultados entre folds.}
+As métricas são calculadas \textbf{por fold} do \emph{walk-forward},
+isto é, em cada bloco de teste.
+Depois, agregamos os resultados entre folds para obter uma visão mais estável do desempenho.
+A regra padrão do pipeline é usar a \textbf{média} das métricas ao longo dos folds,
+por ativo e por modelo.
+
+Não usamos mediana ou intervalos de confiança na rotina padrão.
+Ainda assim, os resultados por fold ficam salvos em CSV
+(por exemplo, \texttt{<ativo>\_<modelo>\_walkforward.csv}),
+com uma linha por fold.
+Isso facilita análises adicionais, caso seja necessário reportar mediana, IC ou testes estatísticos.
+
+Por fim, o script \texttt{comparar\_modelos.py} consolida CNN--LSTM e baselines
+por ativo, usando a média da acurácia direcional (e das demais métricas) ao longo dos folds.
+O comparativo final é exportado em
+\texttt{data/processed/comparativo\_cnn\_lstm\_vs\_baselines.csv}.
+
+% ---------------------------------------------------------------------------
+\section{Backtests e custos}
+\label{sec:backtests-custos}
+% ---------------------------------------------------------------------------
+
+% --- Subseção: Regras do backtest
+\subsection{Regras do backtest.} Executamos \emph{backtests} em duas modalidades: \textbf{long-only} (apenas compra ou neutro; sinal de baixa é tratado como saída para caixa) e \textbf{long/short} (compra, venda a descoberto ou neutro). A entrada e a saída são determinadas pelas probabilidades previstas pelo modelo: dado um limiar (por padrão 0,5), probabilidade acima do limiar gera sinal de alta (1), abaixo de $(1 - \text{limiar})$ gera sinal de baixa ($-1$), e no intervalo intermediário o sinal é neutro (0). O backtest é aplicado por fold: para cada bloco de teste do \emph{walk-forward}, os retornos realizados são alinhados ao sinal previsto (retorno na barra seguinte à previsão) e a curva de capital é simulada período a período, com custos descontados a cada mudança de posição. A implementação está em \texttt{utils/backtesting.py} e é acionada pelo script \texttt{rodar\_backtest.py} por ativo, fold e estratégia \cite{b3_servicos}.
+
+% --- Subseção: Custos e slippage
+\subsection{Custos e \emph{slippage}.} Os custos são modelados em três componentes: (i) \textbf{custo fixo} por operação (corretagem em R\$; no pipeline padrão 0, conforme corretoras com corretagem zero); (ii) \textbf{custo proporcional} ao volume negociado, fixado em 0,03\% (\texttt{CUSTO\_TAXA\_PROPORCIONAL = 0.0003}), em linha com emolumentos B3 (Neg, CCP, TTA) para operações regulares; (iii) \textbf{\emph{slippage}} como fração do valor, em 0,05\% (\texttt{CUSTO\_SLIPPAGE = 0.0005}), faixa realista entre 0,05\% e 0,1\%. O capital inicial padrão é R\$~100.000 (\texttt{CAPITAL\_INICIAL}). Cada mudança de posição (entrada ou saída) incorre em custo; no caso de reversão (long $\leftrightarrow$ short), contam-se duas pernas. A análise de \textbf{sensibilidade a custos} varia os parâmetros por multiplicadores (0,5$\times$, 1$\times$, 1,5$\times$, 2$\times$) para verificar como retorno líquido, Sharpe e \emph{turnover} respondem ao aumento de atrito.
+
+% --- Subseção: Métricas do backtest
+\subsection{Métricas do backtest.} Para cada execução são reportados: \textbf{retorno líquido} (variação percentual do capital inicial ao final, após todos os custos); \textbf{índice de Sharpe} anualizado (média dos retornos líquidos por período sobre desvio padrão, multiplicado por $\sqrt{\text{barras\_por\_ano}}$); \textbf{maximum drawdown} (maior queda percentual do pico ao vale na curva de capital); \textbf{profit factor} (soma dos ganhos / valor absoluto da soma das perdas); \textbf{turnover} (número de mudanças de posição por barra) e \textbf{número de operações}. Os resultados são salvos em CSV em \texttt{data/backtest/} por ativo, fold e estratégia.
+
+% ---------------------------------------------------------------------------
+\section{Robustez e significância}
+\label{sec:robustez-significancia}
+% ---------------------------------------------------------------------------
+
+% --- Subseção: Teste de Diebold--Mariano
+\subsection{Teste de Diebold--Mariano.} Comparamos a série de \textbf{perdas} do modelo proposto (CNN--LSTM) com a de cada baseline (Naive, Drift, ARIMA, Prophet) por meio do teste de Diebold--Mariano \cite{diebold1995}. A perda é definida como 0/1 para acurácia direcional (1 = erro, 0 = acerto) apenas em observações não neutras; opcionalmente usa-se também a \textbf{perda Brier} para comparar qualidade probabilística. A estatística DM baseia-se na diferença média das perdas entre os dois modelos, com variância estimada por kernel de Bartlett (HAC) para acomodar autocorrelação das séries de perdas (horizonte $h=1$). O p-valor bilateral indica se há diferença significativa entre os modelos; no pipeline, o script \texttt{rodar\_testes\_estatisticos.py} executa o teste para todos os ativos e baselines e consolida os p-valores; \texttt{gerar\_tabelas\_graficos\_dm.py} gera tabelas e heatmaps para o relatório.
+
+% --- Subseção: Análise por regimes e por granularidade
+\subsection{Análise por regimes e por granularidade.} Para verificar estabilidade em diferentes condições de mercado, os resultados são segmentados por \textbf{regime de volatilidade}: usando a coluna \texttt{volatility} (janela de 20 períodos) de \texttt{df\_features}, as observações são divididas em \emph{baixa volatilidade} (abaixo da mediana) e \emph{alta volatilidade} (acima da mediana), aproximando calmaria vs.\ choques. O teste de Diebold--Mariano é aplicado separadamente em cada segmento quando há amostra suficiente (mínimo de observações exigido no script). A opção \texttt{--regimes} em \texttt{rodar\_testes\_estatisticos.py} ativa essa segmentação. A análise de sensibilidade por \textbf{granularidade temporal} (barras de 5~min ou 30~min) está prevista em etapas posteriores; no presente trabalho os experimentos foram realizados apenas com barras de 15~min.
+
+% ---------------------------------------------------------------------------
+\section{Reprodutibilidade}
+\label{sec:reprodutibilidade}
+% ---------------------------------------------------------------------------
+
+% --- Subseção: Organização do repositório e versões
+\subsection{Organização do repositório e versões.} O código está organizado no diretório \texttt{codigo/pipeline/}: módulos em \texttt{src/} (dados, modelos, métricas, validação, backtest, Optuna), scripts de execução em \texttt{src/scripts/} e \texttt{src/tests/}, e configuração central em \texttt{src/config.py}. As sementes (NumPy, TensorFlow) são fixadas em \texttt{SEED = 42}. As dependências são gerenciadas com \texttt{uv} (ou \texttt{pip} conforme \texttt{requirements.txt}); não há \texttt{prepare\_data.py} ou \texttt{evaluate.py} como scripts únicos — o fluxo é orquestrado por \texttt{rodar\_pipeline\_completo.sh}, que chama em sequência visualização de features, baselines, treino CNN--LSTM, análise de modelos, backtests, testes estatísticos e sensibilidade do walk-forward.
+
+% --- Subseção: Reprodução do zero
+\subsection{Reprodução do zero.} Para reproduzir os experimentos: (1) colocar os CSVs de dados brutos (OHLCV, 15~min) em \texttt{data/raw/} com o nome esperado por \texttt{obter\_nome\_arquivo\_dados(ativo)}; (2) instalar dependências (\texttt{uv sync} ou \texttt{pip install -r requirements.txt}); (3) executar \texttt{./rodar\_pipeline\_completo.sh} a partir do diretório do pipeline (ou, para testes rápidos, \texttt{--rapido} para menos épocas e trials). O script faz backup dos artefatos antigos, gera modelos em \texttt{models/<ativo>/cnn\_lstm/}, métricas e comparativos em \texttt{data/processed/}, backtests em \texttt{data/backtest/} e logs em \texttt{logs/pipeline/}. Treino e baselines podem ser rodados por ativo com \texttt{uv run python src/train.py --ativo PETR4 --modelo cnn\_lstm --optuna --n-trials 20} e \texttt{uv run python src/tests/testar\_baselines\_walkforward.py --todos}.
+
