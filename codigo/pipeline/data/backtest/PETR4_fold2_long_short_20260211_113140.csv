@@ -1,0 +1,2 @@
+data_hora,ativo,fold,estrategia,retorno_liquido,sharpe_ratio,max_drawdown,profit_factor,turnover,n_trades,custo_total_reais,capital_inicial,capital_final,n_barras
+20260211_113140,PETR4,2,long_short,0.06359837177747628,1.9692864413029638,-0.1683366733466925,1.0777151770190991,0.0,1,80.0,100000.0,106359.83717774763,528
