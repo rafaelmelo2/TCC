@@ -3,13 +3,13 @@
 
 %  TOME CUIDADO COM AS AFIRMAÇÕES FORTES, COMO ALGUMAS FEITAS NA SUBSEÇÃO 3.1.6. POIS, VC AINDA NÃO FEZ NENHUM EXPERIMENTO PARA TIRAR ALGUMA CONCLUSÃO OU TER ALGUMA AFIRMAÇÃO BASEADA NAS SUAS OBSERVAÇÕES. SENDO ASSIM, QUANDO FIZER ALGUMA ANÁLISE CRÍTICA É PRECISO SE BASEAR EM AFIRMAÇÕES DADAS EM TRABALHOS CONCLUSIVOS... OK! ASSIM, PEÇO QUE VC REVISE A SUA SUBSEÇÃO 3.1.6.... OK!
 
-A literatura sobre \emph{forecasting} de séries temporais financeiras é vasta, com abordagens que evoluíram dos modelos estatísticos clássicos para arquiteturas híbridas integrando \emph{machine learning}, redes neurais e indicadores técnicos.
+A literatura sobre previsão (forecasting) de séries temporais financeiras é vasta, com abordagens que evoluíram dos modelos estatísticos clássicos para arquiteturas híbridas integrando aprendizado de máquina (machine learning), redes neurais e indicadores técnicos.
 
 \section{Modelos Clássicos e Estatísticos}
 
-Os modelos estatísticos tradicionais, especialmente os da família ARIMA (Auto\-regressive Integrated Moving Average), baseiam‑se na metodologia Box–Jenkins \cite{box_2015}, integrando componentes autoregressivo (AR), de média móvel (MA) e de diferenciação (I) para lidar com séries não estacionárias.
+Os modelos estatísticos tradicionais, especialmente os da família Auto\-regressive Integrated Moving Average (ARIMA), baseiam‑se na metodologia Box–Jenkins \cite{box_2015}, integrando componentes autoregressivo (AR), de média móvel (MA) e de diferenciação (I) para lidar com séries não estacionárias.
 
-Rotela Jr. et al.\cite{rotela2014arima} ajustaram o modelo ARIMA para previsão usando uma longa série histórica mensal do Ibovespa (1995–2013), otimizando em relação ao erro MAPE, e obtiveram valores mais baixos, o que indica um bom ajuste nos dados agregados.
+Rotela Jr. \textit{et al.}\cite{rotela2014arima} ajustaram o modelo ARIMA para previsão usando uma longa série histórica mensal do Ibovespa (1995–2013), otimizando em relação ao erro MAPE, e obtiveram valores mais baixos, o que indica um bom ajuste nos dados agregados.
 
 Outros estudos comparativos indicam que a precisão do ARIMA se deteriora à medida que o horizonte de previsão aumenta, enquanto outros modelos, como o LSTM, são mais robustos em cenários de janela mais longa e não lineares \cite{assis2022predicao}.
 
@@ -25,7 +25,7 @@ Assim sendo, embora o ARIMA forneça boa interpretabilidade e seja eficiente par
 
 Métodos de previsão híbridos unem instrumentos estatísticos tradicionais (por exemplo, ARIMA) com algoritmos de aprendizado de máquina ou aprendizado profundo (como LSTM, XGBoost), a fim de colher os benefícios das características lineares e não lineares para dados de séries temporais financeiras.
 
-Estes são alguns exemplos do padrão de complementação demonstrado em vários estudos recentes. Gonçalves (2023) analisou um modelo híbrido onde foram comparados modelos ARIMA e LSTM aplicados nos preços diários do índice IBX50 no Brasil, entre 2012 e 2022. ARIMA oferece boa previsão fora da amostra para o período próximo ao treinamento, mas LSTM é sempre melhor para horizontes de previsão mais longos \cite{goncalves2023impacto}. Já Kashif \& Ślepaczuk (2024) propuseram o modelo LSTM‑ARIMA, onde os resíduos gerados pelo ARIMA são incorporados como entrada adicional à LSTM, resultando em ganhos consistentes em múltiplos índices de ações globais \cite{kashif2024lstm}. Além disso, Nasir et al. (2025) introduziram uma estrutura híbrida que combina ARIMA, decomposição LMD (Local Mean Decomposition) e algoritmos clássicos de ML como XGBoost e Random Forest, demonstrando melhoria significativa em RMSE, MAE e acurácia direcional \cite{nasir2025lmd}.
+Estes são alguns exemplos do padrão de complementação demonstrado em vários estudos recentes. \cite{goncalves2023impacto} analisou um modelo híbrido onde foram comparados modelos ARIMA e LSTM aplicados nos preços diários do índice IBX50 no Brasil, entre 2012 e 2022. ARIMA oferece boa previsão fora da amostra para o período próximo ao treinamento, mas LSTM é sempre melhor para horizontes de previsão mais longos. Já Kashif \& Ślepaczuk (2024) propuseram o modelo LSTM‑ARIMA, onde os resíduos gerados pelo ARIMA são incorporados como entrada adicional à LSTM, resultando em ganhos consistentes em múltiplos índices de ações globais \cite{kashif2024lstm}. Além disso, Nasir et al. (2025) introduziram uma estrutura híbrida que combina ARIMA, decomposição LMD (Local Mean Decomposition) e algoritmos clássicos de machine learning como XGBoost e Random Forest, demonstrando melhoria significativa em RMSE, MAE e acurácia direcional \cite{nasir2025lmd}.
 
 Quanto aos resultados empíricos, Gonçalves (2023) observou que o desempenho do ARIMA diminui progressivamente conforme o horizonte de previsão se estende, enquanto o LSTM se mostra mais robusto em janelas maiores de predição \cite{goncalves2023impacto}. No trabalho de Kashif \& Ślepaczuk, o modelo híbrido LSTM‑ARIMA superou tanto o ARIMA quanto a LSTM isoladamente, alcançando métricas superiores em retorno ajustado ao risco em índices como S\&P 500, FTSE 100 e CAC 40 \cite{kashif2024lstm}. Nasir et al. (2025) relataram que a combinação com LMD + XGBoost incrementou a precisão em torno de 10–15 \% em comparação com modelos individuais, além de melhorar a consistência direcional das previsões \cite{nasir2025lmd}.
 
@@ -37,12 +37,12 @@ Do ponto de vista crítico, tais modelos híbridos oferecem vantagens claras, co
   \item Risco de sobreajuste, especialmente em mercados voláteis ou com mudanças estruturais repentinas.
 \end{itemize}
 
-Como ilustra a \autoref{fig:validacao-temporal-walk-forward}, aplica-se uma validação temporal do tipo walk-forward com embargo opcional $h$. Em cada \textit{fold} $i$, o modelo é treinado apenas com dados passados e tem seus hiperparâmetros selecionados por busca bayesiana (Optuna) em uma validação interna contida no bloco de treino. Em seguida, impõe-se um período de embargo de $h$ observações entre o fim do treino/validação e o início do conjunto de teste para mitigar vazamento de informação. O desempenho é então medido no próximo bloco temporal (\textit{Teste} $i{+}1$), estritamente posterior. O procedimento se repete ao longo do tempo (folds $1,\dots,k$), produzindo uma sequência de avaliações fora da amostra; as métricas finais são agregadas sobre os blocos de teste, e o modelo pode ser retreinado no maior prefixo disponível com os hiperparâmetros selecionados. Esse protocolo é crucial para séries financeiras e, em especial, para modelos híbridos, pois respeita a causalidade temporal e reduz sobreajuste.
+Como ilustrado na \autoref{fig:validacao-temporal-walk-forward}, aplica-se uma validação temporal do tipo deslizante (walk-forward) com embargo opcional $h$. Em cada dobra (fold) $i$, o modelo é treinado apenas com dados passados e tem seus hiperparâmetros selecionados por busca bayesiana (Optuna) em uma validação interna contida no bloco de treino. Em seguida, impõe-se um período de embargo de $h$ observações entre o fim do treino/validação e o início do conjunto de teste para mitigar vazamento de informação. O desempenho é então medido no próximo bloco temporal (Teste $i{+}1$), estritamente posterior. O procedimento se repete ao longo do tempo (dobras (folds) $1,\dots,k$), produzindo uma sequência de avaliações fora da amostra; as métricas finais são agregadas sobre os blocos de teste, e o modelo pode ser retreinado no maior prefixo disponível com os hiperparâmetros selecionados. Esse protocolo é crucial para séries financeiras e, em especial, para modelos híbridos, pois respeita a causalidade temporal e reduz sobreajuste.
 
 \begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
   \centering
   \includegraphics[width=0.6\linewidth]{validacao-temporal-walk-forward.png}
-  \caption{Validação temporal walk-forward com seleção bayesiana de hiperparâmetros. Fonte: autor.}
+    \caption{Validação temporal deslizante (walk-forward) com seleção bayesiana de hiperparâmetros. Fonte: autor.}
   \label{fig:validacao-temporal-walk-forward}
 \end{figure}
 
@@ -70,21 +70,21 @@ Em síntese, os modelos híbridos representam uma evolução lógica em relaçã
 
 As redes neurais profundas, especialmente aquelas com estrutura recorrente como as LSTM (Long Short‑Term Memory), foram idealizadas por Hochreiter e Schmidhuber \cite{hochreiter_1997}. Essas arquiteturas superam os desafios do desvanecimento/explosão de gradiente em sequências longas por meio do “carrossel de erro” (constant error carousel), permitindo que a rede capte dependências tardias essenciais \cite{hochreiter_1997}.
 
-Em aplicações financeiras, as LSTM têm sido amplamente adotadas para previsão de séries temporais não estacionárias. Estudos como Siami‑Namini \& Siami Namin (2018) demonstraram que LSTM supera ARIMA de forma consistente, reduzindo a taxa de erro em cerca de 84–87\% nos dados analisados \cite{siami2018arima_vs_lstm}. Além disso, Fjellström (2022) utilizou um ensemble de LSTMs paralelos para classificação binária de movimentos de preço, obtendo resultados mais estáveis com menor volatilidade de previsão \cite{fjellstrom2022ensemble}. 
+Em aplicações financeiras, as LSTM têm sido amplamente adotadas para previsão de séries temporais não estacionárias. Estudos como Siami‑Namini \& Siami Namin (2018) demonstraram que LSTM supera ARIMA de forma consistente, reduzindo a taxa de erro em cerca de 84–87\% nos dados analisados \cite{siami2018arima_vs_lstm}. Além disso, Fjellström (2022) utilizou um conjunto (ensemble) de LSTMs paralelos para classificação binária de movimentos de preço, obtendo resultados mais estáveis com menor volatilidade de previsão \cite{fjellstrom2022ensemble}. 
 
 Mais recentemente, Kabir et al. (2025) propuseram o modelo híbrido LSTM‑mTrans‑MLP, integrando LSTM com módulos Transformer e perceptron multicamada. Essa abordagem demonstrou desempenho robusto em diversos ativos (Bitcoin, índices chineses e ações globais), com melhorias substanciais em precisão e sensibilidade \cite{kabir2025lstm_trans_mlp}.
 
-Quanto aos resultados práticos, o trabalho original de Hochreiter \& Schmidhuber (1997) mostrou que LSTM pode resolver tarefas com atrasos de tempo superiores a mil steps e aprender significativamente mais rápido que redes recorrentes tradicionais ou Elman nets \cite{hochreiter_1997}. No estudo de Siami‑Namini, observa-se que a LSTM reduz drasticamente os erros em relação ao ARIMA — especialmente em mercados voláteis. Fjellström evidenciou que o ensemble de LSTMs reduz a variabilidade nos resultados, favorecendo previsões diretas de movimento de preço mais estáveis. Já Kabir et al. apresentaram melhoria de desempenho mesmo em mercados altamente não lineares e ruidosos \cite{kabir2025lstm_trans_mlp}.
+Quanto aos resultados práticos, o trabalho original de Hochreiter \& Schmidhuber (1997) mostrou que LSTM pode resolver tarefas com atrasos de tempo superiores a mil steps e aprender significativamente mais rápido que redes recorrentes tradicionais ou Elman nets \cite{hochreiter_1997}. No estudo de Siami‑Namini, observa-se que a LSTM reduz drasticamente os erros em relação ao ARIMA — especialmente em mercados voláteis. Fjellström evidenciou que o conjunto (ensemble) de LSTMs reduz a variabilidade nos resultados, favorecendo previsões diretas de movimento de preço mais estáveis. Já Kabir et al. apresentaram melhoria de desempenho mesmo em mercados altamente não lineares e ruidosos \cite{kabir2025lstm_trans_mlp}.
 
 Crucialmente, as redes LSTM são uma escolha particularmente boa para séries temporais financeiras, pois podem modelar dependências não lineares e memória de longo prazo melhor do que RNNs convencionais. No entanto, elas exigem:
 
 \begin{itemize}
-  \item Aprendizado em Lote: Um grande volume de dados é usado para jogar pelo seguro, porque a B3 possui valores mobiliários com baixa liquidez e o overfitting pode se tornar um problema.
+  \item Aprendizado em Lote: Um grande volume de dados é usado para jogar pelo seguro, porque a B3 possui valores mobiliários com baixa liquidez e o sobreajuste (overfitting) pode se tornar um problema.
   \item Ajustes computacionais pesados e ajuste fino de hiperparâmetros (portas, taxas de aprendizado, etc.) requerem uma infraestrutura robusta.
   \item Risco em termos de perda de estabilidade contra dados ruidosos ou eventos exógenos inesperados.
 \end{itemize}
 
-No contexto da B3 (alta volatilidade, sazonalidade intradiária e relação com eventos macroeconômicos), as LSTMs podem ter um bom desempenho, desde que seja utilizada validação temporal suficiente para evitar o overfitting, especialmente em um ambiente de conjunto ou com módulos Transformer.
+No contexto da B3 (alta volatilidade, sazonalidade intradiária e relação com eventos macroeconômicos), as LSTMs podem ter um bom desempenho, desde que seja utilizada validação temporal suficiente para evitar o sobreajuste (overfitting), especialmente em um ambiente de conjunto (ensemble) ou com módulos Transformer.
 
 Redes neurais profundas, especialmente LSTM e o modelo híbrido com variante Transformer mostrado neste trabalho, representam uma ampla evolução em relação aos modelos clássicos por duas razões principais: elas podem capturar relações temporais complexas a partir de grandes conjuntos de dados; e provam previsões mais estáveis em um ambiente de mercado real.
 
@@ -106,9 +106,9 @@ Além disso, Nie et al. (2022) introduziram o PatchTST, que segmenta séries em 
 
 Os resultados empíricos demonstram que:
 \begin{itemize}
-\item Costa \& Machado conseguiram maior precisão do Transformer em relação a modelos clássicos (ARIMA e LSTM) em séries do mercado brasileiro \cite{costa2023ibovespa}.
-  \item Liu et al. reduziram MSE em ~49\% comparando com Transformers tradicionais, Informer e Reformer, na tarefa de prever séries não estacionárias \cite{liu2022nonstationary}.
-  \item Nie et al. relataram que o PatchTST oferece previsões robustas e mais acurácia em longo horizonte com menor carga computacional \cite{nie2023patchtst}.
+  \item Costa \& Machado conseguiram maior precisão do Transformer em relação a modelos clássicos (ARIMA e LSTM) em séries do mercado brasileiro \cite{costa2023ibovespa}.
+  \item Liu \textit{et al.} reduziram MSE em ~49\% comparando com Transformers tradicionais, Informer e Reformer, na tarefa de prever séries não estacionárias \cite{liu2022nonstationary}.
+  \item Nie \textit{et al.} relataram que o PatchTST oferece previsões robustas e mais acurácia em longo horizonte com menor carga computacional \cite{nie2023patchtst}.
 \end{itemize}
 
 
@@ -134,7 +134,7 @@ Um estudo conduzido por Noguer I Alonso \& Franklin (2024/25) testou modelos com
 
 Jiang et al. (2025), por meio do framework LLM‑PS, integraram módulos de convolução multi‑escala e um componente de “time‑to‑text”, permitindo ao LLM captar padrões semânticos e temporais de séries não estacionárias. O método obteve precisão de ponta tanto em previsões de curto quanto longo prazo, em regimes com poucos dados ou sem ajuste fino \cite{tang2025llm_ps}.
 
-Além disso, trabalhos como LLM4TS (Chang et al., 2023) apresentaram esquema de alinhamento e fine‑tuning adaptativo de LLMs pré‑treinados para séries temporais, alcançando redução média de ~6,8\% no MSE em cenários few‑shot em comparação com modelos treinados do zero \cite{chang2023llm4ts}. Jin et al. (2023) criaram a arquitetura Time‑LLM, que reprograma LLMs em tarefas de forecasting unificando prompts como prefixos, e demonstrou desempenho competitivo frente a modelos especializados, inclusive em cenários zero-shot \cite{jin2023time_llm}.
+Além disso, trabalhos como LLM4TS (Chang et al., 2023) apresentaram esquema de alinhamento e ajuste fino adaptativo (fine-tuning) de LLMs pré‑treinados para séries temporais, alcançando redução média de ~6,8\% no MSE em cenários de aprendizado com poucos exemplos (few-shot) em comparação com modelos treinados do zero \cite{chang2023llm4ts}. Jin et al. (2023) criaram a arquitetura Time‑LLM, que reprograma LLMs em tarefas de previsão (forecasting) unificando prompts como prefixos, e demonstrou desempenho competitivo frente a modelos especializados, inclusive em cenários de inferência sem ajuste (zero-shot) \cite{jin2023time_llm}.
 
 Mais recentemente, o modelo \textbf{DeepSeek‑TS+} foi proposto como uma estrutura unificada para previsão de séries multivariadas com múltiplos produtos, integrando atenção latente multi‑cabeça (MLA) com uma política adaptativa de otimização por grupos (GRPO) \cite{deepseek2025ts}. Essa arquitetura apresentou ganhos significativos sobre GRUs e modelos ARMA em ambientes dinâmicos, com melhor capacidade de adaptação e robustez temporal. Em paralelo, o modelo \textbf{SMETimes}, baseado em LLMs leves com menos de 3 bilhões de parâmetros, demonstrou superioridade em relação a modelos maiores (~7B), tanto em desempenho quanto em economia de recursos, sugerindo que arquiteturas otimizadas podem ser mais eficazes em contextos como o da B3 \cite{fan2025smetimes}.
 
@@ -205,7 +205,7 @@ Ao revisar os trabalhos relacionados, observa-se que a literatura documenta uma 
 
 Abordagens híbridas que combinam modelos estatísticos com técnicas de aprendizado de máquina e profundo têm sido associadas, em determinados cenários, a ganhos de robustez e desempenho fora da amostra, ao custo de maior complexidade de modelagem e sensibilidade a hiperparâmetros \cite{goncalves2023impacto,kashif2024lstm,nasir2025lmd}. A literatura também recomenda validação temporal cuidadosa (por exemplo, esquemas específicos para séries) e procedimentos sistemáticos de ajuste para mitigar sobreajuste \cite{bergmeir2012,lopezdeprado2018,akiba2019}.
 
-No campo das redes neurais, LSTM e variantes correlatas têm sido empregadas para capturar dependências de longo prazo e padrões não lineares em séries financeiras, com resultados competitivos em diferentes horizontes de previsão \cite{hochreiter_1997,siami2018arima_vs_lstm,fjellstrom2022ensemble}. Há ainda propostas de ensembles e modelos híbridos que integram módulos recorrentes e atencionais \cite{kabir2025lstm_trans_mlp}. Em termos práticos, a necessidade de dados e de recursos computacionais pode ser um fator restritivo em ativos de baixa liquidez, aspecto discutido na literatura de microestrutura e liquidez \cite{amihud2002illiquidity}.
+No campo das redes neurais, LSTM e variantes correlatas têm sido empregadas para capturar dependências de longo prazo e padrões não lineares em séries financeiras, com resultados competitivos em diferentes horizontes de previsão \cite{hochreiter_1997,siami2018arima_vs_lstm,fjellstrom2022ensemble}. Há ainda propostas de conjuntos (ensembles) e modelos híbridos que integram módulos recorrentes e atencionais \cite{kabir2025lstm_trans_mlp}. Em termos práticos, a necessidade de dados e de recursos computacionais pode ser um fator restritivo em ativos de baixa liquidez, aspecto discutido na literatura de microestrutura e liquidez \cite{amihud2002illiquidity}.
 
 Arquiteturas baseadas em \emph{Transformers} vêm sendo adaptadas ao domínio temporal e reportam resultados competitivos em horizontes longos e séries multivariadas, incluindo estudos no contexto brasileiro \cite{wen2022survey,costa2023ibovespa}. Diversas variantes propõem mecanismos de estabilização e estratégias para lidar com não estacionariedade e eficiência computacional, como módulos de ``stationarization'' e atenção modificada \cite{liu2022nonstationary} ou segmentação em \emph{patches} temporais \cite{nie2023patchtst}. Ao mesmo tempo, análises críticas questionam condições em que tais modelos de atenção superam abordagens alternativas, sugerindo cautela na generalização de resultados \cite{zeng2022effectiveness}.
 
@@ -239,13 +239,13 @@ Para uma visão de conjunto dos grupos de modelos discutidos, ver as Tabelas \re
     Modelos estatísticos (ARIMA/ARIMAX) &
     Série univariada; estacionária (ou diferenciada); histórico razoável ($\approx$100--300+ pontos); regressores opcionais via ARIMAX. \\
     LSTM &
-    Muitos dados; normalização; janelas de \textit{lookback}; \textit{tuning} de hiperparâmetros. \\
+    Muitos dados; normalização; janelas de janela retrospectiva (lookback); ajuste fino (tuning) de hiperparâmetros. \\
     Transformers (PatchTST, Non-stationary) &
-    Janelas longas; multivariadas; melhor com grande volume de dados. \textit{Patching} reduz \textit{tokens}; módulos de estacionarização ajudam. \\
+    Janelas longas; multivariadas; melhor com grande volume de dados. \textit{Patching} reduz tokens; módulos de estacionarização ajudam. \\
     Híbridos (ARIMA+LSTM; LMD+XGBoost) &
-    Dados para ambos os blocos; etapas de decomposição e resíduos; \textit{pipeline} mais complexo. \\
+    Dados para ambos os blocos; etapas de decomposição e resíduos; pipeline mais complexo. \\
     LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) &
-    Pré-processo \textit{time-to-text}/\textit{prompting}; poucos dados funcionam (few/zero-shot); sem treino pesado. \\
+    Pré-processo conversão tempo-para-texto (time-to-text)/prompting; poucos dados funcionam (few/zero-shot); sem treino pesado. \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -280,8 +280,8 @@ Para uma visão de conjunto dos grupos de modelos discutidos, ver as Tabelas \re
     \toprule
     Método & Pontos fortes \\
     \midrule
-    Modelos estatísticos (ARIMA/ARIMAX) & Interpretável; bom curto prazo; \textit{baseline} sólido. \\
-    LSTM & Capta dependências longas e não-linearidades; bom para múltiplas \textit{features}/indicadores. \\
+    Modelos estatísticos (ARIMA/ARIMAX) & Interpretável; bom curto prazo; modelo de referência (baseline) sólido. \\
+    LSTM & Capta dependências longas e não-linearidades; bom para múltiplas características (features)/indicadores. \\
     Transformers (PatchTST, Non-stationary) & Modela dependências de longo alcance; bom em horizontes longos e séries multivariadas. \\
     Híbridos (ARIMA+LSTM; LMD+XGBoost) & Combina linear e não-linear; ganhos consistentes em métricas e acurácia direcional. \\
     LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) & Generalizam com pouco dado; integram sinais textuais (notícias) e numéricos. \\
@@ -301,9 +301,9 @@ Para uma visão de conjunto dos grupos de modelos discutidos, ver as Tabelas \re
     Método & Fragilidades \\
     \midrule
     Modelos estatísticos (ARIMA/ARIMAX) & Não-linearidades e quebras de regime; piora em horizontes longos; multivariadas limitadas. \\
-    LSTM & Exige dados; risco de \textit{overfitting}; sensível a mudanças de regime sem validação temporal. \\
+    LSTM & Exige dados; risco de sobreajuste (overfitting); sensível a mudanças de regime sem validação temporal. \\
     Transformers (PatchTST, Non-stationary) & Custo elevado; risco de má codificação temporal; debate sobre ganhos vs. modelos lineares simples. \\
-    Híbridos (ARIMA+LSTM; LMD+XGBoost) & Complexidade; \textit{tuning} pesado; risco de sobreajuste; manutenção mais difícil. \\
+    Híbridos (ARIMA+LSTM; LMD+XGBoost) & Complexidade; ajuste fino (tuning) pesado; risco de sobreajuste; manutenção mais difícil. \\
     LLMs s/ séries (Time-LLM, LLM4TS, Zero-shot) & Tokenização pode perder precisão; maturidade menor; desempenho cai em ruído extremo/alta frequência. \\
     \bottomrule
   \end{tabularx}
@@ -325,7 +325,7 @@ Para uma visão de conjunto dos grupos de modelos discutidos, ver as Tabelas \re
 %     Modelos estatísticos (ARIMA/ARIMAX) &
 %     Média em séries agregadas (diária/mensal). Fraca para intradiário muito volátil. \\
 %     LSTM &
-%     Boa em ativos líquidos (minutos--diário) com \textit{walk-forward} e regularização. \\
+%     Boa em ativos líquidos (minutos--diário) com validação temporal deslizante (walk-forward) e regularização. \\
 %     Transformers (PatchTST, Non-stationary) &
 %     Alta quando há muito dado (índices líquidos); requer calibração para a não-estacionariedade da B3. \\
 %     Híbridos (ARIMA+LSTM; LMD+XGBoost) &

@@ -1,9 +1,50 @@
 # Ordem Cronológica - Desenvolvimento do TCC
 
-**Data:** 2025-01-23 a 2026-02-03  
+**Data:** 2025-01-23 a 2026-02-16  
 **Status:** Mantido (timeline de decisões e implementações)
 
 Documentação cronológica de todas as decisões técnicas, implementações e análises realizadas.
+
+---
+
+## 2026-02-16 - Capítulos 5 e 6 do TCC com Dados Reais
+
+### Contexto
+- Capítulo 5 (Resultados e Discussão) e Capítulo 6 (Considerações Finais) precisavam ser preenchidos com dados reais do pipeline
+- Dados consolidados em CSVs: comparativo, análise CNN-LSTM, DM, backtests
+- Capítulo mais importante do PFC2
+
+### O que foi feito
+- Escrita completa do Capítulo 5 (~632 linhas) com todos os dados reais dos CSVs
+- Reescrita completa do Capítulo 6 para refletir resultados reais
+- Heatmap DM gerado/atualizado via `gerar_tabelas_graficos_dm.py`
+
+### Decisões técnicas
+1. **Estrutura Cap. 5**: 9 seções (Visão Geral, Comparação Geral, Estabilidade por Fold, Calibração de Probabilidades, Teste DM, Backtests, Regimes de Volatilidade, Limitações/Colapso, Síntese)
+2. **Substituição**: Seção Optuna/top-10 → Calibração de Probabilidades (sem CSV Optuna; uso de proba_mean/proba_std)
+3. **Tabelas**: Ajustadas para 4 folds (não 5)
+4. **Colunas removidas**: Bal.Acc e Brier (dados não disponíveis para CNN-LSTM); F1-Score como substituto
+5. **Abordagem honesta**: Colapso de classe (MCC=0 em 10/12 folds), DM sem significância, backtests mistos
+6. **Seção 5.8 Limitações**: Colapso descrito, causas possíveis, o que não é invalidado
+
+### Dados chave reportados
+- **CNN-LSTM**: hit rate 50,76–51,55% (marginal sobre 50%)
+- **Baselines**: 48,46–51,21%
+- **DM direcional**: nenhum p < 0,05 (sem significância)
+- **DM Brier**: todos p < 0,001 (CNN-LSTM melhor por natureza probabilística)
+- **Backtests**: PETR4 long/short +4,10% (concentrado fold 1), VALE3 e ITUB4 ~0%
+
+### Justificativa
+- Abordagem honesta sobre resultados neutros/negativos é contribuição válida
+- Mostra que deep learning não supera baselines simples em dados intradiários 15 min com validação rigorosa
+
+### Arquivos modificados
+- `TCC UFG/tex/05-resultados-discussao.tex`
+- `TCC UFG/tex/06-consideracoes-finais.tex`
+- `images/dm_heatmap_pvalores.png`
+
+### Documentação
+- [Capítulos 5 e 6](implementacoes/capitulos_05_06_resultados_2026_02_16.md)
 
 ---
 

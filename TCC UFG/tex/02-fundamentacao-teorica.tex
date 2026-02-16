@@ -1,6 +1,6 @@
 \section{Mercado financeiro em geral} \label{sec:mercado}
 
-Em primeiro lugar, é preciso compreender que o mercado financeiro é um espaço institucionalizado no qual diversos agentes econômicos negociam diferentes tipos de ativos, como títulos de dívida, \textit{commodities}, derivativos e moedas \cite{MishkinEakins2018}. 
+Em primeiro lugar, é preciso compreender que o mercado financeiro é um espaço institucionalizado no qual diversos agentes econômicos negociam diferentes tipos de ativos, como títulos de dívida, commodities, derivativos e moedas \cite{MishkinEakins2018}. 
 
 % Entre esses ativos, encontram-se as ações, que representam frações do capital social de empresas de capital aberto, negociadas regularmente nas bolsas de valores\cite{Lei6404}. A posse de ações transforma investidores em acionistas, ou seja, proprietários parciais das empresas emissoras, conferindo-lhes direitos específicos, como o recebimento proporcional de lucros distribuídos sob forma de dividendos, além da participação indireta nas decisões corporativas. A valorização das ações depende tanto do desempenho financeiro da empresa quanto das expectativas futuras em relação a ela, o que torna sua negociação fortemente suscetível à percepção dos investidores e à dinâmica econômica geral.
 
@@ -27,7 +27,7 @@ Logo, os participantes do mercado — corretoras, formadores de mercado, provedo
 
 Para que os modelos de predição sejam robustos, é essencial compreender os diferentes tipos de conexão ao ambiente de negociação da B3. Segundo o Manual de Procedimentos Operacionais de Negociação da B3, as conexões ao ambiente de negociação são classificadas conforme sua origem e hospedagem — incluindo acesso via mesa de operações, assessores e conexão direta patrocinada (DMA) \cite{b3_manual_negociacao}. Essa última, conhecida como DMA (Direct Market Access), permite que investidores ou provedores enviem ordens diretamente ao sistema de negociação, sem intermediação manual, reduzindo latência e aumentando a eficiência na execução de trades \cite{b3_manual_negociacao}.
 
-Além do mais, a B3 oferece o serviço de \textit{co-location}, onde servidores de corretoras ou investidores são instalados fisicamente em data centers da bolsa (como COLO0/COLO1), diminuindo ainda mais a latência em relação ao DMA tradicional fora do centro de dados da B3 \cite{b3_manual_negociacao}. Essa configuração é especialmente importante para estratégias de alta frequência (HFT), nas quais milissegundos influenciam diretamente os retornos.
+Além do mais, a B3 oferece o serviço de co-localização (co-location), onde servidores de corretoras ou investidores são instalados fisicamente em data centers da bolsa (como COLO0/COLO1), diminuindo ainda mais a latência em relação ao DMA tradicional fora do centro de dados da B3 \cite{b3_manual_negociacao}. Essa configuração é especialmente importante para estratégias de alta frequência (HFT), nas quais milissegundos influenciam diretamente os retornos.
 
 Portanto, ao lidar com dados de alta frequência em seu modelo de predição é fundamental considerar que os atrasos (latência) e o tipo de conexão (DMA, co-location ou assessor) impactam a qualidade e a reprodutibilidade dos resultados no ambiente real de negociação.
 
@@ -51,7 +51,7 @@ Além do conceito de tendência, outros termos importantes são frequentemente u
 
 Outro termo amplamente utilizado é o \emph{dividendo}, que corresponde a uma parcela dos lucros que as empresas distribuem periodicamente aos acionistas como forma de remuneração pelo investimento realizado \cite{Lei6404,BodieKaneMarcus2021}.
 
-É comum ouvir falar em \textbf{bear market} e \textbf{bull market}. O primeiro descreve períodos prolongados de queda nos preços das ações e pessimismo generalizado no mercado. Por outro lado, um \textbf{bull market} refere-se a fases caracterizadas por aumentos contínuos e generalizados dos preços dos ativos financeiros, acompanhados por otimismo dos investidores em relação ao futuro econômico \cite{BodieKaneMarcus2021}.
+É comum ouvir falar em \textbf{mercado de baixa (bear market)} e \textbf{mercado de alta (bull market)}. O primeiro descreve períodos prolongados de queda nos preços das ações e pessimismo generalizado no mercado. Por outro lado, um \textbf{mercado de alta (bull market)} refere-se a fases caracterizadas por aumentos contínuos e generalizados dos preços dos ativos financeiros, acompanhados por otimismo dos investidores em relação ao futuro econômico \cite{BodieKaneMarcus2021}.
 
 
 Por fim, \textbf{Índice de mercado} diz respeito a indicadores que medem o desempenho médio de um conjunto de ativos negociados em bolsa \cite{Daycoval}, como o Ibovespa no Brasil ou o S\&P 500 nos Estados Unidos, servindo como referência para avaliar o comportamento geral do mercado financeiro.
@@ -222,7 +222,7 @@ A modelagem de séries temporais financeiras com aprendizado profundo avançou s
 
 As Redes Neurais Recorrentes (RNNs) foram projetadas para lidar com dados sequenciais, possuindo "loops" que permitem que a informação persista ao longo do tempo. Contudo, as RNNs tradicionais enfrentam o problema do desaparecimento do gradiente (vanishing gradient), o que as impede de aprender dependências de longo prazo, uma característica essencial para séries temporais financeiras.
 
-Para superar essa limitação, Hochreiter e Schmidhuber (1997) propuseram a arquitetura Long Short-Term Memory (LSTM), uma variante sofisticada de RNN. A principal inovação da LSTM é sua unidade de memória, composta por um estado de célula (cell state) e três portões (gates) que regulam o fluxo de informação. O estado de célula atua como uma esteira rolante, transportando informações relevantes ao longo da sequência com poucas alterações. Os portões são estruturas neurais que, por meio de funções de ativação sigmoide, decidem qual informação deve ser adicionada ou removida do estado de célula.
+Para superar essa limitação, Hochreiter e Schmidhuber \cite{hochreiter_1997} propuseram a arquitetura Long Short-Term Memory (LSTM), uma variante sofisticada de RNN. A principal inovação da LSTM é sua unidade de memória, composta por um estado de célula (cell state) e três portões (gates) que regulam o fluxo de informação. O estado de célula atua como uma esteira rolante, transportando informações relevantes ao longo da sequência com poucas alterações. Os portões são estruturas neurais que, por meio de funções de ativação sigmoide, decidem qual informação deve ser adicionada ou removida do estado de célula. A função sigmoide é uma curva em formato de "S" que transforma qualquer valor numérico em um número entre 0 e 1, funcionando como uma espécie de "interruptor gradual": valores muito negativos se aproximam de 0, valores muito positivos se aproximam de 1, e valores próximos de zero ficam em torno de 0,5. Essa característica torna a sigmoide ideal para representar probabilidades ou proporções, permitindo que os portões da LSTM "decidam" quanto de informação manter ou descartar de forma suave e diferenciável.
 
 A Figura \ref{fig:arquitetura-lstm} ilustra o funcionamento de uma célula LSTM. Seus componentes são:
 
@@ -259,7 +259,8 @@ A arquitetura do Transformer, ilustrada na Figura \ref{fig:arquitetura-transform
 \centering
 \includegraphics[width=0.5\linewidth]{arquitetura-transformer.png}
 \caption{A arquitetura do modelo Transformer, destacando os blocos de codificador e decodificador, as camadas de atenção multi-cabeças e as redes feed-forward. Fonte: Adaptado de Vaswani et al. (2017) \cite{vaswani2017attention}.}
-\label{fig:arquitetura-transformer}\end{figure}
+\label{fig:arquitetura-transformer}
+\end{figure}
 
 A aplicação de Transformers em finanças é recente, porém bastante promissora. Modelos como o Temporal Fusion Transformer (TFT) proposto por \cite{lim2021temporal},combinam múltiplas fontes de dados e camadas de atenção interpretáveis, adequando-se a dados financeiros complexos. Estudos recentes como esse, mostram que, em ambientes de alta frequência, os Transformers podem superar as LSTMs \cite{wu2020deep}, principalmente devido à sua capacidade de modelar dependências de longo prazo de forma mais eficaz e estável .
 

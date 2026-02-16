@@ -4,317 +4,628 @@
 % ============================================================================
 
 Este capítulo apresenta os resultados obtidos com o modelo proposto (CNN--LSTM) e com os
-\emph{baselines} definidos na metodologia. A análise segue o protocolo \emph{walk-forward}, com
+modelos de referência (baselines) definidos na metodologia. A análise segue o protocolo validação temporal deslizante (walk-forward), com
 embargo entre treino e teste, e usa como referência principal a acurácia direcional após a banda
 morta de 0,1\%. Além disso, os resultados são complementados por testes de significância
-(Diebold--Mariano) e por \emph{backtests} com custos explícitos.
+(Diebold--Mariano) e por testes retrospectivos (backtests) com custos explícitos.
 
 Os experimentos foram executados para três ativos de alta liquidez (PETR4, VALE3 e ITUB4),
-com barras intradiárias de 15 minutos. Em cada ativo, a avaliação é feita por \emph{fold} e, ao final,
-reportamos o desempenho médio entre os \emph{folds}. Essa estrutura é importante porque aproxima
-o cenário de um uso real: o modelo sempre prevê o “futuro” a partir do “passado”.
+com barras intradiárias de 15~minutos, cobrindo o período de outubro de 2020 a outubro de 2025.
+Em cada ativo, o particionamento validação temporal deslizante (walk-forward) gerou \textbf{4 folds} de teste
+(cada fold com aproximadamente 1 mês de barras), conforme o volume efetivo do conjunto de dados (dataset)
+e a configuração de treino de 1 ano por bloco. A avaliação é feita por fold e, ao final,
+reportamos o desempenho médio. Essa estrutura aproxima o cenário de uso real:
+o modelo sempre prevê o ``futuro'' a partir do ``passado''.
+
+A leitura dos resultados segue três níveis progressivos de exigência.
+No primeiro nível, comparamos modelos em termos de acerto estatístico (acurácia direcional
+e métricas complementares). No segundo, verificamos se a diferença é estatisticamente
+significativa via teste de Diebold--Mariano. No terceiro, testamos utilidade prática com
+testes retrospectivos (backtests) após custos de transação.
 
 % ---------------------------------------------------------------------------
 \section{Visão geral dos resultados e organização dos artefatos}
 % ---------------------------------------------------------------------------
 
-Os resultados consolidados foram organizados em quatro grupos de artefatos:
+Os resultados consolidados foram organizados em quatro grupos de artefatos, todos
+reproduzíveis a partir do pipeline descrito na Seção~\ref{sec:reprodutibilidade}:
 
 \begin{itemize}
   \item \textbf{Comparativo entre modelos}: arquivo
-  \texttt{data/processed/comparativo\_cnn\_lstm\_vs\_baselines.csv}, com métricas médias por ativo e por modelo.
-  \item \textbf{Resultados por fold}: arquivos \texttt{<ATIVO>\_cnn\_lstm\_walkforward.csv}, com métricas do CNN--LSTM ao longo do \emph{walk-forward}.
-  \item \textbf{Teste de Diebold--Mariano}: arquivos \texttt{dm\_resumo\_pvalores.csv} e
-  \texttt{testes\_diebold\_mariano.csv}, incluindo versão segmentada por regime de volatilidade.
-  \item \textbf{Backtests}: arquivo \texttt{data/backtest/historico\_backtest.csv} (consolidado) e CSVs por ativo/fold/estratégia.
+  \texttt{data/processed/comparativo\_cnn\_lstm\_vs\_baselines.csv}, com métricas médias
+  (acurácia direcional, F1-Score, MCC) por ativo e por modelo.
+  \item \textbf{Resultados por fold}: arquivos
+  \texttt{<ATIVO>\_cnn\_lstm\_walkforward.csv} e
+  \texttt{<ATIVO>\_cnn\_lstm\_analise\_modelos.csv},
+  com métricas do CNN--LSTM e estatísticas das probabilidades previstas ao longo do validação temporal deslizante (walk-forward).
+  \item \textbf{Testes de Diebold--Mariano}: arquivos
+  \texttt{dm\_resumo\_pvalores.csv},
+  \texttt{testes\_diebold\_mariano.csv} e versões segmentadas por regime de volatilidade e por perda Brier.
+  \item \textbf{Backtests}: arquivo
+  \texttt{data/backtest/historico\_backtest.csv} (consolidado) e CSVs individuais por ativo, fold e estratégia,
+  incluindo análise de sensibilidade a custos.
 \end{itemize}
 
-A leitura dos resultados neste capítulo segue essa mesma lógica: primeiro comparamos modelos
-em termos de acerto estatístico, depois verificamos se a diferença é significativa e, por fim,
-traduzimos isso em impacto financeiro via \emph{backtest}.
+Nas seções que seguem, a leitura obedece a essa mesma sequência: primeiro a comparação
+estatística (Seções~5.2 a~5.4), depois a significância (Seção~5.5), em seguida o impacto
+financeiro (Seção~5.6), a robustez por regime (Seção~5.7), as limitações observadas (Seção~5.8)
+e, por fim, a síntese (Seção~5.9).
 
 % ---------------------------------------------------------------------------
-\section{Comparação geral: CNN--LSTM vs. baselines}
+\section{Comparação geral: CNN--LSTM vs.\ baselines}
+\label{sec:comparacao-geral}
 % ---------------------------------------------------------------------------
 
 A Tabela~\ref{tab:comparativo-geral} resume o desempenho médio do CNN--LSTM e dos principais
-\emph{baselines} por ativo. O foco está na acurácia direcional (após banda morta), mas também
-reportamos métricas que ajudam a interpretar cenários desbalanceados e qualidade probabilística
-(Brier e Log-Loss).
+modelos de referência (baselines) por ativo (média dos 4 folds). O foco está na acurácia direcional
+(após banda morta de 0,1\%), complementada pelo F1-Score e pelo MCC (\emph{Matthews Correlation
+Coefficient}), que são mais informativos em cenários com possível desbalanceamento entre classes
+ou colapso discriminativo.
 
 \begin{table}[htbp]
   \centering
-  \caption{Comparativo médio entre CNN--LSTM e baselines (média dos folds; após banda morta).}
+  \caption{Comparativo médio entre CNN--LSTM e baselines (média dos 4 folds; após banda morta).}
   \label{tab:comparativo-geral}
-  \begin{tabular}{l l r r r r}
+  \begin{tabular}{l l r r r}
     \toprule
-    \textbf{Ativo} & \textbf{Modelo} & \textbf{Hit rate} & \textbf{Bal. Acc.} & \textbf{MCC} & \textbf{Brier} \\
+    \textbf{Ativo} & \textbf{Modelo} & \textbf{Hit rate (\%)} & \textbf{F1-Score} & \textbf{MCC} \\
     \midrule
-    PETR4 & CNN--LSTM & <<\%>> & <<>> & <<>> & <<>> \\
-    PETR4 & Naive     & <<\%>> & <<>> & <<>> & <<>> \\
-    PETR4 & Drift     & <<\%>> & <<>> & <<>> & <<>> \\
-    PETR4 & ARIMA     & <<\%>> & <<>> & <<>> & <<>> \\
-    PETR4 & Prophet   & <<\%>> & <<>> & <<>> & <<>> \\
+    PETR4 & CNN--LSTM & 51,55 & 0,438 & 0,018 \\
+    PETR4 & Naive     & 50,13 & 0,394 & 0,003 \\
+    PETR4 & Drift     & 49,29 & 0,648 & $-$0,032 \\
+    PETR4 & ARIMA     & 50,13 & 0,668 & 0,025 \\
+    PETR4 & Prophet   & 48,46 & 0,572 & $-$0,034 \\
     \midrule
-    VALE3 & CNN--LSTM & <<\%>> & <<>> & <<>> & <<>> \\
-    VALE3 & Naive     & <<\%>> & <<>> & <<>> & <<>> \\
-    VALE3 & Drift     & <<\%>> & <<>> & <<>> & <<>> \\
-    VALE3 & ARIMA     & <<\%>> & <<>> & <<>> & <<>> \\
-    VALE3 & Prophet   & <<\%>> & <<>> & <<>> & <<>> \\
+    VALE3 & CNN--LSTM & 50,76 & 0,465 & 0,025 \\
+    VALE3 & Naive     & 50,04 & 0,580 & 0,014 \\
+    VALE3 & Drift     & 50,40 & 0,548 & 0,015 \\
+    VALE3 & ARIMA     & 50,69 & 0,532 & 0,018 \\
+    VALE3 & Prophet   & 48,65 & 0,516 & $-$0,023 \\
     \midrule
-    ITUB4 & CNN--LSTM & <<\%>> & <<>> & <<>> & <<>> \\
-    ITUB4 & Naive     & <<\%>> & <<>> & <<>> & <<>> \\
-    ITUB4 & Drift     & <<\%>> & <<>> & <<>> & <<>> \\
-    ITUB4 & ARIMA     & <<\%>> & <<>> & <<>> & <<>> \\
-    ITUB4 & Prophet   & <<\%>> & <<>> & <<>> & <<>> \\
+    ITUB4 & CNN--LSTM & 50,83 & 0,334 & 0,000 \\
+    ITUB4 & Naive     & 51,21 & 0,000 & 0,000 \\
+    ITUB4 & Drift     & 48,98 & 0,641 & 0,001 \\
+    ITUB4 & ARIMA     & 48,79 & 0,656 & 0,000 \\
+    ITUB4 & Prophet   & 49,56 & 0,531 & $-$0,005 \\
     \bottomrule
   \end{tabular}
   \fonte{O autor, a partir de \texttt{comparativo\_cnn\_lstm\_vs\_baselines.csv}.}
 \end{table}
 
-De forma geral, essa tabela responde a primeira pergunta do trabalho: \emph{o modelo proposto
-traz ganho real sobre métodos simples?} A comparação é importante porque, em finanças, ganhos
-pequenos podem ser relevantes. Ao mesmo tempo, eles precisam ser consistentes. Por isso, a leitura
-não deve ficar apenas no “melhor valor”. Ela precisa considerar estabilidade e significância.
+Os resultados revelam um cenário que merece análise cuidadosa. Em termos de acurácia direcional,
+o CNN--LSTM apresenta ligeira vantagem sobre os baselines em PETR4 (51,55\% contra 50,13\% do melhor
+baseline) e em VALE3 (50,76\% contra 50,69\% do ARIMA). No entanto, em ITUB4, o Naive supera o
+CNN--LSTM (51,21\% contra 50,83\%). De forma geral, todos os modelos --- incluindo o proposto ---
+operam em uma faixa estreita de 48,5\% a 51,6\%, próxima ao acaso de 50\%.
 
-Também é útil observar as métricas probabilísticas. Em especial, o Brier e o Log-Loss ajudam a
-entender se as probabilidades do modelo têm “qualidade”, e não apenas aparência de número. Isso
-importa porque o \emph{backtest} depende de limiares e decisões de entrada/saída.
+A leitura isolada da acurácia pode ser enganosa. Os valores de MCC, que medem a qualidade
+da correlação entre previsão e resultado, são muito próximos de zero em todos os modelos
+($-0{,}034$ a $+0{,}025$). Isso indica que, apesar de eventuais diferenças na taxa de acerto,
+nenhum modelo demonstra capacidade discriminativa consistente entre as classes ``alta'' e ``baixa''.
+
+Outra observação relevante diz respeito ao F1-Score. O CNN--LSTM apresenta F1 inferior ao
+de baselines como Drift e ARIMA em vários ativos. Isso ocorre porque esses baselines, ao preverem
+consistentemente uma mesma direção (por exemplo, sempre ``baixa''), obtêm F1 alto para a classe
+majoritária, mesmo sem discriminação real. O CNN--LSTM, ao emitir probabilidades próximas de 0,5
+(conforme será detalhado na Seção~\ref{sec:calibracao}), oscila entre classes e obtém um F1
+intermediário.
+
+Esses resultados respondem, de forma preliminar, à primeira pergunta do trabalho:
+\emph{o modelo proposto traz ganho real sobre métodos simples?}
+A resposta, até aqui, é que os ganhos existem em termos pontuais de acurácia direcional,
+mas são marginais e não se confirmam de forma consistente nas métricas complementares.
+As seções seguintes verificam se esses ganhos são estáveis no tempo, estatisticamente
+significativos e traduzíveis em resultado financeiro.
 
 % ---------------------------------------------------------------------------
 \section{Estabilidade no tempo: desempenho por fold do walk-forward}
+\label{sec:estabilidade-folds}
 % ---------------------------------------------------------------------------
 
 A média é um bom resumo, mas não conta a história inteira. Em séries financeiras,
-o desempenho pode variar bastante de um período para outro. Por isso, analisamos os resultados
-por \emph{fold}. Isso permite enxergar duas coisas: (i) se o ganho do CNN--LSTM é recorrente e
-(ii) se existem períodos em que o modelo degrada de forma mais forte.
+o desempenho pode variar substancialmente de um período para outro, refletindo mudanças
+de regime, eventos macroeconômicos ou simplesmente ruído. Por isso, analisamos os resultados
+do CNN--LSTM por fold. Isso permite enxergar duas coisas: (i) se o ganho observado na média
+é recorrente e (ii) se existem períodos em que o modelo degrada de forma mais acentuada.
 
-A Tabela~\ref{tab:folds-cnnlstm} apresenta um exemplo de como organizar os resultados do
-CNN--LSTM por \emph{fold}. Aqui, a ideia é simples: mostrar a variabilidade e comentar os extremos.
+A Tabela~\ref{tab:folds-cnnlstm} apresenta os resultados do CNN--LSTM por fold
+para os três ativos.
 
 \begin{table}[htbp]
   \centering
-  \caption{CNN--LSTM por fold (exemplo de preenchimento a partir de \texttt{<ATIVO>\_cnn\_lstm\_walkforward.csv}).}
+  \caption{Desempenho do CNN--LSTM por fold do walk-forward.}
   \label{tab:folds-cnnlstm}
   \begin{tabular}{l r r r r}
     \toprule
-    \textbf{Ativo} & \textbf{Fold} & \textbf{Hit rate} & \textbf{MCC} & \textbf{Brier} \\
+    \textbf{Ativo} & \textbf{Fold} & \textbf{Hit rate (\%)} & \textbf{F1-Score} & \textbf{MCC} \\
     \midrule
-    PETR4 & 1 & <<>> & <<>> & <<>> \\
-    PETR4 & 2 & <<>> & <<>> & <<>> \\
-    PETR4 & 3 & <<>> & <<>> & <<>> \\
-    PETR4 & 4 & <<>> & <<>> & <<>> \\
-    PETR4 & 5 & <<>> & <<>> & <<>> \\
+    PETR4 & 1 & 53,10 & 0,411 & 0,070 \\
+    PETR4 & 2 & 52,02 & 0,000 & 0,000 \\
+    PETR4 & 3 & 52,32 & 0,687 & 0,000 \\
+    PETR4 & 4 & 48,75 & 0,655 & 0,000 \\
     \midrule
-    VALE3 & 1 & <<>> & <<>> & <<>> \\
-    VALE3 & 2 & <<>> & <<>> & <<>> \\
-    VALE3 & 3 & <<>> & <<>> & <<>> \\
-    VALE3 & 4 & <<>> & <<>> & <<>> \\
-    VALE3 & 5 & <<>> & <<>> & <<>> \\
+    VALE3 & 1 & 48,36 & 0,652 & 0,000 \\
+    VALE3 & 2 & 50,30 & 0,669 & 0,000 \\
+    VALE3 & 3 & 54,95 & 0,539 & 0,102 \\
+    VALE3 & 4 & 49,43 & 0,000 & 0,000 \\
     \midrule
-    ITUB4 & 1 & <<>> & <<>> & <<>> \\
-    ITUB4 & 2 & <<>> & <<>> & <<>> \\
-    ITUB4 & 3 & <<>> & <<>> & <<>> \\
-    ITUB4 & 4 & <<>> & <<>> & <<>> \\
-    ITUB4 & 5 & <<>> & <<>> & <<>> \\
+    ITUB4 & 1 & 52,05 & 0,000 & 0,000 \\
+    ITUB4 & 2 & 51,16 & 0,000 & 0,000 \\
+    ITUB4 & 3 & 48,46 & 0,653 & 0,000 \\
+    ITUB4 & 4 & 51,63 & 0,681 & 0,000 \\
     \bottomrule
   \end{tabular}
-  \fonte{O autor.}
+  \fonte{O autor, a partir de \texttt{<ATIVO>\_cnn\_lstm\_walkforward.csv}.}
 \end{table}
 
-Na discussão, vale observar se existem \emph{folds} em que o desempenho cai muito. Quando isso
-acontece, a causa mais comum é mudança de regime. Pode ser um período mais volátil. Pode ser um
-período com tendência forte. Ou pode ser um momento em que o preço “oscila sem direção”.
-Esses cenários são importantes porque eles expõem o limite prático do modelo.
+O padrão mais evidente na Tabela~\ref{tab:folds-cnnlstm} é a presença de MCC igual a zero
+em 10 dos 12 folds. Isso revela um fenômeno recorrente: em grande parte dos blocos de teste,
+o modelo prediz predominantemente uma única classe. Quando o modelo prediz, por exemplo,
+sempre ``baixa'', ele acerta nas barras que de fato caíram e erra nas que subiram. Com
+distribuição aproximadamente equilibrada entre as classes (cerca de 47\% alta e 48\% baixa,
+conforme Seção~4.2), a acurácia resultante fica próxima de 50\% --- mas sem discriminação real.
+
+Apenas dois folds apresentam MCC positivo: PETR4 fold~1 (MCC~$=0{,}070$) e VALE3 fold~3
+(MCC~$=0{,}102$). Nesses casos, o modelo distinguiu parcialmente as duas classes.
+Porém, mesmo nesses folds, os valores de MCC são baixos, indicando correlação fraca entre
+previsão e resultado.
+
+A variabilidade da acurácia entre folds também merece atenção. Em PETR4, por exemplo,
+o hit rate varia de 48,75\% (fold~4) a 53,10\% (fold~1) --- uma amplitude de 4,35 pontos
+percentuais. Em VALE3, a amplitude é ainda maior: de 48,36\% a 54,95\% (6,59 p.p.).
+Essa instabilidade é esperável em séries financeiras intradiárias, onde mudanças de regime
+podem alterar rapidamente a distribuição dos retornos.
+
+O F1-Score apresenta um padrão complementar ao MCC. Nos folds em que o modelo colapsa
+para uma única classe, o F1 pode ser zero (quando a classe prevista coincide com a minoritária)
+ou alto (quando coincide com a majoritária). Isso confirma que o F1 isolado não é um bom
+indicador de qualidade discriminativa neste contexto.
 
 % ---------------------------------------------------------------------------
-\section{Top configurações do Optuna e sensibilidade do lookback}
+\section{Calibração das probabilidades previstas}
+\label{sec:calibracao}
 % ---------------------------------------------------------------------------
 
-Além do desempenho final, analisamos as melhores configurações encontradas na busca bayesiana.
-Esse ponto ajuda a responder outra pergunta: \emph{o modelo depende de um ajuste “muito fino” para funcionar?}
-Se a resposta for “sim”, isso aumenta o risco de instabilidade fora da amostra.
+Uma das vantagens teóricas de modelos com saída sigmoide é a produção de probabilidades.
+Para que essas probabilidades sejam úteis na tomada de decisão (por exemplo, na definição
+de limiares de entrada e saída no teste retrospectivo (backtest)), elas precisam ser \textbf{calibradas}:
+quando o modelo prevê 70\% de chance de alta, espera-se que, em média, 70\% desses casos
+sejam de fato alta.
 
-A Tabela~\ref{tab:top10-optuna} é um modelo de como reportar o “top 10” do tuning
-(um resumo por ativo costuma ser suficiente no texto principal; o restante pode ir para apêndice).
+A Tabela~\ref{tab:calibracao-proba} apresenta a média e o desvio-padrão das probabilidades
+emitidas pelo CNN--LSTM em cada fold, extraídas dos arquivos de análise de modelos.
 
 \begin{table}[htbp]
   \centering
-  \caption{Top configurações (Optuna) para o CNN--LSTM (exemplo; preencher a partir de \texttt{<ATIVO>\_cnn\_lstm\_analise\_modelos.csv}).}
-  \label{tab:top10-optuna}
-  \begin{tabular}{r r r r r r}
+  \caption{Estatísticas das probabilidades emitidas pelo CNN--LSTM por fold.}
+  \label{tab:calibracao-proba}
+  \begin{tabular}{l r r r r}
     \toprule
-    \textbf{Rank} & \textbf{Filtros} & \textbf{Kernel} & \textbf{LSTM} & \textbf{Dropout} & \textbf{Hit rate} \\
+    \textbf{Ativo} & \textbf{Fold} & \textbf{Hit rate (\%)} & \textbf{Prob.\ média} & \textbf{Prob.\ d.p.} \\
     \midrule
-    1  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    2  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    3  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    4  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    5  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    6  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    7  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    8  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    9  & <<>> & <<>> & <<>> & <<>> & <<>> \\
-    10 & <<>> & <<>> & <<>> & <<>> & <<>> \\
+    PETR4 & 1 & 53,10 & 0,492 & 0,012 \\
+    PETR4 & 2 & 52,02 & 0,484 & 0,002 \\
+    PETR4 & 3 & 52,32 & 0,557 & 0,002 \\
+    PETR4 & 4 & 48,75 & 0,523 & 0,005 \\
+    \midrule
+    VALE3 & 1 & 48,36 & 0,524 & 0,005 \\
+    VALE3 & 2 & 50,30 & 0,559 & 0,003 \\
+    VALE3 & 3 & 54,95 & 0,500 & 0,004 \\
+    VALE3 & 4 & 49,43 & 0,430 & 0,010 \\
+    \midrule
+    ITUB4 & 1 & 52,05 & 0,398 & 0,008 \\
+    ITUB4 & 2 & 51,16 & 0,477 & 0,004 \\
+    ITUB4 & 3 & 48,46 & 0,585 & 0,009 \\
+    ITUB4 & 4 & 51,63 & 0,538 & 0,009 \\
     \bottomrule
   \end{tabular}
-  \fonte{O autor.}
+  \fonte{O autor, a partir de \texttt{<ATIVO>\_cnn\_lstm\_analise\_modelos.csv}.}
 \end{table}
 
-Aqui vale comentar também o \textbf{lookback}. Como a janela padrão é 60, mas janelas 16/32/64
-foram avaliadas, a discussão pode ser direta: se o desempenho muda pouco, isso é um bom sinal.
-Significa que o modelo não está preso a um único horizonte. Se muda muito, isso indica sensibilidade.
-Nesse caso, a escolha do lookback vira uma decisão crítica do pipeline.
+Os valores revelam um diagnóstico importante: o desvio-padrão das probabilidades é
+\textbf{extremamente baixo}, variando de 0,002 a 0,012. Em termos práticos, isso significa
+que o modelo emite probabilidades quase constantes para todas as amostras de teste ---
+tipicamente concentradas em uma faixa estreita ao redor de 0,43 a 0,59.
+
+Esse comportamento tem duas implicações diretas.
+Primeiro, ele explica o \textbf{colapso de classe} observado na Seção~\ref{sec:estabilidade-folds}:
+se todas as probabilidades ficam abaixo de 0,5 (ou todas acima), o modelo prediz uma única
+classe para todo o bloco de teste.
+Segundo, ele limita a utilidade das probabilidades para testes retrospectivos (backtests): como o sinal gerado
+depende de limiares (por padrão, 0,5), probabilidades concentradas resultam em pouquíssimas
+mudanças de posição ao longo do tempo.
+
+A probabilidade média por fold varia entre 0,398 (ITUB4 fold~1, onde o modelo prevê
+predominantemente ``baixa'') e 0,585 (ITUB4 fold~3, predominantemente ``alta'').
+Essa variação entre folds, aliada à baixa dispersão dentro de cada fold, sugere que a rede
+aprende um viés de classe em cada bloco de treino, mas não consegue distinguir entre exemplos
+individuais de alta e baixa.
+
+É provável que a busca bayesiana com Optuna, realizada por fold conforme descrito na
+Seção~4.4, tenha selecionado configurações que minimizam a \emph{loss} de validação interna,
+mas que o sinal nos dados de 15~minutos seja insuficiente para permitir discriminação efetiva.
+Nesse cenário, o otimizador converge para soluções que ``jogam seguro'' ---
+emitindo probabilidades próximas à proporção de classes do treino --- em vez de arriscar
+previsões mais extremas que poderiam errar mais frequentemente.
 
 % ---------------------------------------------------------------------------
 \section{Significância estatística: teste de Diebold--Mariano}
+\label{sec:dm}
 % ---------------------------------------------------------------------------
 
-A comparação por métricas é útil, mas ainda falta uma peça. Em finanças, diferenças pequenas
-podem acontecer “por sorte”, principalmente em janelas curtas. Para reduzir esse risco, aplicamos
-o teste de Diebold--Mariano (DM), comparando a série de perdas do CNN--LSTM com a de cada baseline.
+A comparação por métricas descritivas é útil, mas não permite distinguir diferenças genuínas
+de variações aleatórias. Em finanças, diferenças pequenas podem ocorrer ``por sorte'',
+especialmente em janelas curtas. Para avaliar esse risco, aplicamos o teste de Diebold--Mariano
+(DM) \cite{diebold1995}, comparando a série de perdas direcionais (0/1) do CNN--LSTM com a de
+cada baseline, ao longo de todos os folds concatenados.
 
-A Tabela~\ref{tab:dm-resumo} organiza os p-valores do DM (versão geral). A interpretação é simples:
-p-valores baixos indicam evidência de que a diferença média de desempenho não é aleatória.
-Na prática, isso ajuda a sustentar a conclusão de que o modelo proposto realmente melhora o baseline.
+\subsection{Perda direcional}
+
+A Tabela~\ref{tab:dm-resumo} apresenta os p-valores do teste DM (bilateral) para a perda
+direcional. A hipótese nula é que as perdas médias dos dois modelos são iguais.
 
 \begin{table}[htbp]
   \centering
-  \caption{Resumo do teste de Diebold--Mariano (p-valores; preencher a partir de \texttt{dm\_resumo\_pvalores.csv}).}
+  \caption{Teste de Diebold--Mariano: p-valores (perda direcional, regime geral).}
   \label{tab:dm-resumo}
   \begin{tabular}{l l r}
     \toprule
     \textbf{Ativo} & \textbf{Comparação} & \textbf{p-valor} \\
     \midrule
-    PETR4 & CNN--LSTM vs Naive   & <<>> \\
-    PETR4 & CNN--LSTM vs Drift   & <<>> \\
-    PETR4 & CNN--LSTM vs ARIMA   & <<>> \\
-    PETR4 & CNN--LSTM vs Prophet & <<>> \\
+    PETR4 & CNN--LSTM vs Naive   & 0,474 \\
+    PETR4 & CNN--LSTM vs Drift   & 0,296 \\
+    PETR4 & CNN--LSTM vs ARIMA   & 0,278 \\
+    PETR4 & CNN--LSTM vs Prophet & 0,071 \\
     \midrule
-    VALE3 & CNN--LSTM vs Naive   & <<>> \\
-    VALE3 & CNN--LSTM vs Drift   & <<>> \\
-    VALE3 & CNN--LSTM vs ARIMA   & <<>> \\
-    VALE3 & CNN--LSTM vs Prophet & <<>> \\
+    VALE3 & CNN--LSTM vs Naive   & 0,745 \\
+    VALE3 & CNN--LSTM vs Drift   & 0,936 \\
+    VALE3 & CNN--LSTM vs ARIMA   & 0,801 \\
+    VALE3 & CNN--LSTM vs Prophet & 0,309 \\
     \midrule
-    ITUB4 & CNN--LSTM vs Naive   & <<>> \\
-    ITUB4 & CNN--LSTM vs Drift   & <<>> \\
-    ITUB4 & CNN--LSTM vs ARIMA   & <<>> \\
-    ITUB4 & CNN--LSTM vs Prophet & <<>> \\
+    ITUB4 & CNN--LSTM vs Naive   & 0,967 \\
+    ITUB4 & CNN--LSTM vs Drift   & 0,249 \\
+    ITUB4 & CNN--LSTM vs ARIMA   & 0,359 \\
+    ITUB4 & CNN--LSTM vs Prophet & 0,319 \\
     \bottomrule
   \end{tabular}
-  \fonte{O autor.}
+  \fonte{O autor, a partir de \texttt{dm\_resumo\_pvalores.csv}.}
 \end{table}
 
-Se você preferir, dá para incluir também o \textbf{heatmap} de p-valores como figura.
-Ele costuma ficar bem visual no relatório:
+Nenhum p-valor está abaixo do nível de significância convencional de 5\%.
+O resultado mais próximo da significância é PETR4 contra Prophet ($p = 0{,}071$),
+que se situa na faixa de evidência fraca (marginalmente significativo ao nível de 10\%,
+mas não ao de 5\%). Nos demais casos, os p-valores são substancialmente elevados ---
+vários acima de 0,5 e um deles em 0,967 (ITUB4 vs Naive).
+
+A Tabela~\ref{tab:dm-diferenca} complementa a leitura com as diferenças médias de perda.
+Valores negativos indicam que o CNN--LSTM teve perda menor (melhor desempenho).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Diferença média de perda direcional (CNN--LSTM $-$ baseline; negativo $=$ CNN--LSTM melhor).}
+  \label{tab:dm-diferenca}
+  \begin{tabular}{l r r r r}
+    \toprule
+    \textbf{Ativo} & \textbf{vs Naive} & \textbf{vs Drift} & \textbf{vs ARIMA} & \textbf{vs Prophet} \\
+    \midrule
+    PETR4 & $-$0,015 & $-$0,020 & $-$0,021 & $-$0,033 \\
+    VALE3 & $-$0,007 & $-$0,001 & $-$0,002 & $-$0,020 \\
+    ITUB4 & $-$0,001 & $-$0,023 & $-$0,019 & $-$0,019 \\
+    \bottomrule
+  \end{tabular}
+  \fonte{O autor, a partir de \texttt{dm\_diferenca\_perda\_geral.csv}.}
+\end{table}
+
+De fato, em todas as 12 comparações a diferença de perda é negativa, o que indica que o
+CNN--LSTM errou, em média, menos do que cada baseline. Porém, o teste DM mostra que essas
+diferenças não são estatisticamente significativas: a magnitude é pequena (da ordem de 0,001
+a 0,033) e a variância da série de perdas é alta, o que impede a rejeição da hipótese nula.
+
+A Figura~\ref{fig:dm-heatmap} visualiza os p-valores em formato de \emph{heatmap}.
+Cores mais quentes indicam p-valores mais altos (menos significativos). A predominância
+de tons vermelhos confirma a ausência de significância estatística em todas as combinações
+ativo--baseline.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\linewidth]{dm_heatmap_pvalores.png}
-  \caption{Heatmap de p-valores do teste de Diebold--Mariano (comparação CNN--LSTM vs baselines). Fonte: o autor.}
+  \includegraphics[width=0.85\linewidth]{dm_heatmap_pvalores.png}
+  \caption{Heatmap de p-valores do teste de Diebold--Mariano (perda direcional, regime geral). Valores abaixo de 0,05 indicariam diferença significativa; nenhum dos 12 pares atinge esse limiar. Fonte: o autor.}
   \label{fig:dm-heatmap}
 \end{figure}
 
-Na discussão, vale tomar cuidado com dois pontos. Primeiro: significância não é “garantia de lucro”.
-Ela apenas diz que a diferença estatística é consistente. Segundo: se o DM for significativo apenas
-em um ativo, isso ainda é um resultado válido. Só muda a força da generalização.
+\subsection{Perda Brier: qualidade probabilística}
+
+Além da perda direcional, aplicamos o teste DM comparando a \textbf{perda Brier}
+$(p_{\text{previsto}} - y_{\text{real}})^2$ do CNN--LSTM com a dos baselines.
+Nesse caso, os baselines produzem previsões binárias (0 ou 1), enquanto o CNN--LSTM
+emite probabilidades contínuas via camada sigmoide.
+
+Os resultados são notadamente diferentes: em todos os 12 pares (3 ativos $\times$ 4
+baselines), o p-valor é \textbf{inferior a 0,001} ($p < 0{,}001^{***}$).
+Ou seja, o CNN--LSTM produz perdas Brier significativamente menores do que todos os baselines.
+
+Esse resultado tem interpretação direta: um modelo que emite probabilidades próximas de
+0,5 (como o CNN--LSTM) incorre em perda Brier de $\approx 0{,}25$, enquanto um baseline
+binário que erra incorre em perda de $1{,}0$. Como os baselines erram cerca de 50\% das vezes,
+sua perda Brier média fica em $\approx 0{,}50$, muito acima da do CNN--LSTM ($\approx 0{,}25$).
+A significância no DM Brier, portanto, reflete mais a \textbf{natureza probabilística da saída}
+do que uma capacidade preditiva superior.
+
+Ainda assim, o resultado não é trivial: o CNN--LSTM produz saídas probabilísticas que,
+em teoria, poderiam ser utilizadas para calibrar limiares adaptativos ou para compor
+estratégias de dimensionamento de posição (\emph{position sizing}).
 
 % ---------------------------------------------------------------------------
 \section{Backtests: impacto prático após custos}
+\label{sec:backtests}
 % ---------------------------------------------------------------------------
 
-Depois de medir acerto e significância, a pergunta final é a mais prática:
+Depois de medir acerto e significância, a pergunta mais prática é:
 \emph{o modelo gera resultado financeiro quando custos entram na conta?}
-Para isso, executamos \emph{backtests} em duas modalidades: long-only e long/short.
+Para isso, executamos testes retrospectivos (backtests) em duas modalidades: apenas comprado (long-only) e comprado/vendido (long/short),
+conforme descrito na Seção~\ref{sec:backtests-custos}. Os custos aplicados são:
+custo proporcional de 0,03\% (emolumentos B3) e deslizamento de preço (slippage) de 0,05\%,
+com capital inicial de R\$~100.000.
 
-A Tabela~\ref{tab:backtest-longonly} resume long-only. Ela é útil porque é o cenário mais simples.
-O sinal de baixa vira “ficar em caixa”. Isso costuma reduzir risco e também reduz o número de operações.
+\subsection{Long-only}
+
+A Tabela~\ref{tab:backtest-longonly} resume os resultados do teste retrospectivo (backtest) apenas comprado (long-only),
+no qual o sinal de baixa é tratado como ``ficar em caixa'' (posição neutra).
 
 \begin{table}[htbp]
   \centering
-  \caption{Backtest long-only (após custos; preencher a partir de \texttt{historico\_backtest.csv}).}
+  \caption{Backtest long-only do CNN--LSTM (média dos 4 folds, após custos).}
   \label{tab:backtest-longonly}
-  \begin{tabular}{l r r r r}
+  \begin{tabular}{l r r r r r}
     \toprule
-    \textbf{Ativo} & \textbf{Retorno líquido} & \textbf{Sharpe} & \textbf{Max DD} & \textbf{Profit factor} \\
+    \textbf{Ativo} & \textbf{Ret.\ líq.\ (\%)} & \textbf{Sharpe} & \textbf{Max DD (\%)} & \textbf{Profit f.} & \textbf{N ops (méd.)} \\
     \midrule
-    PETR4 & <<>> & <<>> & <<>> & <<>> \\
-    VALE3 & <<>> & <<>> & <<>> & <<>> \\
-    ITUB4 & <<>> & <<>> & <<>> & <<>> \\
+    PETR4 & $+$1,62 & 1,03 & $-$4,02 & 0,82 & 7,5 \\
+    VALE3 & $-$1,23 & $-$0,78 & $-$6,81 & 0,71 & 8,3 \\
+    ITUB4 & $+$0,09 & $-$0,03 & $-$2,11 & 0,50 & 0,5 \\
     \bottomrule
   \end{tabular}
-  \fonte{O autor.}
+  \fonte{O autor, a partir de \texttt{historico\_backtest.csv}.}
 \end{table}
 
-A Tabela~\ref{tab:backtest-longshort} resume long/short. Esse modo é mais agressivo.
-Ele pode ganhar em tendências de queda, mas normalmente “paga” com mais giro e mais custo.
-Por isso, o que importa aqui é observar retorno \emph{e} risco (Sharpe e drawdown).
+Os resultados apenas comprado (long-only) mostram um cenário misto. PETR4 obteve retorno líquido
+positivo de 1,62\%, com Sharpe de 1,03 --- o melhor resultado entre os ativos.
+VALE3 apresentou retorno negativo ($-1{,}23$\%), enquanto ITUB4 ficou essencialmente no zero
+($+0{,}09$\%).
+
+Dois aspectos merecem destaque. Primeiro, o fator de lucro (profit factor) ficou abaixo de 1,0 em todos
+os ativos. Isso indica que, na média dos folds, as perdas superaram os ganhos em magnitude
+absoluta. Segundo, o número médio de operações é muito baixo: 0,5 a 8,3 operações por fold
+(cada fold tem 528 barras). Isso reflete diretamente o colapso de probabilidades discutido
+na Seção~\ref{sec:calibracao}: como o modelo emite probabilidades quase constantes, ele raramente
+cruza o limiar de 0,5, resultando em poucas mudanças de posição. Em ITUB4, dois dos quatro folds
+não geraram nenhuma operação.
+
+\subsection{Long/short}
+
+A Tabela~\ref{tab:backtest-longshort} apresenta os resultados comprado/vendido (long/short),
+em que o modelo pode assumir posições compradas, vendidas ou neutras.
 
 \begin{table}[htbp]
   \centering
-  \caption{Backtest long/short (após custos; preencher a partir de \texttt{historico\_backtest.csv}).}
+  \caption{Backtest long/short do CNN--LSTM (média dos 4 folds, após custos).}
   \label{tab:backtest-longshort}
-  \begin{tabular}{l r r r r}
+  \begin{tabular}{l r r r r r}
     \toprule
-    \textbf{Ativo} & \textbf{Retorno líquido} & \textbf{Sharpe} & \textbf{Max DD} & \textbf{Profit factor} \\
+    \textbf{Ativo} & \textbf{Ret.\ líq.\ (\%)} & \textbf{Sharpe} & \textbf{Max DD (\%)} & \textbf{Profit f.} & \textbf{N ops (méd.)} \\
     \midrule
-    PETR4 & <<>> & <<>> & <<>> & <<>> \\
-    VALE3 & <<>> & <<>> & <<>> & <<>> \\
-    ITUB4 & <<>> & <<>> & <<>> & <<>> \\
+    PETR4 & $+$4,10 & 1,41 & $-$9,33 & 1,06 & 15,0 \\
+    VALE3 & $-$0,53 & $-$0,12 & $-$8,07 & 1,00 & 16,5 \\
+    ITUB4 & $+$0,97 & 0,40 & $-$6,42 & 1,02 & 1,0 \\
     \bottomrule
   \end{tabular}
-  \fonte{O autor.}
+  \fonte{O autor, a partir de \texttt{historico\_backtest.csv}.}
 \end{table}
 
-Na discussão, é importante deixar claro o seguinte: um modelo pode ter bom \emph{hit rate} e ainda
-assim não ser lucrativo. Isso acontece quando o ganho médio por operação é pequeno e o custo come
-a margem. Por isso, turnover e sensibilidade a custos entram como parte essencial da análise.
+O modo comprado/vendido (long/short) apresenta retornos ligeiramente melhores do que o apenas comprado (long-only)
+para todos os ativos. PETR4 se destaca com retorno de 4,10\%, Sharpe de 1,41 e
+fator de lucro (profit factor) acima de 1,0. VALE3 e ITUB4 ficam próximos do equilíbrio.
+O queda máxima (drawdown) máximo, porém, é mais elevado: $-9{,}33$\% em PETR4 e $-8{,}07$\% em VALE3.
+
+O resultado de PETR4 pode parecer promissor, mas deve ser interpretado com cautela.
+O melhor desempenho concentra-se no fold~1 (retorno de 9,07\%, com 57 operações e Sharpe de 2,90)
+--- precisamente o único fold em que o modelo apresentou MCC positivo (0,070) e o maior
+desvio-padrão de probabilidades (0,012). Nos demais folds, o modelo manteve posição fixa
+com 1 operação apenas. Essa concentração de resultado em um único fold levanta dúvidas sobre
+a generalização.
+
+\subsection{Sensibilidade a custos}
+
+Para verificar a robustez dos resultados frente a diferentes cenários de custos,
+aplicamos multiplicadores de 0,5$\times$, 1,0$\times$, 1,5$\times$ e 2,0$\times$ sobre os custos base
+(proporcional 0,03\% e deslizamento de preço (slippage) 0,05\%).
+A Tabela~\ref{tab:sensibilidade-custos} apresenta os resultados para PETR4 fold~1
+(o cenário mais ativo em termos de operações).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Sensibilidade a custos --- PETR4 fold~1 long/short (57 operações).}
+  \label{tab:sensibilidade-custos}
+  \begin{tabular}{r r r r r}
+    \toprule
+    \textbf{Custo ($\times$)} & \textbf{Ret.\ líq.\ (\%)} & \textbf{Sharpe} & \textbf{Max DD (\%)} & \textbf{Profit f.} \\
+    \midrule
+    0,5$\times$ & $+$10,34 & 3,26 & $-$7,93 & 1,13 \\
+    1,0$\times$ & $+$9,07  & 2,90 & $-$8,11 & 1,12 \\
+    1,5$\times$ & $+$7,81  & 2,54 & $-$8,30 & 1,10 \\
+    2,0$\times$ & $+$6,57  & 2,18 & $-$8,48 & 1,09 \\
+    \bottomrule
+  \end{tabular}
+  \fonte{O autor, a partir de \texttt{PETR4\_fold1\_long\_short\_sensibilidade\_*.csv}.}
+\end{table}
+
+Mesmo com custos duplicados (2,0$\times$), o fold~1 mantém retorno positivo de 6,57\% e
+Sharpe de 2,18. Isso mostra que, \emph{nesse fold específico}, a margem de lucro é confortável.
+Porém, como esse é o único fold com atividade significativa, a conclusão não se generaliza
+para os demais períodos.
+
+De forma geral, o teste retrospectivo (backtest) confirma que um modelo com acurácia marginal sobre 50\%
+e baixo rotatividade (turnover) tem dificuldade em gerar resultado financeiro consistente.
+O melhor cenário (PETR4 comprado/vendido (long/short)) é fortemente dependente de um único fold,
+e os demais ativos ficam próximos do empate ou no negativo.
 
 % ---------------------------------------------------------------------------
 \section{Robustez: regimes de volatilidade}
+\label{sec:regimes}
 % ---------------------------------------------------------------------------
 
-Por fim, segmentamos a avaliação por regimes de volatilidade. A motivação é direta:
-o mercado não se comporta da mesma forma o tempo todo. Em períodos calmos, padrões técnicos
+O mercado não se comporta da mesma forma o tempo todo. Em períodos calmos, padrões técnicos
 podem aparecer com mais clareza. Em choques, o ruído aumenta e o preço pode mudar de regime
-rapidamente.
+rapidamente. Para avaliar se o CNN--LSTM se comporta de maneira diferente nesses cenários,
+segmentamos as observações em \textbf{baixa volatilidade} (abaixo da mediana da volatilidade
+de 20 períodos) e \textbf{alta volatilidade} (acima da mediana), e aplicamos o teste de
+Diebold--Mariano em cada segmento.
 
-A análise separa as observações em baixa e alta volatilidade (em relação à mediana), e aplica o
-teste de Diebold--Mariano em cada segmento. Os resultados podem ser reportados de forma resumida
-na Tabela~\ref{tab:dm-regimes}. Ela ajuda a responder se o ganho do CNN--LSTM é “geral” ou se ele
-depende mais do tipo de mercado.
+A Tabela~\ref{tab:dm-regimes} apresenta os p-valores por regime e por baseline.
 
 \begin{table}[htbp]
   \centering
-  \caption{Teste DM por regime de volatilidade (p-valores; preencher a partir de \texttt{dm\_resumo\_pvalores\_regime\_*.csv}).}
+  \caption{Teste DM por regime de volatilidade (p-valores).}
   \label{tab:dm-regimes}
-  \begin{tabular}{l l r r}
+  \begin{tabular}{l l r r r r r r r r}
     \toprule
-    \textbf{Ativo} & \textbf{Comparação} & \textbf{p (baixa vol)} & \textbf{p (alta vol)} \\
+    & & \multicolumn{4}{c}{\textbf{Baixa volatilidade}} & \multicolumn{4}{c}{\textbf{Alta volatilidade}} \\
+    \cmidrule(lr){3-6} \cmidrule(lr){7-10}
+    \textbf{Ativo} & & \textbf{Naive} & \textbf{Drift} & \textbf{ARIMA} & \textbf{Proph.} & \textbf{Naive} & \textbf{Drift} & \textbf{ARIMA} & \textbf{Proph.} \\
     \midrule
-    PETR4 & CNN--LSTM vs baselines & <<>> & <<>> \\
-    VALE3 & CNN--LSTM vs baselines & <<>> & <<>> \\
-    ITUB4 & CNN--LSTM vs baselines & <<>> & <<>> \\
+    PETR4 & & 0,966 & 0,719 & 0,664 & 0,127 & 0,248 & 0,315 & 0,315 & 0,271 \\
+    VALE3 & & 0,193 & 0,782 & 0,921 & 0,557 & 0,420 & 0,527 & 0,527 & 0,378 \\
+    ITUB4 & & 0,688 & 0,713 & 0,944 & 0,664 & 0,307 & 0,264 & 0,309 & 0,079 \\
     \bottomrule
   \end{tabular}
-  \fonte{O autor.}
+  \fonte{O autor, a partir de \texttt{dm\_resumo\_pvalores\_regime\_*.csv}.}
 \end{table}
 
-Se o modelo mantém desempenho no regime de alta volatilidade, isso é um sinal forte de robustez.
-Se ele cai muito, isso não “invalida” o método. Mas mostra uma limitação prática clara. Nessa situação,
-uma extensão natural do trabalho é adaptar limiares por regime, ou introduzir um detector de regime
-para ajustar a agressividade da estratégia.
+Nenhum p-valor atinge o limiar de 5\% em qualquer regime.
+Dois resultados merecem menção: ITUB4 contra Prophet em alta volatilidade
+($p = 0{,}079$) e VALE3 contra Naive em baixa volatilidade ($p = 0{,}193$).
+Ambos sugerem tendência, mas sem atingir significância convencional.
+
+A análise por regime permite uma observação adicional: de forma geral, os p-valores
+tendem a ser ligeiramente menores no regime de alta volatilidade do que no de baixa.
+Isso pode indicar que, em períodos mais turbulentos, as diferenças entre modelos se
+acentuam --- embora, neste estudo, não o suficiente para atingir significância estatística.
+
+Do ponto de vista prático, o modelo não demonstra vantagem clara em nenhum dos dois regimes.
+Isso sugere que a limitação não é específica a um tipo de mercado, mas sim uma característica
+mais fundamental: a dificuldade de extrair sinal preditivo de retornos intradiários de
+15~minutos com a arquitetura e os dados empregados.
+
+% ---------------------------------------------------------------------------
+\section{Limitações e colapso de classe}
+\label{sec:limitacoes}
+% ---------------------------------------------------------------------------
+
+Os resultados apresentados nas seções anteriores convergem para um diagnóstico consistente:
+o modelo CNN--LSTM, apesar de implementado conforme a arquitetura proposta e treinado com
+validação validação temporal deslizante (walk-forward) rigorosa, não demonstrou capacidade discriminativa superior
+à dos baselines. Esta seção discute as principais limitações observadas e suas implicações.
+
+\subsection{O fenômeno do colapso de classe}
+
+A limitação mais evidente é o \textbf{colapso de classe}: em 10 dos 12 folds avaliados,
+o modelo prevê predominantemente uma única direção (``alta'' ou ``baixa'') para todo o bloco
+de teste. As evidências são:
+
+\begin{itemize}
+  \item \textbf{MCC $= 0{,}000$} em 10 de 12 folds, indicando ausência de correlação entre
+  previsão e resultado.
+  \item \textbf{Desvio-padrão das probabilidades} extremamente baixo (0,002 a 0,012),
+  confirmando que as saídas da rede são quase constantes dentro de cada fold.
+  \item \textbf{Probabilidade média} variando entre 0,398 e 0,585 conforme o fold,
+  sempre em um mesmo lado do limiar de 0,5 para a maioria das amostras.
+  \item \textbf{Poucas operações no backtest} (muitos folds com apenas 0 ou 1 operação),
+  consequência direta da baixa variabilidade das saídas.
+\end{itemize}
+
+\subsection{Possíveis causas}
+
+O colapso de classe em modelos de séries temporais financeiras não é incomum na literatura
+e pode ter múltiplas causas, frequentemente combinadas:
+
+\begin{enumerate}
+  \item \textbf{Sinal fraco}: retornos intradiários de 15~minutos em ações líquidas
+  contêm alto nível de ruído e baixa autocorrelação. A relação sinal/ruído pode ser
+  insuficiente para que a rede aprenda padrões discriminativos, especialmente com apenas
+  12 características (features) técnicas. Nesse cenário, a solução de menor risco para o otimizador é
+  convergir para a proporção de classes do treino.
+
+  \item \textbf{Paisagem de perda}: a \emph{Binary Cross-Entropy} (e mesmo a Focal Loss
+  utilizada) pode apresentar gradientes fracos quando as probabilidades previstas estão
+  próximas de 0,5, criando um mínimo local ``seguro'' no qual o modelo estaciona.
+
+  \item \textbf{Capacidade da arquitetura}: a rede utilizada (Conv1D~$\rightarrow$~MaxPooling~$\rightarrow$~LSTM~$\rightarrow$~Dense)
+  é relativamente simples. Embora essa simplicidade reduza o risco de \emph{overfitting},
+  ela também pode limitar a capacidade de capturar relações não-lineares mais complexas
+  nos dados.
+
+  \item \textbf{Tamanho efetivo do treino}: com 1 ano de treino ($\approx 7{.}000$ barras)
+  e 12 features, o número de exemplos por feature é limitado. Após a remoção de neutros
+  ($\approx 4{,}6$\% dos dados) e a criação de janelas de 60 passos, o volume efetivo de
+  amostras de treino pode não ser suficiente para generalização robusta.
+\end{enumerate}
+
+\subsection{O que os resultados não invalidam}
+
+É importante distinguir entre a performance do modelo e a validade da metodologia.
+Os resultados negativos --- ou, mais precisamente, neutros --- não invalidam:
+
+\begin{itemize}
+  \item O \textbf{protocolo de validação walk-forward} com embargo, que foi implementado
+  corretamente e evitou \emph{data leakage}.
+  \item A \textbf{comparação com baselines}, que fornece referência legítima para avaliar
+  o ganho incremental.
+  \item Os \textbf{testes de Diebold--Mariano}, que confirmaram a ausência de significância
+  --- um resultado tão válido quanto a confirmação dela.
+  \item O \textbf{backtest com custos}, que traduziu corretamente o desempenho estatístico
+  em impacto financeiro.
+  \item A \textbf{reprodutibilidade} do pipeline, que permite replicar todos os resultados
+  a partir dos scripts e dados fornecidos.
+\end{itemize}
+
+Do ponto de vista científico, a demonstração de que um modelo de \emph{deep learning}
+não supera baselines simples em dados intradiários de 15~minutos é, em si, uma contribuição
+relevante, na medida em que reforça a importância de avaliações rigorosas e evita a
+``ilusão de performance'' frequentemente observada em estudos sem validação temporal adequada
+\cite{lopezdeprado2018}.
 
 % ---------------------------------------------------------------------------
 \section{Síntese}
+\label{sec:sintese}
 % ---------------------------------------------------------------------------
 
-Em resumo, os resultados deste capítulo são organizados em três níveis.
-No primeiro nível, verificamos se o CNN--LSTM supera baselines em métricas de classificação.
-No segundo, avaliamos se a diferença é estatisticamente consistente via Diebold--Mariano.
-No terceiro, testamos utilidade prática com \emph{backtests} após custos.
+Os resultados deste capítulo foram organizados em três níveis de análise, cada qual com
+um critério de exigência crescente.
 
-Essa estrutura evita uma conclusão baseada em um único número. Ela força o resultado a “passar”
-por filtros diferentes. E isso é especialmente importante em finanças, onde instabilidade é a regra,
-não a exceção.
+No \textbf{primeiro nível} (métricas de classificação), o CNN--LSTM apresentou acurácia
+direcional entre 50,76\% e 51,55\% na média dos folds, ligeiramente acima da maioria dos
+baselines. Porém, as métricas complementares (MCC próximo de zero, F1 inconsistente)
+revelaram que o modelo sofre de colapso de classe em 10 de 12 folds, emitindo probabilidades
+quase constantes e predizendo predominantemente uma única direção.
+
+No \textbf{segundo nível} (significância estatística), o teste de Diebold--Mariano não
+rejeitou a hipótese nula de igualdade de desempenho em nenhuma das 12 comparações
+(3 ativos $\times$ 4 baselines) para a perda direcional, com p-valores entre 0,071 e 0,967.
+A análise por regimes de volatilidade também não revelou significância.
+O único resultado estatisticamente significativo foi na comparação por perda Brier
+($p < 0{,}001$ em todos os pares), atribuível à natureza probabilística da saída do CNN--LSTM.
+
+No \textbf{terceiro nível} (impacto financeiro), os testes retrospectivos (backtests) mostraram resultados
+mistos. PETR4 em modo comprado/vendido (long/short) obteve retorno líquido de 4,10\% com Sharpe de 1,41,
+mas esse resultado é fortemente concentrado em um único fold. VALE3 e ITUB4 ficaram próximos
+do equilíbrio ou no negativo. O rotatividade (turnover) muito baixo (reflexo das probabilidades quase
+constantes) limitou a capacidade do modelo de gerar operações.
+
+Em síntese, a evidência reunida indica que, para os dados, ativos e configuração estudados,
+o modelo CNN--LSTM não supera modelos de referência (baselines) simples de forma estatisticamente significativa
+nem financeiramente consistente. A principal contribuição deste trabalho reside no
+\textbf{pipeline metodológico} --- validação temporal rigorosa, prevenção de \emph{data leakage},
+testes de significância e testes retrospectivos (backtests) com custos explícitos --- que pode ser reutilizado
+com diferentes arquiteturas, características (features) ou granularidades temporais. As limitações
+identificadas (colapso de classe, sinal fraco em 15~minutos, tamanho limitado de treino)
+apontam direções concretas para trabalhos futuros, discutidas nas considerações finais.

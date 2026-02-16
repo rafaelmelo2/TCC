@@ -1,20 +1,85 @@
 
-O trabalho até aqui forneceu uma definição sistemática de escopo, objetivos e planejamento metodológico para uma tarefa de previsão direcional intradiária na B3, especificamente em uma proposta forte para uma avaliação completa e reprodutível. O principal objetivo foi fornecer um protocolo sensível ao tempo que não vaze informações e represente melhor o uso real com custos e slippage. Para alcançar isso, o plano integrou:
+Este trabalho propôs e avaliou um modelo híbrido CNN--LSTM para previsão direcional intradiária
+(barras de 15~minutos) em três ativos de alta liquidez da B3: PETR4, VALE3 e ITUB4.
+A abordagem integrou um pipeline completo --- da aquisição de dados à avaliação financeira ---
+com ênfase em validação temporal rigorosa, prevenção de vazamento de dados (data leakage) e reprodutibilidade.
+
+\section*{Contribuições}
+
+A principal contribuição do trabalho é o \textbf{protocolo metodológico} desenvolvido e aplicado,
+que compreende:
 
 \begin{enumerate}[label=\roman*.]
-\item construção do banco de dados intradiário;
-\item configuração experimental com janelas deslizantes e validação cruzada walk-forward com embargo temporal; 
-\item comparação de linhas de base (por exemplo, ARIMA e LSTM) com as redes propostas;
-\item definição de métricas relacionadas à tomada de decisão;
-\item backtests usando custos explícitos;
-\item testes de robustez e significância; e
-\item reprodutibilidade, por meio de versionamento e scripts executáveis.
+  \item construção e tratamento de uma base intradiária de cinco anos (outubro/2020 a outubro/2025),
+  com ajustes corporativos e controle de qualidade;
+  \item engenharia de 12 características (features) técnicas (MME, RSI, Bandas de Bollinger, volatilidade),
+  com rotulagem direcional com banda morta de 0,1\%;
+  \item validação validação temporal deslizante (walk-forward) com embargo temporal, eliminando sobreposição entre treino
+  e teste e preservando a ordem cronológica;
+  \item comparação com quatro modelos de referência (baselines) (Naive, Drift, ARIMA, Prophet) sob as mesmas
+  condições experimentais;
+  \item otimização bayesiana de hiperparâmetros por fold (Optuna), sem vazamento do conjunto de teste;
+  \item testes de significância estatística (Diebold--Mariano), incluindo segmentação por regimes
+  de volatilidade;
+  \item testes retrospectivos (backtests) com custos explícitos (emolumentos B3 e deslizamento de preço (slippage)) em modalidades
+  apenas comprado (long-only) e comprado/vendido (long/short), com análise de sensibilidade; e
+  \item pipeline reprodutível, orquestrado por scripts e com sementes fixas.
 \end{enumerate}
 
-Quanto à base teórico-empírica agora consolidada, o artigo fundamentou-se na dinâmica intradiária (liquidez, volatilidade, volume) e microestrutura, e na decisão de introduzir uma banda morta (positiva) para mitigar ruídos na estimativa da precisão direcional. A revisão apresentou a evolução dos modelos, começando pelos clássicos (como a família ARIMA, modelos Box-Jenkins) até métodos de aprendizado profundo (LSTM, CNN) e arquiteturas contemporâneas com mecanismos de atenção, apontando as limitações de modelos puramente lineares em ambientes não estacionários e na presença de choques, e os ganhos de modelos que lidam com dependência de longo prazo. Além disso, foi mencionada a relevância dos Transformers para séries financeiras multivariadas e de alta frequência, como o TF-T, e algumas evidências de ganhos sobre o LSTM no RMSE e precisão direcional são encontradas sob tamanho de janela longo. O estudo também empregou um modelo híbrido LSTM+CNN como referência para capturar características temporais e locais das características intradiárias, consistente com a intenção de generalidade em vários ambientes de volatilidade.
+Esse protocolo pode ser reutilizado como base para avaliação de outros modelos, características (features)
+ou granularidades temporais, reduzindo o risco de conclusões infladas por vazamento de dados (data leakage)
+ou avaliações otimistas.
 
-Para avaliação, uma gama de métricas de decisão e probabilidade foi incluída: precisão direcional com folga (foco principal), qualidade probabilística (Brier Score, Log-Loss e ECE) e medidas de equilíbrio (Balanced Accuracy, F1, MCC, AUC-PR). A validação econômica foi adicionada com backtests com custo e slippage em Peso, retornando retorno líquido, índice de Sharpe, máximo drawdown e fator de lucro de acordo com estruturas operacionais e custos divulgados pela B3. A significância da diferença entre os modelos será examinada através da estatística de Diebold--Mariano, onde a análise é segmentada de acordo com regimes de volatilidade para garantir a robustez da comparação. Por fim, a reprodutibilidade foi garantida pelo versionamento completo de dados, código, artefatos e seeds com scripts de ponta a ponta para preparar, treinar, avaliar e realizar backtests.
+\section*{Resultados principais}
 
-A motivação do tema surge do fato de que observamos consistentemente o desempenho em laboratório e o desempenho no piso em desacordo um com o outro em um mundo intradiário ruidoso com custos. O plano metodológico tenta reduzir essa lacuna integrando walk-forward com prevenção de vazamento de embargo, métricas orientadas para decisão e backtests pós-custo e entregar critérios de validação mais robustos enquanto preserva a possibilidade de generalização entre ativos e estados de mercado. As ameaças à validade (qualidade dos dados, viés de sobrevivência, divisões temporais) e mitigadores de resultados também foram claramente declarados, aumentando a confiabilidade do desenho experimental.
+Os experimentos mostraram que o modelo CNN--LSTM obteve acurácia direcional média entre
+50,76\% e 51,55\% (conforme o ativo), ligeiramente acima da maioria dos modelos de referência (baselines),
+mas com ganhos marginais e não estatisticamente significativos. O teste de Diebold--Mariano
+não rejeitou a hipótese nula de igualdade de desempenho em nenhuma das 12 comparações
+(p-valores entre 0,071 e 0,967). A análise por regimes de volatilidade tampouco revelou
+significância.
 
-Para concluir, as ações subsequentes, explicadas no Capítulo de próximos passos -- posse/limpeza dos dados intradiários, pré-processamento de dados e geração de características, configuração de arquiteturas (linhas de base e propostas), definição do espaço de busca de hiperparâmetros, protocolo de treino/validação walk-forward com embargo e avaliações de métricas e backtests com testes de robustez e significância -- são o elo imediato para o PFC2. Realizar essas etapas na próxima fase torna possível (1) realizar os experimentos sob controles claros, (2) comparar os diferentes modelos de forma estatisticamente significativa, (3) relatar os resultados de forma tão transparente e reprodutível quanto desejado, fechando o ciclo metodológico conforme pretendido neste trabalho.
+O fenômeno de \textbf{colapso de classe} --- em que o modelo prediz predominantemente uma
+única direção em 10 de 12 folds --- foi identificado como a principal limitação.
+Esse comportamento, evidenciado por MCC nulo e desvio-padrão de probabilidades extremamente
+baixo (0,002 a 0,012), indica que a rede não conseguiu extrair sinal discriminativo
+suficiente dos dados de 15~minutos com as 12 características (features) técnicas empregadas.
+
+Os testes retrospectivos (backtests) confirmaram a fragilidade: apenas PETR4 em modo comprado/vendido (long/short) apresentou
+retorno positivo consistente (4,10\%), mas concentrado em um único fold.
+VALE3 e ITUB4 ficaram próximos do equilíbrio ou no negativo.
+
+\section*{Discussão}
+
+Os resultados obtidos são consistentes com a hipótese de eficiência semiforte do mercado
+para o horizonte e granularidade estudados: retornos intradiários de 15~minutos em ações
+líquidas da B3 contêm alto nível de ruído e baixa autocorrelação, dificultando a extração
+de padrões preditivos estáveis. A demonstração de que um modelo de aprendizado profundo (deep learning)
+não supera modelos de referência (baselines) simples nessas condições é, em si, uma contribuição relevante,
+na medida em que reforça a importância de avaliações rigorosas --- com validação temporal,
+testes de significância e custos de transação --- frente à ``ilusão de performance''
+frequentemente observada em estudos sem esses controles.
+
+\section*{Trabalhos futuros}
+
+As limitações identificadas apontam direções concretas para continuidade:
+
+\begin{itemize}
+  \item \textbf{Granularidade}: avaliar barras de 30~minutos ou 1~hora, que reduzem ruído
+  de microestrutura e podem melhorar a relação sinal/ruído.
+  \item \textbf{Features adicionais}: incorporar variáveis de microestrutura
+  (fluxo de ordens (order flow), desequilíbrio do livro de ofertas (book imbalance)), codificação temporal (hora do dia, dia da semana)
+  e dados de sentimento.
+  \item \textbf{Arquiteturas}: explorar mecanismos de atenção (Temporal Fusion Transformer (TFT)),
+  conjunto (ensemble) de modelos e técnicas de regularização específicas para mitigar colapso de classe.
+  \item \textbf{Funções de perda}: investigar perdas que penalizem explicitamente a concentração
+  de previsões (por exemplo, Focal Loss com calibração adaptativa ou perdas baseadas em entropia).
+  \item \textbf{Limiares adaptativos}: ajustar dinamicamente o limiar de decisão por fold ou
+  por regime de volatilidade, aproveitando a saída probabilística do modelo.
+  \item \textbf{Ampliação do universo}: testar em outros ativos e mercados para avaliar
+  generalização.
+\end{itemize}
+
+O código-fonte, os dados processados e os artefatos de treinamento estão disponíveis no
+repositório do projeto, permitindo a reprodução integral dos experimentos e a extensão
+do pipeline para novas abordagens.
