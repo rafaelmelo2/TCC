@@ -8,6 +8,7 @@
 
 ### Decisões Técnicas
 - [Remoção da Banda Morta](decisoes_tecnicas/banda_morta.md)
+- [Estrutura Cap. 5 e Abordagem Honesta](decisoes_tecnicas/estrutura_capitulo_resultados_abordagem_honesta.md)
 - [Simplificação do Código](ordem_cronologica.md#2025-01-23---simplificação-do-código)
 - [Período Exato dos Dados](periodo_dados.md)
 
@@ -21,6 +22,7 @@
 - [Análise de Sensibilidade](implementacoes/analise_sensibilidade.md)
 - [Testes Diebold-Mariano](implementacoes/testes_estatisticos_diebold_mariano.md) (TCC 4.5.2)
 - [Resultados Consolidados (2026-02-03)](implementacoes/resultados_consolidados_2026_02_03.md) – checklist, interpretação DM, limitação colapso, Fase 7
+- [Capítulos 5 e 6 (2026-02-16)](implementacoes/capitulos_05_06_resultados_2026_02_16.md) – escrita completa com dados reais, estrutura, abordagem honesta
 
 ### Projeto (cronograma)
 - [Próximos Passos Consolidado](projeto/PROXIMOS_PASSOS_CONSOLIDADO.md) – cronograma e prioridades
@@ -64,6 +66,7 @@ Documentação de correções, melhorias e análises pontuais já incorporadas a
 
 ### Resultados
 - [Resultados Consolidados (2026-02-03)](implementacoes/resultados_consolidados_2026_02_03.md) – checklist pipeline, interpretação DM, colapso (F1/MCC), texto para TCC, Fase 7
+- [Capítulos 5 e 6 (2026-02-16)](implementacoes/capitulos_05_06_resultados_2026_02_16.md) – escrita completa com dados reais do pipeline, decisões de estrutura
 - [Resultados dos Baselines](implementacoes/baselines.md#resultados-walk-forward-vale3)
 - [Impacto da Remoção da Banda Morta](decisoes_tecnicas/banda_morta.md#impacto-mensurável)
 
