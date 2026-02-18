@@ -1,0 +1,38 @@
+\begin{thebibliography}{}
+
+\bibitem[Bergmeir and Ben{\'i}tez, 2012]{bergmeir2012}
+Bergmeir, C. and Ben{\'i}tez, J.~M. (2012).
+\newblock On the use of cross-validation for time series predictor evaluation.
+\newblock {\em Information Sciences}, 191:192--213.
+
+\bibitem[Bodie et~al., 2021]{bodie2021}
+Bodie, Z., Kane, A., and Marcus, A.~J. (2021).
+\newblock {\em Investments}.
+\newblock McGraw-Hill Education, New York, 12 edition.
+
+\bibitem[Box et~al., 2015]{box2015}
+Box, G. E.~P., Jenkins, G.~M., Reinsel, G.~C., and Ljung, G.~M. (2015).
+\newblock {\em Time Series Analysis: Forecasting and Control}.
+\newblock Wiley, Hoboken, NJ, 5 edition.
+
+\bibitem[Diebold and Mariano, 1995]{diebold1995}
+Diebold, F.~X. and Mariano, R.~S. (1995).
+\newblock Comparing predictive accuracy.
+\newblock {\em Journal of Business \& Economic Statistics}, 13(3):253--263.
+
+\bibitem[Hyndman and Athanasopoulos, 2018]{hyndman2018}
+Hyndman, R.~J. and Athanasopoulos, G. (2018).
+\newblock {\em Forecasting: Principles and Practice}.
+\newblock OTexts, Melbourne, Australia, 2 edition.
+
+\bibitem[Mishkin and Eakins, 2018]{mishkin2018}
+Mishkin, F.~S. and Eakins, S.~G. (2018).
+\newblock {\em Financial Markets and Institutions}.
+\newblock Pearson, New York, 9 edition.
+
+\bibitem[Prado, 2018]{prado2018}
+Prado, M. L.~d. (2018).
+\newblock {\em Advances in Financial Machine Learning}.
+\newblock Wiley, Hoboken, NJ.
+
+\end{thebibliography}

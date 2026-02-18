@@ -1,0 +1,9 @@
+% -------------------------------------------------------------------------
+% Resumo e palavras-chave
+% -------------------------------------------------------------------------
+\begin{abstract}
+Este artigo apresenta um modelo híbrido de \textbf{aprendizado profundo} (CNN+LSTM) para prever a \textbf{direção do movimento de preços} em barras intradiárias de 15 minutos na bolsa brasileira B3. O trabalho incorpora dados de \textbf{liquidez}, \textbf{volatilidade} e volume, além de \textbf{engenharia de características} e uma metodologia de \textbf{validação temporal deslizante} (\emph{walk-forward}) para evitar vazamento de informação e obter avaliação realista. O modelo foi comparado a referências clássicas (Naive, ARIMA, Prophet) em três ativos líquidos (PETR4, VALE3, ITUB4), com período de outubro de 2020 a outubro de 2025. Os resultados indicam ganhos marginais de acurácia direcional para o híbrido, porém sem significância estatística no teste de Diebold--Mariano; em parte dos blocos de teste observou-se \emph{colapso de classe}, com probabilidades quase constantes. A principal contribuição reside no \textbf{protocolo metodológico} reprodutível --- validação temporal, prevenção de \emph{data leakage}, backtests com custos explícitos ---, que pode ser reutilizado para outras arquiteturas e ativos.
+
+\vspace{0.5em}
+\noindent\textbf{Palavras-chave:} predição financeira; séries temporais; aprendizado profundo; CNN-LSTM; B3; validação walk-forward.
+\end{abstract}

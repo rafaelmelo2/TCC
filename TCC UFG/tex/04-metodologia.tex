@@ -263,7 +263,7 @@ Em cada \textbf{fold}, usamos:
 O fold seguinte começa logo após o fim do teste do fold anterior.
 Assim, treino e teste nunca se sobrepõem, e a ordem do tempo é mantida.
 Com o volume efetivo do dataset (em torno de 36 mil barras por ativo),
-obtêm-se tipicamente \textbf{5 folds} por ativo.
+obtêm-se \textbf{4 folds} por ativo.
 A implementação desse particionamento está na classe
 \texttt{WalkForwardValidator} (\texttt{validation.py}),
 que gera os intervalos:

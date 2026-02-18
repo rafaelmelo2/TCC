@@ -1,0 +1,61 @@
+% -------------------------------------------------------------------------
+% Desenvolvimento (metodologia, resultados, interpretação)
+% -------------------------------------------------------------------------
+\section{Desenvolvimento}
+\label{sec:desenvolvimento}
+
+\subsection{Contexto e fundamentação}
+
+Em mercados acionários, séries temporais costumam ser decompostas em \emph{tendência}, \emph{sazonalidade}, \emph{ciclos} e ruído \cite{hyndman2018,box2015}. A tendência indica se os preços estão subindo ou caindo no curto prazo; a sazonalidade envolve padrões repetitivos (por exemplo, ao longo do dia); os ciclos são oscilações de médio a longo prazo ligadas a condições econômicas. Modelos clássicos como \textbf{ARIMA} e \textbf{Prophet} lidam bem com séries estacionárias ou de baixa não linearidade, mas tendem a perder eficácia em mercados muito voláteis, em que pequenos choques podem alterar as projeções. Redes LSTM, por outro lado, têm se mostrado capazes de capturar dependências temporais longas e relações não lineares, às vezes com acurácia superior em horizontes maiores; combinações híbridas (por exemplo, com indicadores técnicos e validação temporal) aparecem na literatura como caminho para maior robustez.
+
+Neste trabalho, consideramos explicitamente a \textbf{estacionariedade}: em vez de modelar preços em nível, utilizamos \textbf{retornos logarítmicos} $r_t = \ln(P_t) - \ln(P_{t-1})$, o que estabiliza a escala e permite composição aditiva no tempo. A \textbf{volatilidade intradiária} é mensurada em janelas móveis (por exemplo, 20 períodos), e a liquidez é abordada por volume e, quando disponível, spread. Indicadores como \textbf{Médias Móveis Exponenciais} (MME), \textbf{RSI} (Índice de Força Relativa) e \textbf{Bandas de Bollinger} enriquecem o conjunto de \emph{features}, ajudando a rede a discriminar entre sinal e ruído.
+
+\subsection{Dados e pré-processamento}
+
+Os dados foram obtidos via plataforma MetaTrader~5 (MT5), com histórico em barras de \textbf{15 minutos} (timeframe M15). O universo compreende três ativos de alta liquidez da B3: \textbf{PETR4} (Petrobras), \textbf{VALE3} (Vale) e \textbf{ITUB4} (Itaú Unibanco), no período de 22 de outubro de 2020 a 22 de outubro de 2025. Cada barra contém variáveis \textbf{OHLCV} (abertura, máxima, mínima, fechamento, volume). As séries foram ajustadas por eventos corporativos (desdobramentos, grupamentos, dividendos) e submetidas a tratamento de qualidade (remoção de anomalias, consistência de fuso horário). Para evitar \textbf{vazamento de dados} (\emph{data leakage}), a normalização (por exemplo, Min-Max ou Z-Score) é ajustada \emph{apenas} no bloco de treino e depois aplicada ao teste; nenhuma estatística do futuro entra no treinamento \cite{prado2018,bergmeir2012}.
+
+Foi adotada uma \textbf{banda morta} na rotulagem: retornos com valor absoluto menor que 0,1\% são tratados como neutros e excluídos do cálculo da acurácia direcional. Isso aproxima a avaliação da decisão real de comprar ou vender e reduz o peso de microvariações onde o spread domina.
+
+\subsection{Modelo proposto e baselines}
+
+A arquitetura proposta é um híbrido \textbf{CNN--LSTM}: uma camada convolucional unidimensional (Conv1D) extrai padrões locais; em seguida, MaxPooling reduz a dimensão temporal; uma camada LSTM captura dependências de longo prazo; por fim, uma camada densa com ativação sigmoide produz a probabilidade de a próxima barra ser de alta. A janela de entrada (\emph{lookback}) utilizada é de 60 barras, com 12 características (OHLCV processado, retornos, volatilidade móvel, MME, RSI, Bandas de Bollinger em janelas típicas).
+
+Os \textbf{baselines} incluem: (i) \textbf{Naive} (repetir a última direção); (ii) \textbf{Drift} (tendência recente); (iii) \textbf{ARIMA}; (iv) \textbf{Prophet}. Todos são avaliados sob o mesmo protocolo de validação temporal, com as mesmas métricas e o mesmo particionamento, para garantir comparabilidade.
+
+\subsection{Validação temporal e desenho experimental}
+
+A validação \textbf{walk-forward} funciona assim: em cada \emph{fold} $i$, o modelo é treinado apenas com dados passados; os hiperparâmetros são escolhidos por otimização bayesiana (Optuna) em uma validação interna contida no bloco de treino. Entre o fim do treino/validação e o início do conjunto de teste é imposto um \textbf{embargo temporal} de $h$ observações, para mitigar vazamento de informação. O desempenho é medido no bloco de teste seguinte (Teste $i+1$). O processo se repete ao longo do tempo, produzindo várias avaliações fora da amostra; as métricas finais são agregadas sobre os blocos de teste. Esse desenho é fundamental em séries financeiras, pois respeita a causalidade e reduz otimismo indevido \cite{bergmeir2012,prado2018}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.65\linewidth]{validacao-temporal-walk-forward.png}
+  \caption{Esquema da validação temporal deslizante (walk-forward) com embargo. Fonte: autor.}
+  \label{fig:walk-forward}
+\end{figure}
+
+\subsection{Métricas e backtests}
+
+A métrica central é a \textbf{acurácia direcional} (\emph{hit rate}): proporção de vezes em que a previsão de alta ou baixa coincide com a direção realizada, após aplicar a banda morta. Complementarmente, reportam-se F1-Score, \textbf{MCC} (Matthews Correlation Coefficient), \textbf{Brier Score} e Log-Loss para qualidade probabilística e calibração. Como acerto estatístico não garante lucro, foram realizados \textbf{backtests} com custos explícitos: custo proporcional (emolumentos B3, 0,03\%) e \textbf{deslizamento de preço} (\emph{slippage}, 0,05\%), em estratégias \emph{long-only} e \emph{long/short}. Para verificar se diferenças entre modelos são estatisticamente significativas, aplicou-se o teste de \textbf{Diebold--Mariano} \cite{diebold1995} à série de perdas direcionais e à perda Brier.
+
+\subsection{Resultados principais}
+
+Os experimentos geraram quatro \emph{folds} de teste por ativo (cada fold com cerca de um mês de barras). Em termos de \textbf{acurácia direcional} média, o CNN--LSTM ficou ligeiramente à frente em PETR4 (51,55\% contra 50,13\% do melhor baseline) e em VALE3 (50,76\% contra 50,69\% do ARIMA); em ITUB4, o Naive superou o híbrido (51,21\% contra 50,83\%). De forma geral, todos os modelos operam em uma faixa próxima a 50\%, ou seja, ao acaso.
+
+O \textbf{MCC} ficou muito próximo de zero em todos os casos ($-0{,}034$ a $+0{,}025$), indicando que nenhum modelo discriminou de forma consistente entre as classes alta e baixa. Em 10 dos 12 \emph{folds}, o CNN--LSTM apresentou \textbf{colapso de classe}: as probabilidades emitidas tinham desvio-padrão extremamente baixo (0,002 a 0,012), concentrando-se em um lado do limiar 0,5, de modo que o modelo predizia predominantemente uma única direção para todo o bloco. Isso explica o MCC nulo e o número muito baixo de operações nos backtests.
+
+O teste de \textbf{Diebold--Mariano} (perda direcional) não rejeitou a hipótese nula de igualdade de desempenho em nenhuma das 12 comparações (3 ativos $\times$ 4 baselines); os p-valores variaram de 0,071 a 0,967. Na comparação por \textbf{perda Brier}, o CNN--LSTM foi significativamente melhor que todos os baselines ($p < 0{,}001$), o que reflete a natureza probabilística da saída (valores próximos de 0,5 geram perda Brier menor que previsões binárias erradas), e não necessariamente uma capacidade preditiva superior.
+
+Nos \textbf{backtests}, PETR4 em modo long/short obteve retorno líquido de 4,10\% e Sharpe de 1,41 na média dos folds, mas esse resultado ficou concentrado em um único fold (o que teve MCC positivo e maior dispersão de probabilidades). VALE3 e ITUB4 ficaram próximos do zero ou negativos. A baixa rotatividade (poucas operações) é consequência direta das probabilidades quase constantes.
+
+\subsection{Interpretação e limitações}
+
+Os resultados são compatíveis com a hipótese de \textbf{eficiência semiforte} do mercado para o horizonte e a granularidade estudados: retornos intradiários de 15 minutos em ações líquidas da B3 parecem conter alto ruído e baixa autocorrelação, dificultando a extração de padrões preditivos estáveis. Mostrar que um modelo de deep learning não supera baselines simples nessas condições é, em si, uma contribuição: reforça a importância de avaliações rigorosas (validação temporal, testes de significância, custos de transação) e ajuda a evitar a \emph{ilusão de performance} comum em estudos sem esses controles \cite{prado2018}.
+
+As limitações identificadas incluem: (i) \textbf{sinal fraco} em 15 minutos com apenas 12 \emph{features}; (ii) possível mínimo local na paisagem de perda (Binary Cross-Entropy) quando as probabilidades ficam próximas de 0,5; (iii) arquitetura relativamente simples; (iv) tamanho efetivo de treino (cerca de um ano por bloco) que pode ser insuficiente para generalização robusta. O que os resultados \emph{não} invalidam é o protocolo: walk-forward, comparação com baselines, Diebold--Mariano e backtests com custos foram aplicados corretamente e o pipeline é reprodutível.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{dm_heatmap_pvalores.png}
+  \caption{Heatmap de p-valores do teste de Diebold--Mariano (perda direcional). Fonte: autor.}
+  \label{fig:dm-heatmap}
+\end{figure}

@@ -28,23 +28,34 @@
 \textoresumo[brazil]{
 
 
-O trabalho introduz um modelo híbrido de aprendizado profundo, utilizando uma combinação de redes neurais LSTM + CNN para prever indicadores financeiros da bolsa brasileira B3 — Brasil, Bolsa, Balcão — com base em dados de séries temporais intradiárias. 
+% O trabalho introduz um modelo híbrido de aprendizado profundo, utilizando uma combinação de redes neurais LSTM + CNN para prever indicadores financeiros da bolsa brasileira B3 — Brasil, Bolsa, Balcão — com base em dados de séries temporais intradiárias. 
 
-A análise incorpora dados de liquidez, volatilidade e volume negociado, juntamente com engenharia de características e uma metodologia de validação cruzada temporalmente consciente para melhorar a robustez e a repetibilidade dos resultados.
+% A análise incorpora dados de liquidez, volatilidade e volume negociado, juntamente com engenharia de características e uma metodologia de validação cruzada temporalmente consciente para melhorar a robustez e a repetibilidade dos resultados.
 
-Sua arquitetura foi construída para inferir cenários de estresse e choques de mercado, algo fora do alcance de métodos clássicos como ARIMA ou Prophet. Um importante marco é que produz valores muito precisos, o que importa muito mais para negociantes da bolsa e gerentes de risco.
+% Sua arquitetura foi construída para inferir cenários de estresse e choques de mercado, algo fora do alcance de métodos clássicos como ARIMA ou Prophet. Um importante marco é que produz valores muito precisos, o que importa muito mais para negociantes da bolsa e gerentes de risco.
 
-Um pipeline baseado em Python será construído para ser usado na reprodução e geração de dados, além da agregação de dados e análise subsequente na qual este estudo se baseia. Essas contribuições implicam em uma maior estabilidade em ambientes voláteis e insights que podem ser transferidos para vários ativos financeiros.
+% Um pipeline baseado em Python foi desenvolvido para reprodução e geração de dados, agregação e análise sobre as quais este estudo se baseia. As contribuições implicam maior estabilidade em ambientes voláteis e insights transferíveis a diversos ativos financeiros.
+
+Este trabalho avalia um modelo híbrido CNN-LSTM para prever a direção do movimento de preços em barras intradiárias de 15 minutos na B3 — Brasil, Bolsa, Balcão, com foco em três ativos líquidos (PETR4/Petrobras, VALE3/Vale e ITUB4/Itaú Unibanco) no período de outubro de 2020 a outubro de 2025. A ideia central foi testar, em um cenário mais próximo do uso real, se a arquitetura consegue entregar algum ganho prático em previsão direcional, sem depender de avaliações otimistas por vazamento temporal.
+
+Para isso, foi usado um protocolo de validação temporal do tipo walk-forward com embargo entre treino e teste, com treino em blocos de um ano e múltiplos blocos de teste (quatro folds por ativo). A comparação foi feita contra modelos de referência (baselines) sob o mesmo desenho experimental, e a métrica principal foi a acurácia direcional após a aplicação de uma banda morta de 0,1\%, complementada por métricas de classificação e análises adicionais. Além disso, os hiperparâmetros foram ajustados com otimização via Optuna dentro do pipeline, e os artefatos (modelos, métricas e logs) foram organizados para permitir reprodução dos experimentos.
+
+Nos resultados, o CNN-LSTM ficou em torno de 50,76\% a 51,55\% de acurácia direcional média, ligeiramente acima de alguns baselines em casos pontuais, mas esses ganhos não se sustentaram de forma consistente nas métricas complementares. Um padrão que apareceu com frequência foi o colapso de classe em grande parte dos folds, com previsões concentradas em uma única direção e MCC próximo de zero, o que ajuda a explicar por que a melhoria média não se traduz em discriminação real estável ao longo do tempo. Assim, a principal contribuição do trabalho acaba sendo o próprio protocolo reprodutível (validação temporal, prevenção de data leakage, testes de significância e backtests com custos), que serve como base sólida para comparar arquiteturas futuras sem "ilusão de performance".
+
 }{predição, indicadores financeiros, séries temporais, bolsa de valores, aprendizado profundo}
 
 \textoresumo[english]{
-The paper introduces a hybrid deep learning model that combines LSTM and CNN neural networks to predict financial indicators of the Brazilian exchange B3 — Brasil, Bolsa, Balcão — based on intraday time-series data.
+% This work presents a hybrid model (CNN+LSTM) for predicting the direction of price movements in intraday series of assets listed on the Brazilian exchange B3. The analysis uses price, volume, liquidity and volatility data, with feature engineering and walk-forward temporal validation, and compares the model to baselines such as ARIMA, Prophet and plain LSTM.
 
-The analysis incorporates liquidity, volatility, and traded volume data, together with feature engineering and a time-aware cross-validation methodology to improve the robustness and replicability of the results.
+% Performance is assessed via directional and probabilistic metrics and via post-cost backtests. A Python pipeline was developed to reproduce the experiments and document the data and analysis steps. The study provides a reproducible methodological protocol and evidence on the model behaviour under different market regimes.
 
-Its architecture was designed to infer stress scenarios and market shocks, something beyond the reach of classical methods such as ARIMA or Prophet. A key advantage is that it produces highly accurate values, which matters much more to stock traders and risk managers.
+This work evaluates a hybrid CNN-LSTM model to predict the direction of price movements in 15-minute intraday bars on B3 — Brasil, Bolsa, Balcão, focusing on three liquid assets (PETR4/Petrobras, VALE3/Vale, and ITUB4/Itaú Unibanco) from October 2020 to October 2025. The central idea was to test, under conditions closer to real-world use, whether the architecture can deliver any practical gain in directional forecasting without relying on overly optimistic evaluations caused by temporal leakage.
 
-A Python-based pipeline will be built to support reproducibility and data generation, as well as data aggregation and the subsequent analysis on which this study relies. These contributions imply greater stability in volatile environments and insights that can be transferred to multiple financial assets.
+To that end, we adopted a walk-forward temporal validation protocol with an embargo between training and testing, using one-year training blocks and multiple test blocks (four folds per asset). Comparisons were made against reference (baseline) models under the same experimental design, and the primary metric was directional accuracy after applying a 0.1\% deadband, complemented by classification metrics and additional analyses. In addition, hyperparameters were tuned via Optuna optimization within the pipeline, and artifacts (models, metrics, and logs) were organized to enable reproducibility.
+
+In the results, the CNN-LSTM achieved an average directional accuracy of roughly 50.76\% to 51.55\%, slightly above some baselines in isolated cases, but these gains did not hold consistently across the complementary metrics. A recurring pattern was class collapse in a large portion of the folds, with predictions concentrated in a single direction and an MCC close to zero, which helps explain why the average improvement does not translate into stable, real discrimination over time. Thus, the main contribution of this work is the reproducible protocol itself (temporal validation, data-leakage prevention, significance testing, and cost-inclusive backtests), which provides a solid foundation for comparing future architectures without a “performance illusion.”
+
+
 }{prediction, financial indicators, time series, stock exchange, deep learning}
 
 % Inicio do documento
