@@ -1,0 +1,31 @@
+# Ambiente e cache
+.venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+.python-version
+.uv/
+
+# Dados brutos (grandes; cada um coloca os seus em data/raw/)
+data/*
+backup/
+
+# Resultados gerados (opcional: descomente se não quiser versionar)
+# data/processed/
+# data/backtest/
+
+# Logs e artefatos de execução
+logs/
+*.log
+
+# Modelos treinados (pesados; reprodutível reexecutando o treino)
+# models/saved/
+# *.h5
+# *.keras
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+*:Zone.Identifier
