@@ -15,7 +15,7 @@ def generate_text_for_ia_by_pdf(pdf_path):
 
 
 if __name__ == "__main__":
-    pdf_path = r"D:\Rafael\TCC\codigo\pipeline\src\generate_text_for_ia_by_pdf\Predição_Automática_de_Indicativos_Financeiros_para_Bolsa_de_Valores_Considerando_o_Aspecto_Temporal___Rafael_da_Silva_Melo___2025.pdf"
+    pdf_path = os.path.join(os.path.dirname(__file__), "thesis.pdf")
     text = generate_text_for_ia_by_pdf(pdf_path)
     
     # Salvar o texto em um arquivo .txt
