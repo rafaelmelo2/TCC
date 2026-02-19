@@ -223,7 +223,7 @@ uv run python src/train.py \
 ### Retreinar AGORA com Melhorias
 
 ```bash
-cd ~/Arquivos/TCC/codigo/pipeline
+# A partir da raiz do repositório
 
 # CNN-LSTM melhorado (RECOMENDADO)
 uv run python src/train.py --ativo VALE3 --modelo cnn_lstm --optuna --n-trials 50 --epochs 150

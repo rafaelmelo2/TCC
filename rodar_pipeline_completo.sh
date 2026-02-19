@@ -26,7 +26,7 @@ N_FOLDS=5                 # número de folds esperados
 GPU_FLAG="--gpu"          # padrão: usar GPU
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 PIPELINE_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${PIPELINE_DIR}/logs/pipeline"
+LOG_DIR="${PIPELINE_DIR}/logs"
 LOG_FILE="${LOG_DIR}/pipeline_${TIMESTAMP}.log"
 
 # ── Argumentos ──────────────────────────────────────────────────────────────
@@ -221,7 +221,7 @@ echo "  data/backtest/           Backtests por fold e estratégia"
 echo "  data/visualizacoes/      Gráficos de features por ativo/ano"
 echo "  models/                  Modelos .keras por ativo/fold"
 echo "  logs/training_history/   Histórico de treinamento por fold"
-echo "  logs/pipeline/           Log desta execução"
+echo "  logs/                    Log desta execução"
 echo ""
 echo "Backup dos dados anteriores em: ${BACKUP_DIR}/"
 echo ""

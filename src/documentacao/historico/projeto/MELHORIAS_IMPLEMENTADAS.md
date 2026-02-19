@@ -108,7 +108,7 @@ Trial 5: Pred=[1:0, -1:716], Val=[1:349, -1:367], ...
 
 ### Teste Rápido (1 fold):
 ```bash
-cd codigo/pipeline
+# A partir da raiz do repositório
 uv run python src/train.py --ativo PETR4 --modelo cnn_lstm --optuna --n-trials 10 --epochs 50 --folds 3
 ```
 

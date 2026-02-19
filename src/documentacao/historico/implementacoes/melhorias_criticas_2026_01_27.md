@@ -182,7 +182,7 @@ print(f"     Trial {trial.number}: Pred=[1:{n_pred_1}, -1:{n_pred_neg1}], "
 
 ### Teste Rápido (1 fold problemático):
 ```bash
-cd codigo/pipeline
+# A partir da raiz do repositório
 uv run python src/train.py --ativo PETR4 --modelo cnn_lstm \
     --optuna --n-trials 20 --epochs 100 --folds 3
 ```

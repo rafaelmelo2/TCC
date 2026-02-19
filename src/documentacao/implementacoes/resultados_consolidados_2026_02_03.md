@@ -94,11 +94,11 @@ Conforme COMANDOS_RODAR_TUDO.md e PROXIMOS_PASSOS_CONSOLIDADO.md:
 
 | Conteúdo | Arquivo |
 |----------|---------|
-| Comandos do pipeline | `codigo/pipeline/COMANDOS_RODAR_TUDO.md` |
-| Implementação DM | `src/documentacao/implementacoes/testes_estatisticos_diebold_mariano.md` |
+| Comandos do pipeline | [COMANDOS_RODAR_TUDO.md](../../../COMANDOS_RODAR_TUDO.md) |
+| Implementação DM | [testes_estatisticos_diebold_mariano.md](testes_estatisticos_diebold_mariano.md) |
 | Resultados DM (tabelas/figura) | `data/processed/dm_resumo_pvalores.csv`, `dm_diferenca_perda_geral.csv`, `dm_heatmap_pvalores.png` |
 | Histórico de backtests | `data/backtest/historico_backtest.csv` |
-| Próximos passos gerais | `codigo/pipeline/PROXIMOS_PASSOS_CONSOLIDADO.md` |
+| Próximos passos gerais | [PROXIMOS_PASSOS_CONSOLIDADO.md](../projeto/PROXIMOS_PASSOS_CONSOLIDADO.md) |
 
 ---
 

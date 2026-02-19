@@ -5,7 +5,7 @@ Testa candidatos de janela (ex.: 16, 32, 64 barras), escolhe a melhor pela
 métrica de validação (acuracia direcional) e salva resultados em diretório
 separado para não misturar com o treino normal.
 
-Uso (a partir de codigo/pipeline):
+Uso (a partir da raiz do repositório):
   uv run python src/scripts/otimizar_janela_optuna.py --ativo VALE3
   uv run python src/scripts/otimizar_janela_optuna.py --ativo PETR4 --n-trials 15 --folds 1,2
 
@@ -24,7 +24,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-# Script deve ser executado a partir do diretório raiz do pipeline (codigo/pipeline)
+# Script deve ser executado a partir da raiz do repositório
 ROOT = Path(__file__).resolve().parent.parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))

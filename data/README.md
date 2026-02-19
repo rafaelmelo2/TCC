@@ -74,4 +74,4 @@ Detalhes (colunas, estratégias) estão em `data/backtest/README.md`.
 - **backtest:** Backtests com custos; gerados por `rodar_backtest.py`.
 - **visualizacoes:** Gráficos de features/indicadores por ativo/ano; gerados por `visualizar_features.py`.
 
-Todos os caminhos são relativos à raiz do pipeline (`codigo/pipeline/`). Para rodar da raiz do pipeline: `uv run python src/scripts/...` ou `uv run python src/train.py ...`.
+Todos os caminhos são relativos à raiz deste repositório. Para rodar: `uv run python src/scripts/...` ou `uv run python src/train.py ...` (a partir da raiz).

@@ -4,6 +4,10 @@ Pipeline de predição automática de indicativos financeiros para Bolsa de Valo
 
 **Documentação:** Toda a documentação técnica (implementações, decisões, cronograma, melhorias) está em [src/documentacao/](src/documentacao/) — índice em [INDICE.md](src/documentacao/INDICE.md). Comandos para rodar o pipeline: [COMANDOS_RODAR_TUDO.md](COMANDOS_RODAR_TUDO.md). Resumo para reunião com professor: [RESUMO_TCC_REUNIAO_PROFESSOR.md](RESUMO_TCC_REUNIAO_PROFESSOR.md).
 
+## Pré-requisitos: dados em `data/raw/`
+
+O pipeline espera CSVs de OHLCV em `data/raw/` com nomes no formato `{ATIVO}_M15_20201022_20251022.csv` (ex.: PETR4, VALE3, ITUB4). Colunas obrigatórias: `data`, `abertura`, `maxima`, `minima`, `fechamento`, `volume_real`. Sem esses arquivos, os scripts falham ao carregar dados. Detalhes em [data/README.md](data/README.md).
+
 ## Descrição
 
 Este projeto implementa um modelo híbrido CNN+LSTM para prever a direção de movimentos de preços intradiários (barras de 15 minutos) em ações líquidas da B3.
@@ -22,19 +26,29 @@ uv sync
 pip install -r requirements.txt
 ```
 
+## Onde executar
+
+Todos os comandos devem ser executados **a partir da raiz deste repositório** (a pasta onde está o README, `src/`, `data/`).
+
 ## Estrutura do Projeto
 
 ```
-pipeline/
+.
 ├── src/
-│   ├── config.py              # Configurações globais
+│   ├── config.py               # Configurações globais
 │   ├── data_processing/        # Pré-processamento e engenharia de features
 │   ├── models/                 # Modelos baseline e principais
+│   ├── scripts/                # Análise, comparativo, DM, backtest
+│   ├── tests/                  # Baselines e sensibilidade
 │   └── utils/                  # Métricas e validação walk-forward
+├── scripts/                    # Shell scripts (ex.: rodar_todos_backtests.sh)
 ├── data/
-│   ├── raw/                    # Dados brutos (CSV com OHLCV)
-│   └── processed/             # Dados processados e resultados
-└── testar_baselines_walkforward.py  # Script de teste dos baselines
+│   ├── raw/                    # Dados brutos (CSV OHLCV); ver Pré-requisitos
+│   ├── processed/              # Resultados de treino e testes
+│   └── backtest/               # Resultados de backtest
+├── README.md
+├── COMANDOS_RODAR_TUDO.md
+└── pyproject.toml
 ```
 
 ## Uso Rápido
@@ -74,6 +88,10 @@ Conforme TCC - Capítulo 4:
 - Engenharia de features técnicas (EMA, RSI, Bollinger, etc.)
 - Modelos baseline: Naive, Drift, ARIMA, Prophet
 - Modelo principal: CNN-LSTM híbrido
+
+## Compartilhamento
+
+Este repositório contém apenas o pipeline (código + documentação). Quem clona precisa colocar os CSVs em `data/raw/` (formato no README) e seguir o [COMANDOS_RODAR_TUDO.md](COMANDOS_RODAR_TUDO.md). O `.gitignore` evita versionar dados brutos, `.venv` e logs.
 
 ## Autor
 

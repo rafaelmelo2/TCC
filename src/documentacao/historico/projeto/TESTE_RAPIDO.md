@@ -17,7 +17,7 @@
 ## 2. Passo 1: Executar Teste Rápido
 
 ```bash
-cd ~/Arquivos/TCC/codigo/pipeline
+# A partir da raiz do repositório
 
 # Teste rápido: 10 trials do Optuna
 uv run python src/train.py \
@@ -113,7 +113,7 @@ O teste é **APROVADO** se:
 
 ```bash
 # Copiar e colar para rodar durante a noite
-cd ~/Arquivos/TCC/codigo/pipeline
+# A partir da raiz do repositório
 
 # Treinamento completo
 nohup uv run python src/train.py \
