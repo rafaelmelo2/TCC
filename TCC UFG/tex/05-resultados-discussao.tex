@@ -13,7 +13,10 @@ Os experimentos foram executados para três ativos de alta liquidez (PETR4, VALE
 com barras intradiárias de 15~minutos, cobrindo o período de outubro de 2020 a outubro de 2025.
 Em cada ativo, o particionamento validação temporal deslizante (walk-forward) gerou \textbf{4 folds} de teste
 (cada fold com aproximadamente 1 mês de barras), conforme o volume efetivo do conjunto de dados (dataset)
-e a configuração de treino de 1 ano por bloco. A avaliação é feita por fold e, ao final,
+e a configuração de treino de 1 ano por bloco. Diferentemente do $k$-fold tradicional, em que se fixa de antemão
+5 ou 10 partições, no walk-forward o número de folds é \emph{derivado dos dados}: dado o tamanho fixo do treino
+(cerca de 1 ano), do teste (cerca de 1 mês) e do embargo, apenas quatro blocos completos couberam no período
+disponível (out/2020--out/2025) por ativo. A avaliação é feita por fold e, ao final,
 reportamos o desempenho médio. Essa estrutura aproxima o cenário de uso real:
 o modelo sempre prevê o ``futuro'' a partir do ``passado''.
 
