@@ -20,7 +20,7 @@ A seleção do conjunto de dados e o controle de qualidade são fatores centrais
 
 % --- Subseção: Fonte e universo
 \subsection{Fonte e universo}
-Os dados foram obtidos via plataforma MetaTrader~5 (MT5), com histórico consolidado e marcação temporal (timestamping) consistente no fuso do pregão \cite{b3_servicos}. O universo contempla \textbf{três ativos} de alta liquidez negociados na B3: PETR4 (Petrobras), VALE3 (Vale) e ITUB4 (Itaú Unibanco). Esses ativos foram mantidos fixos durante todo o período para mitigar viés de sobrevivência (survivorship bias). O critério de liquidez busca reduzir spreads, gaps e deslizamento de preço (slippage), além de tornar as métricas mais estáveis em testes retrospectivos (backtests).
+Os dados foram obtidos via plataforma MetaTrader~5 (MT5), com histórico consolidado e marcação temporal (timestamping) consistente no fuso do pregão \cite{b3_servicos}. A escolha dos ativos não foi arbitrária: o universo contempla \textbf{três ativos} que figuram entre os de maior relevância e volume de negociação na B3 — PETR4 (Petrobras), VALE3 (Vale) e ITUB4 (Itaú Unibanco). Esses papéis estão entre os mais líquidos e mais movimentados da bolsa brasileira, com participação relevante no índice Ibovespa e em indicadores de volume, o que os torna adequados para estudos intradiários: além de reduzir spreads, gaps e deslizamento de preço (slippage), ativos mais movimentados tendem a oferecer séries temporais mais estáveis e menos sujeitas a artefatos de microestrutura em testes retrospectivos (backtests). Os ativos foram mantidos fixos durante todo o período para mitigar viés de sobrevivência (survivorship bias).
 
 % --- Subseção: Recorte temporal e granularidade
 \subsection{Recorte temporal e granularidade}
