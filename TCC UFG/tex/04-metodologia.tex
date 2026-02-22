@@ -398,11 +398,13 @@ ou o oposto: prever probabilidades tímidas mesmo quando o sinal é forte.
 Isso afeta diretamente decisões por limiar (limiar (threshold))
 e regras de entrada/saída.
 
-Para medir qualidade probabilística, utilizamos \textbf{Log-Loss} e \textbf{Brier Score}.
+Para medir qualidade probabilística, a metodologia prevê \textbf{Log-Loss} e \textbf{Brier Score}.
 Ambos penalizam previsões erradas de forma sensível à confiança:
 errar com 0,99 “custa” mais do que errar com 0,55.
 Valores menores indicam previsões mais consistentes e, em geral, melhor calibração
 \cite{brier1950}.
+Na implementação atual do pipeline, essas métricas não foram computadas nem reportadas nos resultados;
+sua inclusão permanece como extensão natural para trabalhos futuros.
 
 A calibração é analisada de forma direta com \textbf{curvas de confiabilidade} (\emph{reliability diagrams}) e com o \textbf{ECE} (Expected Calibration Error) \cite{guo2017}.
 A ideia do ECE é quantificar o desvio médio entre probabilidade prevista e frequência observada.
