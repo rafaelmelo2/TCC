@@ -6,7 +6,7 @@ No horizonte intradiário, emergem problemas clássicos de microestrutura — pe
 
 Com os avanços da tecnologia, a complexidade e a volatilidade dos ativos negociados em bolsa de valores aumentaram de forma significativa. Embora o mercado de ações não seja teoricamente previsível, muitos investidores identificam padrões que motivam a busca por estratégias de previsão\cite{lo2017}. No mundo, ativos fortemente correlacionados com mercados internacionais e fluxo de notícias, bem como a crescente participação de investidores individuais e institucionais, reforçam a necessidade de ferramentas que esclareçam sinais de curto, médio e longo prazo.
 
-Neste estudo, considera-se explicitamente um modelo híbrido baseado em redes recorrentes do tipo LSTM combinadas a convoluções unidimensionais (CNN+LSTM), visando capturar simultaneamente dependências de longo prazo e padrões locais em séries intradiárias da B3. Essa escolha se apoia em evidências de que LSTMs representam melhor relações não lineares e dependências temporais prolongadas, enquanto camadas convolucionais extraem motivos de curto prazo a partir de janelas deslizantes; em conjunto, busca-se maior robustez frente a ruído e a mudanças de regime de mercado. Para assegurar comparabilidade, os resultados serão confrontados com modelos de referência (baselines) estatísticos (ARIMA, Prophet) e com variantes baseadas em Transformers reportadas nas literaturas \cite{ding2020, nascimento2023bwaif, zeng2022effectiveness, wen2022survey}.
+Neste estudo, considera-se explicitamente um modelo híbrido baseado em redes recorrentes do tipo LSTM combinadas a convoluções unidimensionais (CNN+LSTM), visando capturar simultaneamente dependências de longo prazo e padrões locais em séries intradiárias da B3. Essa escolha se apoia em evidências de que LSTMs representam melhor relações não lineares e dependências temporais prolongadas, enquanto camadas convolucionais extraem motivos de curto prazo a partir de janelas deslizantes; em conjunto, busca-se maior robustez frente a ruído e a mudanças de regime de mercado. Para assegurar comparabilidade, os resultados serão confrontados com modelos de referência (baselines) estatísticos e de regras simples: Naive, Drift, ARIMA e Prophet \cite{ding2020, nascimento2023bwaif, box_2015, taylor_2018}. O debate sobre variantes baseadas em Transformers em séries temporais é retomado na fundamentação e em trabalhos relacionados \cite{zeng2022effectiveness, wen2022survey}, mas a comparação empírica deste estudo restringe-se aos baselines acima.
 
 No entanto, como Zvi Bodie and Alex Kane and Alan J. Marcus \cite{BodieKaneMarcus2021} dizem em seu livro, o mercado de ações é impulsionado por variáveis econômicas (taxas de juros, taxas de câmbio, indicadores de inflação), fatores corporativos (demonstrações financeiras da empresa e mudanças na governança) e também eventos externos (crises políticas, pandemias, choques de oferta) como diz \cite{WorldBank2020}. Estes quesitos permitem que, em cada série temporal, sejam produzidas componentes como tendência, sazonalidade e ciclos, conforme a decomposição tradicional proposta em Box e Jenkins \cite{box_2015} e amplamente discutida em Hyndman e Athanasopoulos \cite{hyndman_2018}:
 
@@ -23,7 +23,7 @@ A figura \ref{fig:series-temporais2} apresenta diferentes combinações dos comp
 \begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
   \centering
   \includegraphics[width=0.6\linewidth]{series-temporais2.png}
-  \caption{Explicação visual sobre cada serie temporal. Fonte: \cite{limnonews2014}.}
+  \caption{Explicação visual de cada série temporal. Fonte: \cite{limnonews2014}.}
   \label{fig:series-temporais2}
 \end{figure}
 
@@ -34,7 +34,7 @@ A própria natureza do comércio, marcada por negociações frequentes e pelo us
 
 Outras pesquisas já propuseram modelos híbridos para previsão de preços de ações — por exemplo, o modelo proposto por \cite{marcondes2013modelo}, que combina redes neurais, técnicas estatísticas e indicadores técnicos via comitê de aprendizado. Entretanto, tais propostas, em geral, não exploram esquemas de agregação mais sofisticados (como metaclassificação em dois estágios) nem avaliam de forma sistemática a robustez a mudanças súbitas de regime \cite{assis2022predicao,tsay2010}. 
 
-Coerente com o título desta monografia, explicitamos os \textbf{alvos preditivos (indicativos financeiros)} a serem modelados: direção do retorno (return) na próxima barra,  medida de volatilidade intradiária (p.ex., amplitude/variância realizada) e sinais de liquidez, como volume negociado e spread efetivo \cite{tsay2010,dacorogna2001,wood1985,MishkinEakins2018,rotela2014arima,nascimento2023bwaif}. 
+Coerente com o título desta monografia, explicitamos os \textbf{alvos preditivos (indicativos financeiros)} a serem modelados: direção do retorno na próxima barra,  medida de volatilidade intradiária (p.ex., amplitude/variância realizada) e sinais de liquidez, como volume negociado e spread efetivo \cite{tsay2010,dacorogna2001,wood1985,MishkinEakins2018,rotela2014arima,nascimento2023bwaif}. 
 
 Portanto, este trabalho avança a linha dos híbridos ao empregar um modelo CNN+LSTM com camadas convolucionais para padrões locais, validação temporal deslizante (walk-forward) e uma avaliação realista pós-custos no contexto da B3, com foco em estabilidade e reprodutibilidade dos resultados.
 
@@ -80,14 +80,13 @@ Este estudo situa-se no universo de bolsas de valores e mercados organizados, em
 Para comparar previsores quando necessário, usamos testes de acurácia preditiva como Diebold–Mariano \cite{diebold1995}.
 
 
-\item \textbf{Comparadores (modelos de referência)}: Contrastamos o modelo proposto com referências clássicas e modernas: 
+\item \textbf{Comparadores (modelos de referência)}: Contrastamos o modelo proposto com os seguintes baselines, efetivamente avaliados nos experimentos: 
 \begin{enumerate}[label=\Roman*.]
+    \item Naive e Drift, como pisos de desempenho (regras simples sem modelo);
     \item ARIMA/Box–Jenkins como modelo de referência (baseline) estatístico canônico \cite{box_2015,hyndman_2018,rotela2014arima}; 
-    
-    \item Prophet, representando um decompositor aditivo com sazonalidades/mudanças de nível \cite{taylor_2018};
-    
-    \item arquiteturas modernas para séries temporais, incluindo variantes baseadas em Transformers, dada sua capacidade de capturar dependências de longo alcance \cite{wen2022survey,zeng2022effectiveness}. 
+    \item Prophet, representando um decompositor aditivo com sazonalidades e mudanças de nível \cite{taylor_2018}.
 \end{enumerate}
+Arquiteturas com atenção (Transformers) são discutidas na fundamentação e na seção de trabalhos relacionados \cite{wen2022survey,zeng2022effectiveness}, mas ficam fora do escopo empírico desta monografia.
 
 \end{itemize}
 
@@ -107,7 +106,7 @@ A figura \ref{fig:delimitacao-tarefa} sintetiza a tarefa: em uma série de preç
 \textbf{Pergunta central do estudo:}
 
 \begin{quote}
-Em que condições (janelas, regimes de volatilidade e custo) um modelo CNN+LSTM supera comparadores clássicos (Naive, ARIMA, Prophet) e variantes com atenção na tarefa de previsão direcional intradiária (+1 barra/15 min) em algumas ações líquidas da B3 (2020–2025), sob avaliação temporal deslizante (walk-forward) e métricas pós-custos?
+Em que condições (janelas, regimes de volatilidade e custo) um modelo CNN+LSTM supera os comparadores adotados (Naive, Drift, ARIMA e Prophet) na tarefa de previsão direcional intradiária (+1 barra/15 min) em algumas ações líquidas da B3 (2020–2025), sob avaliação temporal deslizante (walk-forward) e métricas pós-custos?
 
 \end{quote}
 
@@ -144,7 +143,7 @@ Este trabalho busca contribuir em quatro frentes principais:
 
 Primeiro, com o desenvolvimento de um modelo híbrido, realizado em python (CNN+LSTM), capaz de combinar padrões locais e dependências de longo prazo em séries temporais financeiras, adequando-se às particularidades do mercado intradiário da B3. 
 
-Em segundo lugar, ao realizar uma avaliação empírica comparativa com modelos de referência (baselines) estabelecidos (ARIMA, Prophet, LSTM puro e variantes Transformer), sob um protocolo realista de validação temporal deslizante (walk-forward) e testes retrospectivos (backtests) pós-custos. 
+Em segundo lugar, ao realizar uma avaliação empírica comparativa com modelos de referência (baselines) estabelecidos (Naive, Drift, ARIMA e Prophet), sob um protocolo realista de validação temporal deslizante (walk-forward) e testes retrospectivos (backtests) pós-custos. 
 
 A terceira contribuição está na análise da robustez do modelo em diferentes condições de mercado, explorando regimes de volatilidade e choques pontuais. 
 

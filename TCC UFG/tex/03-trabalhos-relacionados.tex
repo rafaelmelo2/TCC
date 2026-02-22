@@ -155,7 +155,7 @@ Embora essas abordagens mostrem potencial sob escrutínio, elas também apresent
   \item Extrapolar para alta frequência, uma característica comum do B3, exige uma reformulação em grande escala do pipeline de tokenização e das representações temporais.
 \end{itemize}
 
-Em conclusão, os LLMs otimizados fundidos e de cabeça dupla com módulos dinâmicos temporais especializados podem refletir um método promissor para o tipo de problema 3 com desequilíbrio extremo censurado e dados de séries temporais esparsas que poderiam ser complementares às abordagens típicas e híbridas ao lidar com o B3.
+Em conclusão, os LLMs otimizados fundidos e de cabeça dupla com módulos dinâmicos temporais especializados podem refletir um método promissor para problemas com desequilíbrio extremo censurado e dados de séries temporais esparsas que poderiam ser complementares às abordagens típicas e híbridas ao lidar com o B3.
 
 
 
@@ -239,7 +239,7 @@ Para uma visão de conjunto dos grupos de modelos discutidos, ver as Tabelas \re
     Modelos estatísticos (ARIMA/ARIMAX) &
     Série univariada; estacionária (ou diferenciada); histórico razoável ($\approx$100--300+ pontos); regressores opcionais via ARIMAX. \\
     LSTM &
-    Muitos dados; normalização; janelas de janela retrospectiva (lookback); ajuste fino (tuning) de hiperparâmetros. \\
+    Muitos dados; normalização; janela retrospectiva (lookback); ajuste fino (tuning) de hiperparâmetros. \\
     Transformers (PatchTST, Non-stationary) &
     Janelas longas; multivariadas; melhor com grande volume de dados. \textit{Patching} reduz tokens; módulos de estacionarização ajudam. \\
     Híbridos (ARIMA+LSTM; LMD+XGBoost) &

@@ -4,14 +4,14 @@
 % ============================================================================
 
 Este capítulo apresenta os resultados obtidos com o modelo proposto (CNN--LSTM) e com os
-modelos de referência (baselines) definidos na metodologia. A análise segue o protocolo validação temporal deslizante (walk-forward), com
+modelos de referência (baselines) definidos na metodologia. A análise segue o protocolo de validação temporal deslizante (walk-forward), com
 embargo entre treino e teste, e usa como referência principal a acurácia direcional após a banda
 morta de 0,1\%. Além disso, os resultados são complementados por testes de significância
 (Diebold--Mariano) e por testes retrospectivos (backtests) com custos explícitos.
 
 Os experimentos foram executados para três ativos de alta liquidez (PETR4, VALE3 e ITUB4),
 com barras intradiárias de 15~minutos, cobrindo o período de outubro de 2020 a outubro de 2025.
-Em cada ativo, o particionamento validação temporal deslizante (walk-forward) gerou \textbf{4 folds} de teste
+Em cada ativo, o particionamento em validação temporal deslizante (walk-forward) gerou \textbf{4 blocos de teste} (folds)
 (cada fold com aproximadamente 1 mês de barras), conforme o volume efetivo do conjunto de dados (dataset)
 e a configuração de treino de 1 ano por bloco. Diferentemente do $k$-fold tradicional, em que se fixa de antemão
 5 ou 10 partições, no walk-forward o número de folds é \emph{derivado dos dados}: dado o tamanho fixo do treino
@@ -55,7 +55,7 @@ financeiro (Seção~5.6), a robustez por regime (Seção~5.7), as limitações o
 e, por fim, a síntese (Seção~5.9).
 
 % ---------------------------------------------------------------------------
-\section{Comparação geral: CNN--LSTM vs.\ baselines}
+\section{Comparação geral: CNN--LSTM vs.\ modelos de referência}
 \label{sec:comparacao-geral}
 % ---------------------------------------------------------------------------
 
@@ -67,11 +67,11 @@ ou colapso discriminativo.
 
 \begin{table}[htbp]
   \centering
-  \caption{Comparativo médio entre CNN--LSTM e baselines (média dos 4 folds; após banda morta).}
+  \caption{Comparativo médio entre CNN--LSTM e modelos de referência (média dos 4 folds; após banda morta). Taxa de acerto = acurácia direcional após banda morta (hit rate).}
   \label{tab:comparativo-geral}
   \begin{tabular}{l l r r r}
     \toprule
-    \textbf{Ativo} & \textbf{Modelo} & \textbf{Hit rate (\%)} & \textbf{F1-Score} & \textbf{MCC} \\
+    \textbf{Ativo} & \textbf{Modelo} & \textbf{Taxa de acerto (\%)} & \textbf{F1-Score} & \textbf{MCC} \\
     \midrule
     PETR4 & CNN--LSTM & 51,55 & 0,438 & 0,018 \\
     PETR4 & Naive     & 50,13 & 0,394 & 0,003 \\
@@ -175,7 +175,7 @@ previsão e resultado.
 
 A variabilidade da acurácia entre folds também merece atenção. Em PETR4, por exemplo,
 o hit rate varia de 48,75\% (fold~4) a 53,10\% (fold~1) --- uma amplitude de 4,35 pontos
-percentuais. Em VALE3, a amplitude é ainda maior: de 48,36\% a 54,95\% (6,59 p.p.).
+percentuais. Em VALE3, a amplitude é ainda maior: de 48,36\% a 54,95\% (6,59 pontos percentuais).
 Essa instabilidade é esperável em séries financeiras intradiárias, onde mudanças de regime
 podem alterar rapidamente a distribuição dos retornos.
 
@@ -245,7 +245,7 @@ aprende um viés de classe em cada bloco de treino, mas não consegue distinguir
 individuais de alta e baixa.
 
 É provável que a busca bayesiana com Optuna, realizada por fold conforme descrito na
-Seção~4.4, tenha selecionado configurações que minimizam a \emph{loss} de validação interna,
+Seção~4.4, tenha selecionado configurações que minimizam a perda de validação interna,
 mas que o sinal nos dados de 15~minutos seja insuficiente para permitir discriminação efetiva.
 Nesse cenário, o otimizador converge para soluções que ``jogam seguro'' ---
 emitindo probabilidades próximas à proporção de classes do treino --- em vez de arriscar
@@ -324,7 +324,7 @@ CNN--LSTM errou, em média, menos do que cada baseline. Porém, o teste DM mostr
 diferenças não são estatisticamente significativas: a magnitude é pequena (da ordem de 0,001
 a 0,033) e a variância da série de perdas é alta, o que impede a rejeição da hipótese nula.
 
-A Figura~\ref{fig:dm-heatmap} visualiza os p-valores em formato de \emph{heatmap}.
+A Figura~\ref{fig:dm-heatmap} visualiza os p-valores em formato de mapa de calor (heatmap).
 Cores mais quentes indicam p-valores mais altos (menos significativos). A predominância
 de tons vermelhos confirma a ausência de significância estatística em todas as combinações
 ativo--baseline.
@@ -332,7 +332,7 @@ ativo--baseline.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.85\linewidth]{dm_heatmap_pvalores.png}
-  \caption{Heatmap de p-valores do teste de Diebold--Mariano (perda direcional, regime geral). Valores abaixo de 0,05 indicariam diferença significativa; nenhum dos 12 pares atinge esse limiar. Fonte: o autor.}
+  \caption{Mapa de calor (heatmap) de p-valores do teste de Diebold--Mariano (perda direcional, regime geral). Valores abaixo de 0,05 indicariam diferença significativa; nenhum dos 12 pares atinge esse limiar. Fonte: o autor.}
   \label{fig:dm-heatmap}
 \end{figure}
 
@@ -356,7 +356,7 @@ do que uma capacidade preditiva superior.
 
 Ainda assim, o resultado não é trivial: o CNN--LSTM produz saídas probabilísticas que,
 em teoria, poderiam ser utilizadas para calibrar limiares adaptativos ou para compor
-estratégias de dimensionamento de posição (\emph{position sizing}).
+estratégias de dimensionamento de posição.
 
 % ---------------------------------------------------------------------------
 \section{Backtests: impacto prático após custos}
@@ -428,7 +428,7 @@ em que o modelo pode assumir posições compradas, vendidas ou neutras.
 O modo comprado/vendido (long/short) apresenta retornos ligeiramente melhores do que o apenas comprado (long-only)
 para todos os ativos. PETR4 se destaca com retorno de 4,10\%, Sharpe de 1,41 e
 fator de lucro (profit factor) acima de 1,0. VALE3 e ITUB4 ficam próximos do equilíbrio.
-O queda máxima (drawdown) máximo, porém, é mais elevado: $-9{,}33$\% em PETR4 e $-8{,}07$\% em VALE3.
+A queda máxima (drawdown), porém, é mais elevada: $-9{,}33$\% em PETR4 e $-8{,}07$\% em VALE3.
 
 O resultado de PETR4 pode parecer promissor, mas deve ser interpretado com cautela.
 O melhor desempenho concentra-se no fold~1 (retorno de 9,07\%, com 57 operações e Sharpe de 2,90)
@@ -526,7 +526,7 @@ mais fundamental: a dificuldade de extrair sinal preditivo de retornos intradiá
 
 Os resultados apresentados nas seções anteriores convergem para um diagnóstico consistente:
 o modelo CNN--LSTM, apesar de implementado conforme a arquitetura proposta e treinado com
-validação validação temporal deslizante (walk-forward) rigorosa, não demonstrou capacidade discriminativa superior
+validação temporal deslizante (walk-forward) rigorosa, não demonstrou capacidade discriminativa superior
 à dos baselines. Esta seção discute as principais limitações observadas e suas implicações.
 
 \subsection{O fenômeno do colapso de classe}
@@ -563,7 +563,7 @@ e pode ter múltiplas causas, frequentemente combinadas:
   próximas de 0,5, criando um mínimo local ``seguro'' no qual o modelo estaciona.
 
   \item \textbf{Capacidade da arquitetura}: a rede utilizada (Conv1D~$\rightarrow$~MaxPooling~$\rightarrow$~LSTM~$\rightarrow$~Dense)
-  é relativamente simples. Embora essa simplicidade reduza o risco de \emph{overfitting},
+  é relativamente simples. Embora essa simplicidade reduza o risco de sobreajuste,
   ela também pode limitar a capacidade de capturar relações não-lineares mais complexas
   nos dados.
 
@@ -580,7 +580,7 @@ Os resultados negativos --- ou, mais precisamente, neutros --- não invalidam:
 
 \begin{itemize}
   \item O \textbf{protocolo de validação walk-forward} com embargo, que foi implementado
-  corretamente e evitou \emph{data leakage}.
+  corretamente e evitou vazamento de dados.
   \item A \textbf{comparação com baselines}, que fornece referência legítima para avaliar
   o ganho incremental.
   \item Os \textbf{testes de Diebold--Mariano}, que confirmaram a ausência de significância
@@ -621,13 +621,13 @@ O único resultado estatisticamente significativo foi na comparação por perda 
 No \textbf{terceiro nível} (impacto financeiro), os testes retrospectivos (backtests) mostraram resultados
 mistos. PETR4 em modo comprado/vendido (long/short) obteve retorno líquido de 4,10\% com Sharpe de 1,41,
 mas esse resultado é fortemente concentrado em um único fold. VALE3 e ITUB4 ficaram próximos
-do equilíbrio ou no negativo. O rotatividade (turnover) muito baixo (reflexo das probabilidades quase
+do equilíbrio ou no negativo. A rotatividade (turnover) muito baixa (reflexo das probabilidades quase
 constantes) limitou a capacidade do modelo de gerar operações.
 
 Em síntese, a evidência reunida indica que, para os dados, ativos e configuração estudados,
 o modelo CNN--LSTM não supera modelos de referência (baselines) simples de forma estatisticamente significativa
 nem financeiramente consistente. A principal contribuição deste trabalho reside no
-\textbf{pipeline metodológico} --- validação temporal rigorosa, prevenção de \emph{data leakage},
+\textbf{pipeline metodológico} --- validação temporal rigorosa, prevenção de vazamento de dados,
 testes de significância e testes retrospectivos (backtests) com custos explícitos --- que pode ser reutilizado
 com diferentes arquiteturas, características (features) ou granularidades temporais. As limitações
 identificadas (colapso de classe, sinal fraco em 15~minutos, tamanho limitado de treino)

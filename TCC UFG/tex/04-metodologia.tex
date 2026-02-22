@@ -104,7 +104,7 @@ Os principais atributos utilizados são:
   \item \textbf{RSI} (Relative Strength Index): períodos 9, 21 e 50 \cite{Murphy1999}.
   \item \textbf{Bandas de Bollinger}: período 20 e 2 desvios-padrão \cite{Bollinger2001}.
         Além das bandas superior, inferior e média, calculamos:
-        (i) a largura (\emph{width}) e (ii) a posição relativa do preço (\emph{position}).
+        (i) a largura da banda e (ii) a posição relativa do preço.
 \end{itemize}
 
 Para os modelos sequenciais (LSTM e CNN--LSTM), a entrada final considera \textbf{12 variáveis}:
@@ -151,21 +151,21 @@ para lados opostos:
   \item \textbf{Ruído e overfitting}: janelas longas demais podem diluir sinais recentes,
         aumentar a complexidade efetiva e favorecer ajuste a ruídos.
   \item \textbf{Viabilidade amostral}: cada nova sequência consome 60 barras de histórico;
-        quanto maior o janela retrospectiva (lookback), menor o número de amostras disponíveis.
+        quanto maior a janela retrospectiva (lookback), menor o número de amostras disponíveis.
 \end{itemize}
 
 No pipeline, o valor padrão está definido em \texttt{config.py}
 (\texttt{JANELA\_TEMPORAL\_STEPS = 60}).
-Além da janela padrão (60), foram avaliadas janelas alternativas (16, 32 e 64 barras) por meio de otimização bayesiana (Optuna), a fim de verificar sensibilidade do desempenho ao janela retrospectiva (lookback).
+Além da janela padrão (60), foram avaliadas janelas alternativas (16, 32 e 64 barras) por meio de otimização bayesiana (Optuna), a fim de verificar sensibilidade do desempenho à janela retrospectiva (lookback).
 
 % ---------------------------------------------------------------------------
-\section{Modelos - baselines e proposto}
+\section{Modelos — modelos de referência e proposto}
 % ---------------------------------------------------------------------------
 
 Adotamos uma abordagem que combina modelos de referência e arquiteturas modernas, em ordem crescente de complexidade, viabilizando comparações consistentes. A seleção foi guiada por literatura de previsão de séries temporais e pelas particularidades da negociação eletrônica na B3 \cite{b3_manual_negociacao,hyndman_2018,box_2015,taylor_2018,hochreiter_1997,borovykh_2017}.
 
 % --- Subseção: Baselines e justificativa
-\subsection{Baselines e justificativa.} Os modelos de referência (baselines) servem para estabelecer um piso de desempenho e verificar se modelos mais complexos trazem ganho real sobre regras simples e métodos clássicos. 
+\subsection{Modelos de referência e justificativa.} Os modelos de referência (baselines) servem para estabelecer um piso de desempenho e verificar se modelos mais complexos trazem ganho real sobre regras simples e métodos clássicos. 
 
 \begin{itemize}
   \item \textit{\textbf{Naive}}: repete a última direção observada (retorno $>0$ $\rightarrow$ alta, $<0$ $\rightarrow$ baixa); não usa histórico além da barra anterior. 
@@ -176,7 +176,7 @@ Adotamos uma abordagem que combina modelos de referência e arquiteturas moderna
 
   \item \textit{\textbf{Prophet}}: modelo de decomposição aditiva com sazonalidades diária e semanal; incluído como referência de método moderno de séries temporais, ainda que o contexto intradiário de 15~min coloque em questão a relevância de sazonalidade semanal \cite{taylor_2018}. 
 
-  \item \textit{\textbf{LSTM puro}}: uma camada LSTM seguida de camada densa com sigmoide; baseline de deep learning que usa apenas dependências temporais de longo prazo, sem estágio convolucional \cite{hochreiter_1997}. A comparação do LSTM puro com o híbrido CNN--LSTM permite avaliar o ganho da extração de padrões locais.
+  \item \textit{\textbf{LSTM puro}}: uma camada LSTM seguida de camada densa com sigmoide; baseline de deep learning que usa apenas dependências temporais de longo prazo, sem estágio convolucional \cite{hochreiter_1997}. Está implementado no pipeline para análises complementares; a tabela comparativa principal (Capítulo~5) reporta o modelo proposto contra Naive, Drift, ARIMA e Prophet.
 \end{itemize}
 
 
@@ -262,7 +262,7 @@ Em cada \textbf{fold}, usamos:
 
 O fold seguinte começa logo após o fim do teste do fold anterior.
 Assim, treino e teste nunca se sobrepõem, e a ordem do tempo é mantida.
-Com o volume efetivo do dataset (em torno de 36 mil barras por ativo), o número de folds é determinado
+Com o volume efetivo do conjunto de dados (em torno de 36 mil barras por ativo), o número de folds é determinado
 automaticamente pela extensão da série; nos experimentos deste trabalho resultaram \textbf{4 folds} por ativo
 (quatro blocos completos treino--embargo--teste no período disponível).
 A implementação desse particionamento está na classe
@@ -425,7 +425,7 @@ Ainda assim, os resultados por fold ficam salvos em CSV
 com uma linha por fold.
 Isso facilita análises adicionais, caso seja necessário reportar mediana, IC ou testes estatísticos.
 
-Por fim, o script \texttt{comparar\_modelos.py} consolida CNN--LSTM e baselines
+Por fim, o script \texttt{comparar\_modelos.py} consolida CNN--LSTM e modelos de referência
 por ativo, usando a média da acurácia direcional (e das demais métricas) ao longo dos folds.
 O comparativo final é exportado em
 \texttt{data/processed/comparativo\_cnn\_lstm\_vs\_baselines.csv}.
@@ -472,7 +472,7 @@ O código-fonte está organizado no diretório \texttt{codigo/pipeline/}, seguin
   \item \texttt{src/models/}: implementações dos modelos (baselines e CNN--LSTM);
   \item \texttt{src/utils/}: métricas, validação walk-forward, backtesting e otimização com Optuna;
   \item \texttt{src/scripts/}: scripts de execução para análises e visualizações;
-  \item \texttt{src/tests/}: testes dos baselines e análises de sensibilidade;
+  \item \texttt{src/tests/}: testes dos modelos de referência e análises de sensibilidade;
   \item \texttt{src/config.py}: configurações centralizadas (hiperparâmetros, caminhos, constantes).
 \end{itemize}
 
@@ -482,7 +482,7 @@ As dependências são gerenciadas via \texttt{uv} (recomendado) ou \texttt{pip},
 O fluxo completo é orquestrado pelo script \texttt{rodar\_pipeline\_completo.sh}, que executa automaticamente todas as etapas em sequência:
 (0) backup de artefatos anteriores,
 (1) visualização de features,
-(2) treinamento dos baselines,
+(2) treinamento dos modelos de referência,
 (3) treinamento do CNN--LSTM com Optuna,
 (4) análise dos modelos salvos,
 (5) execução de backtests,
@@ -528,7 +528,7 @@ Para executar etapas específicas de forma isolada, é possível rodar scripts i
   \item Treinar modelo CNN--LSTM para um ativo específico:
         \texttt{uv run python src/train.py --ativo PETR4 --modelo cnn\_lstm --optuna --n-trials 20}
         
-  \item Testar todos os baselines com walk-forward:
+  \item Testar todos os modelos de referência com walk-forward:
         \texttt{uv run python src/tests/testar\_baselines\_walkforward.py --todos}
 \end{itemize}
 
