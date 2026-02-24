@@ -1,61 +1,61 @@
+% Fix LaTeX 2020+ / babel: definir \normalsfcodes antes de qualquer uso (deve ser 1ª linha executável).
+\gdef\normalsfcodes{}
 % -------------------------------------------------------------------------
-% Artigo para revista — entrada principal (modular)
+% Artigo para revista — modelo SBC
 % Predição Automática de Indicativos Financeiros para Bolsa de Valores
 % Considerando o Aspecto Temporal
 % -------------------------------------------------------------------------
-\documentclass[12pt, a4paper]{article}
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-% Mesma fonte do TCC UFG: Latin Modern (texto) + mathptmx (matemática em Times)
-\usepackage{lmodern}
-\usepackage{mathptmx}
-\usepackage[brazilian]{babel}
+\usepackage[brazil]{babel}
 \usepackage{amsmath,amssymb}
-\usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{geometry}
-\usepackage{indentfirst}
-\usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{csquotes}
 
-% Azul igual ao TCC UFG; links e citações clicáveis
-\definecolor{blue}{RGB}{41,5,195}
-\hypersetup{
-  colorlinks=true,
-  linkcolor=blue,
-  citecolor=blue,
-  urlcolor=blue,
-  filecolor=magenta,
-  pdftoolbar=true,
-  pdfmenubar=true,
-}
+% LaTeX 2020+ não define \normalsfcodes; patch da rotina de saída.
+\makeatletter
+\let\sbc@orig@outputpage\@outputpage
+\def\@outputpage{\gdef\normalsfcodes{}\sbc@orig@outputpage}
+\makeatother
 
-\geometry{margin=2.5cm}
-\graphicspath{{../images/}}
+\sloppy
 
-% -------------------------------------------------------------------------
-\title{\textbf{Predição Automática de Indicativos Financeiros para Bolsa de Valores Considerando o Aspecto Temporal}}
-\author{Rafael da Silva Melo \\ \small Orientador: Prof. Dr. Márcio de Souza Dias \\ \small Universidade Federal de Goiás -- Regional Catalão}
-\date{2025}
+% Figuras: raiz do artigo e pasta images do projeto
+\graphicspath{{./}{../images/}{images/}}
 
-% -------------------------------------------------------------------------
+\title{Predição Automática de Indicativos Financeiros para Bolsa de Valores Considerando o Aspecto Temporal}
+
+\author{Rafael da Silva Melo\inst{1}}
+
+\address{Universidade Federal de Goiás -- Regional Catalão (UFG)\\
+  Catalão -- GO -- Brasil\\
+  Orientador: Prof. Dr. Márcio de Souza Dias
+  \email{rafael.melo@discente.ufcat.edu.br}}
+
 \begin{document}
+
 \maketitle
 
-\input{resumo}
+\begin{abstract}
+  This paper presents a hybrid \textbf{deep learning} model (CNN+LSTM) to predict the \textbf{direction of price movements} in 15-minute intraday bars on the Brazilian stock exchange B3. The work incorporates \textbf{liquidity}, \textbf{volatility} and volume data, along with \textbf{feature engineering} and a \textbf{sliding temporal validation} (walk-forward) methodology to avoid information leakage and obtain a realistic evaluation. The model was compared to classical baselines (Naive, ARIMA, Prophet) on three liquid assets (PETR4, VALE3, ITUB4), from October 2020 to October 2025. Results show marginal gains in directional accuracy for the hybrid model, but without statistical significance in the Diebold--Mariano test; in part of the test blocks, \emph{class collapse} was observed, with almost constant probabilities. The main contribution lies in the reproducible \textbf{methodological protocol} --- temporal validation, prevention of \emph{data leakage}, backtests with explicit costs --- which can be reused for other architectures and assets.
+\end{abstract}
 
-\newpage
-\tableofcontents
-\newpage
+\begin{resumo}
+  Este artigo apresenta um modelo híbrido de \textbf{aprendizado profundo} (CNN+LSTM) para prever a \textbf{direção do movimento de preços} em barras intradiárias de 15 minutos na bolsa brasileira B3. O trabalho incorpora dados de \textbf{liquidez}, \textbf{volatilidade} e volume, além de \textbf{engenharia de características} e uma metodologia de \textbf{validação temporal deslizante} (\emph{walk-forward}) para evitar vazamento de informação e obter avaliação realista. O modelo foi comparado a referências clássicas (Naive, ARIMA, Prophet) em três ativos líquidos (PETR4, VALE3, ITUB4), com período de outubro de 2020 a outubro de 2025. Os resultados indicam ganhos marginais de acurácia direcional para o híbrido, porém sem significância estatística no teste de Diebold--Mariano; em parte dos blocos de teste observou-se \emph{colapso de classe}, com probabilidades quase constantes. A principal contribuição reside no \textbf{protocolo metodológico} reprodutível --- validação temporal, prevenção de \emph{data leakage}, backtests com custos explícitos ---, que pode ser reutilizado para outras arquiteturas e ativos.
+
+  \vspace{0.5em}
+  \noindent\textbf{Palavras-chave:} predição financeira; séries temporais; aprendizado profundo; CNN-LSTM; B3; validação walk-forward.
+\end{resumo}
 
 \input{introducao}
 \input{desenvolvimento}
 \input{conclusao}
 
-\renewcommand{\refname}{Referências}
-\addcontentsline{toc}{section}{Referências}
-\bibliographystyle{apalike}
+\bibliographystyle{sbc}
 \bibliography{referencias}
 
 \end{document}

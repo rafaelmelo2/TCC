@@ -1,0 +1,61 @@
+% -------------------------------------------------------------------------
+% Artigo para revista — entrada principal (modular)
+% Predição Automática de Indicativos Financeiros para Bolsa de Valores
+% Considerando o Aspecto Temporal
+% -------------------------------------------------------------------------
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+% Mesma fonte do TCC UFG: Latin Modern (texto) + mathptmx (matemática em Times)
+\usepackage{lmodern}
+\usepackage{mathptmx}
+\usepackage[brazilian]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{indentfirst}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{csquotes}
+
+% Azul igual ao TCC UFG; links e citações clicáveis
+\definecolor{blue}{RGB}{41,5,195}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue,
+  filecolor=magenta,
+  pdftoolbar=true,
+  pdfmenubar=true,
+}
+
+\geometry{margin=2.5cm}
+\graphicspath{{../images/}}
+
+% -------------------------------------------------------------------------
+\title{\textbf{Predição Automática de Indicativos Financeiros para Bolsa de Valores Considerando o Aspecto Temporal}}
+\author{Rafael da Silva Melo \\ \small Orientador: Prof. Dr. Márcio de Souza Dias \\ \small Universidade Federal de Goiás -- Regional Catalão}
+\date{2026}
+
+% -------------------------------------------------------------------------
+\begin{document}
+\maketitle
+
+\input{resumo}
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{introducao}
+\input{desenvolvimento}
+\input{conclusao}
+
+\renewcommand{\refname}{Referências}
+\addcontentsline{toc}{section}{Referências}
+\bibliographystyle{apalike}
+\bibliography{referencias}
+
+\end{document}

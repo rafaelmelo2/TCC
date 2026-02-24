@@ -1,0 +1,11 @@
+% -------------------------------------------------------------------------
+% Conclusão
+% -------------------------------------------------------------------------
+\section{Conclusão}
+\label{sec:conclusao}
+
+Este trabalho propôs e avaliou um modelo híbrido CNN--LSTM para \textbf{previsão direcional intradiária} (barras de 15 minutos) em três ativos de alta liquidez da B3 (PETR4, VALE3, ITUB4). A abordagem integrou um pipeline completo --- da aquisição de dados à avaliação financeira --- com ênfase em \textbf{validação temporal} rigorosa, prevenção de \textbf{data leakage} e reprodutibilidade \cite{bergmeir2012,prado2018}.
+
+A principal contribuição não é um ganho de acurácia sobre baselines, mas o \textbf{protocolo metodológico}: (i) base intradiária de cinco anos com tratamento de qualidade e ajustes corporativos; (ii) engenharia de 12 características técnicas com rotulagem direcional e banda morta; (iii) validação walk-forward com embargo; (iv) comparação com Naive, Drift, ARIMA e Prophet sob as mesmas condições; (v) otimização bayesiana de hiperparâmetros por fold; (vi) testes de Diebold--Mariano e segmentação por regime de volatilidade; (vii) backtests com custos explícitos em modalidades long-only e long/short; (viii) pipeline reprodutível com sementes fixas e scripts documentados. Esse protocolo pode ser reutilizado para outras arquiteturas, conjuntos de \emph{features} ou granularidades.
+
+Os resultados empíricos indicam que, para os dados e a configuração adotados, o CNN--LSTM não supera os baselines de forma estatisticamente significativa nem de forma financeiramente consistente. O fenômeno de \textbf{colapso de classe} em boa parte dos folds e a concentração de resultado positivo em um único cenário (PETR4 long/short em um fold) sugerem que trabalhos futuros podem explorar: granularidades maiores (30 min ou 1 h); \emph{features} adicionais (microestrutura, sentimento, codificação temporal); arquiteturas com atenção (por exemplo, Temporal Fusion Transformer) ou \emph{ensembles}; funções de perda que penalizem a concentração de previsões; e limiares adaptativos por regime. O código e a documentação do pipeline estão disponíveis para reprodução e extensão pela comunidade.

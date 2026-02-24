@@ -1,38 +1,142 @@
 \begin{thebibliography}{}
 
-\bibitem[Bergmeir and Ben{\'i}tez, 2012]{bergmeir2012}
+\bibitem[Amihud 2002]{amihud2002illiquidity}
+Amihud, Y. (2002).
+\newblock Illiquidity and stock returns: Cross-section and time-series effects.
+\newblock {\em Journal of Financial Markets}, 5(1):31--56.
+
+\bibitem[Andersen and Bollerslev 1997]{andersen1997}
+Andersen, T.~G. and Bollerslev, T. (1997).
+\newblock Intraday periodicity and volatility persistence in financial markets.
+\newblock {\em Journal of Empirical Finance}, 4(2-3):115--158.
+
+\bibitem[Bergmeir and Ben{\'i}tez 2012]{bergmeir2012}
 Bergmeir, C. and Ben{\'i}tez, J.~M. (2012).
 \newblock On the use of cross-validation for time series predictor evaluation.
 \newblock {\em Information Sciences}, 191:192--213.
 
-\bibitem[Bodie et~al., 2021]{bodie2021}
+\bibitem[Bodie et~al. 2021]{bodie2021}
 Bodie, Z., Kane, A., and Marcus, A.~J. (2021).
 \newblock {\em Investments}.
 \newblock McGraw-Hill Education, New York, 12 edition.
 
-\bibitem[Box et~al., 2015]{box2015}
+\bibitem[Bollinger 2001]{bollinger2001}
+Bollinger, J. (2001).
+\newblock {\em Bollinger on Bollinger Bands}.
+\newblock McGraw-Hill, New York.
+
+\bibitem[Borovykh et~al. 2017]{borovykh2017}
+Borovykh, A., Bohte, S., and Oosterlee, C.~W. (2017).
+\newblock Conditional time series forecasting with convolutional neural networks.
+
+\bibitem[Box et~al. 2015]{box2015}
 Box, G. E.~P., Jenkins, G.~M., Reinsel, G.~C., and Ljung, G.~M. (2015).
 \newblock {\em Time Series Analysis: Forecasting and Control}.
 \newblock Wiley, Hoboken, NJ, 5 edition.
 
-\bibitem[Diebold and Mariano, 1995]{diebold1995}
+\bibitem[Dacorogna et~al. 2001]{dacorogna2001}
+Dacorogna, M.~M., Gen{\c{c}}ay, R., M{\"u}ller, U.~A., Olsen, R.~B., and Pictet, O.~V. (2001).
+\newblock {\em An Introduction to High-Frequency Finance}.
+\newblock Academic Press, San Diego, CA.
+
+\bibitem[Diebold and Mariano 1995]{diebold1995}
 Diebold, F.~X. and Mariano, R.~S. (1995).
 \newblock Comparing predictive accuracy.
 \newblock {\em Journal of Business \& Economic Statistics}, 13(3):253--263.
 
-\bibitem[Hyndman and Athanasopoulos, 2018]{hyndman2018}
+\bibitem[Ding and Qin 2020]{ding2020}
+Ding, G. and Qin, L. (2020).
+\newblock Study on the prediction of stock price based on the associated network model of lstm.
+\newblock {\em International Journal of Machine Learning and Cybernetics}, 11(6):1307--1317.
+
+\bibitem[Dufour and Engle 2000]{dufour2000time}
+Dufour, A. and Engle, R.~F. (2000).
+\newblock Time and the price impact of a trade.
+\newblock {\em Journal of Finance}, 55(6):2467--2498.
+
+\bibitem[Engle and Russell 1998]{engle1998acd}
+Engle, R.~F. and Russell, J.~R. (1998).
+\newblock Autoregressive conditional duration: A new model for irregularly spaced transaction data.
+\newblock {\em Econometrica}, 66(5):1127--1162.
+
+\bibitem[Hasbrouck 2007]{hasbrouck2007}
+Hasbrouck, J. (2007).
+\newblock {\em Empirical Market Microstructure: The Institutions, Economics, and Econometrics of Securities Trading}.
+\newblock Oxford University Press, New York.
+
+\bibitem[Hochreiter and Schmidhuber 1997]{hochreiter1997}
+Hochreiter, S. and Schmidhuber, J. (1997).
+\newblock Long short-term memory.
+\newblock {\em Neural Computation}, 9(8):1735--1780.
+
+\bibitem[Hyndman and Athanasopoulos 2018]{hyndman2018}
 Hyndman, R.~J. and Athanasopoulos, G. (2018).
 \newblock {\em Forecasting: Principles and Practice}.
 \newblock OTexts, Melbourne, Australia, 2 edition.
 
-\bibitem[Mishkin and Eakins, 2018]{mishkin2018}
+\bibitem[Lima~Junior 2013]{marcondes2013modelo}
+Lima~Junior, M. M. d.~O. (2013).
+\newblock Proposta de um modelo de predição da bolsa de valores utilizando uma abordagem híbrida.
+\newblock Dissertação de mestrado, Universidade Federal do Maranhão, São Luís.
+
+\bibitem[Lo 2017]{lo2017}
+Lo, A.~W. (2017).
+\newblock {\em Adaptive Markets: Financial Evolution at the Speed of Thought}.
+\newblock Princeton University Press, Princeton, NJ.
+
+\bibitem[Mishkin and Eakins 2018]{mishkin2018}
 Mishkin, F.~S. and Eakins, S.~G. (2018).
 \newblock {\em Financial Markets and Institutions}.
 \newblock Pearson, New York, 9 edition.
 
-\bibitem[Prado, 2018]{prado2018}
+\bibitem[Murphy 1999]{murphy1999}
+Murphy, J.~J. (1999).
+\newblock {\em Technical Analysis of the Financial Markets: A Comprehensive Guide to Trading Methods and Applications}.
+\newblock New York Institute of Finance, New York, 2 edition.
+
+\bibitem[Nascimento et~al. 2023]{nascimento2023bwaif}
+Nascimento, O.~S., Santos, F.~G., and Ferreira, K. H.~A. (2023).
+\newblock Previsão de preços de ações utilizando inteligência artificial.
+\newblock In {\em Anais do I Brazilian Workshop on Artificial Intelligence in Finance}, pages 37--47, Porto Alegre, RS, Brasil. Sociedade Brasileira de Computação (SBC).
+
+\bibitem[Prado 2018]{prado2018}
 Prado, M. L.~d. (2018).
 \newblock {\em Advances in Financial Machine Learning}.
 \newblock Wiley, Hoboken, NJ.
+
+\bibitem[Rotela~Jr et~al. 2014]{rotela2014arima}
+Rotela~Jr, P., Salomon, F.~L., and de~Oliveira, M.~M. (2014).
+\newblock Modelo arima aplicado à previsão do índice bovespa.
+\newblock {\em Open Journal of Statistics}, 4(5):319--324.
+
+\bibitem[Souza et~al. 2022]{assis2022predicao}
+Souza, Y. G.~V., Tarrataca, L., Cardoso, D.~O., and Assis, L. S.~d. (2022).
+\newblock Sentiment analysis applied to ibovespa prediction.
+\newblock In {\em Anais do Congresso Brasileiro de Inteligência Computacional (CBIC)}, pages 373--388.
+
+\bibitem[Sunki et~al. 2024]{sunki2024}
+Sunki, A., SatyaKumar, C., Surya~Narayana, G., Koppera, V., and Hakeem, M. (2024).
+\newblock Time series forecasting of stock market using arima, lstm and fb prophet.
+\newblock In {\em MATEC Web of Conferences -- ICMED 2024}, volume 392, page 01163.
+
+\bibitem[Taylor and Letham 2018]{taylor2018}
+Taylor, S.~J. and Letham, B. (2018).
+\newblock Forecasting at scale.
+\newblock {\em The American Statistician}, 72(1):37--45.
+
+\bibitem[Tsay 2010]{tsay2010}
+Tsay, R.~S. (2010).
+\newblock {\em Analysis of Financial Time Series}.
+\newblock Wiley, Hoboken, NJ, 3 edition.
+
+\bibitem[Wen et~al. 2022]{wen2022survey}
+Wen, Q., Zhou, T., Zhang, C., Chen, W., Ma, Z., Yan, J., and Sun, L. (2022).
+\newblock Transformers in time series: A survey.
+\newblock In {\em Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI)}.
+
+\bibitem[Zeng et~al. 2022]{zeng2022effectiveness}
+Zeng, A., Chen, M., Zhang, L., and Xu, Q. (2022).
+\newblock Are transformers effective for time series forecasting?
+\newblock {\em arXiv preprint arXiv:2205.13504}.
 
 \end{thebibliography}

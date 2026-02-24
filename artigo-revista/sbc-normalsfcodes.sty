@@ -1,0 +1,7 @@
+% Correção para LaTeX 2020+: o kernel não define mais \normalsfcodes;
+% babel e @outputpage ainda o referenciam. Carregar ANTES de \documentclass.
+\ProvidesPackage{sbc-normalsfcodes}[2024/02/23 fix normalsfcodes for SBC template]
+\gdef\normalsfcodes{}
+\AddToHook{begindocument/before}[sbc-normalsfcodes]{\gdef\normalsfcodes{}}
+\DeclareHookRule{begindocument/before}{sbc-normalsfcodes}{before}{babel}
+\endinput
