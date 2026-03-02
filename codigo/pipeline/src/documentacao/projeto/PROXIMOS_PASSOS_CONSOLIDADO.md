@@ -59,10 +59,11 @@
 
 **Ação:**
 ```bash
-cd /home/rafael/Arquivos/TCC/codigo/pipeline
-
-# Retreinar todos os ativos com focal loss
-./retreinar_completo.sh
+# A partir do diretório do pipeline
+# Retreinar todos os ativos com focal loss (quando o script existir)
+# ./retreinar_completo.sh
+uv run python src/train.py --ativo PETR4 --modelo cnn_lstm
+# ... idem VALE3, ITUB4
 ```
 
 **O que esperar:**
@@ -323,8 +324,9 @@ Criar `src/utils/diebold_mariano.py` para:
 
 ### Retreinar todos os ativos
 ```bash
-cd /home/rafael/Arquivos/TCC/codigo/pipeline
-./retreinar_completo.sh
+# A partir do diretório do pipeline
+uv run python src/train.py --ativo PETR4 --modelo cnn_lstm
+# Repetir para VALE3 e ITUB4; ou usar script em lote se existir
 ```
 
 ### Analisar resultados

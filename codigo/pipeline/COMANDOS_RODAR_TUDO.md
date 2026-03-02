@@ -1,6 +1,6 @@
 # Comandos para rodar tudo, salvar e passar para a próxima fase
 
-Execute a partir do diretório do pipeline: `cd /home/rafael/Arquivos/TCC/codigo/pipeline`
+Execute a partir do diretório do pipeline, por exemplo: `cd codigo/pipeline` (ou o caminho onde está a pasta `pipeline` no seu clone).
 
 **Resumo completo para reunião com professor e busca:** [RESUMO_TCC_REUNIAO_PROFESSOR.md](RESUMO_TCC_REUNIAO_PROFESSOR.md) (tudo que foi feito + links para cada arquivo + perguntas que o professor pode fazer).
 
@@ -113,7 +113,7 @@ uv run python src/scripts/rodar_backtest.py --ativo ITUB4 --fold 1 --estrategia 
 ## 6. Resumo: ordem sugerida para “rodar tudo e salvar”
 
 ```bash
-cd /home/rafael/Arquivos/TCC/codigo/pipeline
+cd codigo/pipeline   # ou seu caminho até a pasta pipeline
 
 # 1) Baselines
 uv run python src/tests/testar_baselines_walkforward.py --todos

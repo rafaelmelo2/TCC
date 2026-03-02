@@ -1,8 +1,8 @@
 
 Este trabalho propôs e avaliou um modelo híbrido CNN--LSTM para previsão direcional intradiária
 (barras de 15~minutos) em três ativos de alta liquidez da B3: PETR4, VALE3 e ITUB4.
-A abordagem integrou um pipeline completo --- da aquisição de dados à avaliação financeira ---
-com ênfase em validação temporal rigorosa, prevenção de vazamento de dados (data leakage) e reprodutibilidade.
+A abordagem integrou um \textit{pipeline} completo --- da aquisição de dados à avaliação financeira ---
+com ênfase em validação temporal rigorosa, prevenção de vazamento de dados (\textit{data leakage}) e reprodutibilidade.
 
 \section*{Contribuições}
 
@@ -14,26 +14,26 @@ que compreende:
   com ajustes corporativos e controle de qualidade;
   \item engenharia de 12 características (features) técnicas (MME, RSI, Bandas de Bollinger, volatilidade),
   com rotulagem direcional com banda morta de 0,1\%;
-  \item validação temporal deslizante (walk-forward) com embargo temporal, eliminando sobreposição entre treino
+  \item validação temporal deslizante (\textit{walk-forward}) com embargo temporal, eliminando sobreposição entre treino
   e teste e preservando a ordem cronológica;
-  \item comparação com quatro modelos de referência (baselines) (Naive, Drift, ARIMA, Prophet) sob as mesmas
+  \item comparação com quatro modelos de referência (\textit{baselines}) (Naive, Drift, ARIMA, Prophet) sob as mesmas
   condições experimentais;
   \item otimização bayesiana de hiperparâmetros por fold (Optuna), sem vazamento do conjunto de teste;
   \item testes de significância estatística (Diebold--Mariano), incluindo segmentação por regimes
   de volatilidade;
-  \item testes retrospectivos (backtests) com custos explícitos (emolumentos B3 e deslizamento de preço (slippage)) em modalidades
-  apenas comprado (long-only) e comprado/vendido (long/short), com análise de sensibilidade; e
-  \item pipeline reprodutível, orquestrado por scripts e com sementes fixas.
+  \item testes retrospectivos (\textit{backtests}) com custos explícitos (emolumentos B3 e deslizamento de preço (\textit{slippage})) em modalidades
+  apenas comprado (\textit{long-only}) e comprado/vendido (\textit{long/short}), com análise de sensibilidade; e
+  \item \textit{pipeline} reprodutível, orquestrado por scripts e com sementes fixas.
 \end{enumerate}
 
 Esse protocolo pode ser reutilizado como base para avaliação de outros modelos, características (features)
-ou granularidades temporais, reduzindo o risco de conclusões infladas por vazamento de dados (data leakage)
+ou granularidades temporais, reduzindo o risco de conclusões infladas por vazamento de dados (\textit{data leakage})
 ou avaliações otimistas.
 
 \section*{Resultados principais}
 
 Os experimentos mostraram que o modelo CNN--LSTM obteve acurácia direcional média entre
-50,76\% e 51,55\% (conforme o ativo), ligeiramente acima da maioria dos modelos de referência (baselines),
+50,76\% e 51,55\% (conforme o ativo), ligeiramente acima da maioria dos modelos de referência (\textit{baselines}),
 mas com ganhos marginais e não estatisticamente significativos. O teste de Diebold--Mariano
 não rejeitou a hipótese nula de igualdade de desempenho em nenhuma das 12 comparações
 (p-valores entre 0,071 e 0,967). A análise por regimes de volatilidade tampouco revelou
@@ -45,17 +45,23 @@ Esse comportamento, evidenciado por MCC nulo e desvio-padrão de probabilidades 
 baixo (0,002 a 0,012), indica que a rede não conseguiu extrair sinal discriminativo
 suficiente dos dados de 15~minutos com as 12 características (features) técnicas empregadas.
 
-Os testes retrospectivos (backtests) confirmaram a fragilidade: apenas PETR4 em modo comprado/vendido (long/short) apresentou
+Os testes retrospectivos (\textit{backtests}) confirmaram a fragilidade: apenas PETR4 em modo comprado/vendido (\textit{long/short}) apresentou
 retorno positivo consistente (4,10\%), mas concentrado em um único fold.
 VALE3 e ITUB4 ficaram próximos do equilíbrio ou no negativo.
+
+\section*{Resposta à pergunta central do estudo}
+
+À pergunta central formulada na Introdução --- ``em que condições um modelo CNN+LSTM supera Naive, Drift, ARIMA e Prophet na predição direcional intradiária da B3, sob validação temporal deslizante (\textit{walk-forward}) e avaliação pós-custos?'' --- a resposta deste trabalho é: \textbf{não houve superioridade consistente do CNN--LSTM nas condições avaliadas}.
+
+Em termos práticos, o modelo apresentou ganhos pontuais de acurácia em alguns ativos e períodos, com destaque para PETR4 em um fold específico; porém, esses ganhos não se mantiveram de forma estável entre folds, não foram corroborados por significância estatística (Diebold--Mariano) e, no nível financeiro, não se traduziram em vantagem robusta após custos na maior parte dos cenários.
 
 \section*{Discussão}
 
 Os resultados obtidos são consistentes com a hipótese de eficiência semiforte do mercado
 para o horizonte e granularidade estudados: retornos intradiários de 15~minutos em ações
 líquidas da B3 contêm alto nível de ruído e baixa autocorrelação, dificultando a extração
-de padrões preditivos estáveis. A demonstração de que um modelo de aprendizado profundo (deep learning)
-não supera modelos de referência (baselines) simples nessas condições é, em si, uma contribuição relevante,
+de padrões preditivos estáveis. A demonstração de que um modelo de aprendizado profundo (\textit{deep learning})
+não supera modelos de referência (\textit{baselines}) simples nessas condições é, em si, uma contribuição relevante,
 na medida em que reforça a importância de avaliações rigorosas --- com validação temporal,
 testes de significância e custos de transação --- frente à ``ilusão de performance''
 frequentemente observada em estudos sem esses controles.
@@ -82,4 +88,4 @@ As limitações identificadas apontam direções concretas para continuidade:
 
 O código-fonte, os dados processados e os artefatos de treinamento estão disponíveis no
 repositório do projeto (\url{https://github.com/rafaelmelo2/TCC/tree/pipeline-only}), permitindo a reprodução integral dos experimentos e a extensão
-do pipeline para novas abordagens.
+do \textit{pipeline} para novas abordagens.

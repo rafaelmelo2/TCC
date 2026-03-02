@@ -136,7 +136,7 @@ A \emph{volatilidade intradiária} pode ser mensurada por indicadores como o des
 Por sua vez, a \emph{liquidez} refere-se à facilidade de negociação de um ativo sem afetar substancialmente seu preço, sendo frequentemente avaliada por medidas como:  
 \begin{itemize}
   \item {Volume médio por minuto};  
-  \item {Spread bid–ask}, diferença entre o maior preço que alguém está disposto a pagar por um ativo e o menor preço pelo qual alguém está disposto a vendê-lo;  
+  \item {\textit{spread} bid–ask}, diferença entre o maior preço que alguém está disposto a pagar por um ativo e o menor preço pelo qual alguém está disposto a vendê-lo;  
   \item {Índice de iliquidez de Amihud}, que relaciona o retorno absoluto ao volume negociado \cite{amihud2002illiquidity};  
   \item {Profundidade do livro de ofertas}, capturando o total de ordens disponíveis em níveis próximos ao melhor preço \cite{hasbrouck2007empirical}.  
 \end{itemize}
@@ -156,7 +156,7 @@ Dessa forma, a análise conjunta de volatilidade e liquidez intradiária fornece
 
 Na predição de séries financeiras, o componente temporal é o elemento estruturante que vai além da simples ordem cronológica dos dados. Primeiro, efeitos sazonais e de calendário — como feriados, janelas de pré-abertura e fechamento — geram variações sistemáticas em volume e volatilidade que precisam ser modeladas explicitamente para evitar vieses sazonais \cite{hyndman_2018}. Em seguida, a escolha do tamanho da janela de análise (janela deslizante) implica em um \textit{trade-off}: janelas muito longas diluem choques pontuais, enquanto janelas muito curtas amplificam ruídos e podem induzir sobreajuste \cite{hyndman_2018}.  
 
-No gráfico da Figura \ref{fig:trade-off}, esse equilíbrio é ilustrado visualmente: à medida que aumentamos o tamanho da janela de análise, reduzimos o impacto do ruído de curto prazo, mas também perdemos a capacidade de reagir rapidamente a mudanças repentinas no mercado. Por outro lado, janelas muito curtas capturam com mais agilidade as variações recentes, porém amplificam flutuações aleatórias que podem induzir ao sobreajuste. Dessa forma, a figura evidencia o dilema central entre estabilidade e sensibilidade, que precisa ser considerado na escolha do horizonte temporal para modelagem de séries financeiras.
+No gráfico da Figura \ref{fig:trade-off}, esse equilíbrio é ilustrado visualmente: à medida que aumentamos o tamanho da janela de análise, reduzimos o impacto do ruído de curto prazo, mas também perdemos a capacidade de reagir rapidamente a mudanças repentinas no mercado. Por outro lado, janelas muito curtas capturam com mais agilidade as variações recentes, porém amplificam flutuações aleatórias que podem induzir ao sobreajuste. Dessa forma, a Figura evidencia o dilema central entre estabilidade e sensibilidade, que precisa ser considerado na escolha do horizonte temporal para modelagem de séries financeiras.
 
 \begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
   \centering
@@ -166,7 +166,7 @@ No gráfico da Figura \ref{fig:trade-off}, esse equilíbrio é ilustrado visualm
 \end{figure}
 
 
-Para avaliar corretamente esse \textit{trade-off} e estimar a performance out-of-sample, empregam-se técnicas de validação temporal avançada, tais como \textit{time series cross-validation} com bloqueio por períodos e backtesting walk-forward, que previnem o viés de uso de informação futura (\textit{look-ahead bias}) e fornecem indicadores realistas de acurácia \cite{bergmeir2012}. Adicionalmente, modelos de mudança de regime, como o proposto por Hamilton (1989), capturam transições abruptas entre fases de mercado (e.g., bull vs. bear), ajustando a sensibilidade do algoritmo conforme o regime vigente \cite{hamilton1989switching}.  
+Para avaliar corretamente esse \textit{trade-off} e estimar a performance out-of-sample, empregam-se técnicas de validação temporal avançada, tais como \textit{time series cross-validation} com bloqueio por períodos e backtesting \textit{walk-forward}, que previnem o viés de uso de informação futura (\textit{look-ahead bias}) e fornecem indicadores realistas de acurácia \cite{bergmeir2012}. Adicionalmente, modelos de mudança de regime, como o proposto por Hamilton (1989), capturam transições abruptas entre fases de mercado (e.g., bull vs. bear), ajustando a sensibilidade do algoritmo conforme o regime vigente \cite{hamilton1989switching}.  
 
 No contexto deste trabalho, integrar todos esses elementos temporais — sazonalidades, janelas de análise otimizadas, validação avançada, detecção de regimes e embeddings de tempo — torna o modelo mais sensível tanto a movimentos rápidos quanto a evoluções estruturais, garantindo predições mais estáveis e acuradas em diferentes momentos da sessão de negociação.
 
@@ -179,9 +179,9 @@ No contexto deste trabalho, integrar todos esses elementos temporais — sazonal
 
 % A modelagem de séries temporais financeiras com aprendizado profundo avançou significativamente nos últimos anos, com o surgimento de arquiteturas especializadas capazes de lidar com dependências complexas e padrões não estacionários. Entre as abordagens mais consolidadas estão as redes recorrentes do tipo \textit{Long Short-Term Memory} (LSTM) e \textit{Gated Recurrent Unit} (GRU), desenvolvidas para capturar relações sequenciais e manter informações relevantes por longos períodos temporais \cite{cho2014learning}. Essas redes têm se mostrado eficazes na previsão de cotações, especialmente em ambientes onde os dados seguem padrões temporais marcados por autocorrelação.
 
-% Entretanto, redes LSTM e GRU apresentam limitações quanto ao paralelismo e à eficiência computacional, além de dificuldades em capturar long-range dependencies em janelas muito extensas. Frente a essas restrições, arquiteturas baseadas em mecanismos de atenção, como o \textit{Transformer}, ganharam relevância. Introduzido por Vaswani et al. (2017), o Transformer utiliza atenção auto-regressiva para ponderar cada ponto da série com todos os demais, permitindo identificar padrões de forma paralela e com maior capacidade de generalização \cite{vaswani2017attention}.
+% Entretanto, redes LSTM e GRU apresentam limitações quanto ao paralelismo e à eficiência computacional, além de dificuldades em capturar long-range dependencies em janelas muito extensas. Frente a essas restrições, arquiteturas baseadas em mecanismos de atenção, como o \textit{Transformer}, ganharam relevância. Introduzido por Vaswani \textit{et al.} (2017), o Transformer utiliza atenção auto-regressiva para ponderar cada ponto da série com todos os demais, permitindo identificar padrões de forma paralela e com maior capacidade de generalização \cite{vaswani2017attention}.
 
-% A aplicação de Transformers em finanças ainda é recente, mas promissora. Modelos como o \textit{Temporal Fusion Transformer} (TFT), proposto por Lim et al. (2021), combinam múltiplas fontes de entrada (temporais, categóricas e contínuas), camadas de atenção interpretáveis e mecanismos de seleção dinâmica de variáveis, tornando-se especialmente adequados para dados financeiros com variáveis exógenas e múltiplas frequências \cite{lim2021temporal}. 
+% A aplicação de Transformers em finanças ainda é recente, mas promissora. Modelos como o \textit{Temporal Fusion Transformer} (TFT), proposto por Lim \textit{et al.} (2021), combinam múltiplas fontes de entrada (temporais, categóricas e contínuas), camadas de atenção interpretáveis e mecanismos de seleção dinâmica de variáveis, tornando-se especialmente adequados para dados financeiros com variáveis exógenas e múltiplas frequências \cite{lim2021temporal}. 
 
 % Além disso, estudos recentes mostram que, em ambientes de alta frequência e alta volatilidade — como em dados de \textit{tick-by-tick} — os Transformers superam LSTM em métricas como RMSE e \textit{directional accuracy} \cite{wu2020deep}. Isso se deve, principalmente, à capacidade do modelo de tratar longas janelas de observação sem perder estabilidade na retropropagação.
 
@@ -256,7 +256,7 @@ A arquitetura do Transformer, ilustrada na Figura \ref{fig:arquitetura-transform
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.5\linewidth]{arquitetura-transformer.png}
-\caption{A arquitetura do modelo Transformer, destacando os blocos de codificador e decodificador, as camadas de atenção multi-cabeças e as redes feed-forward. Fonte: Adaptado de Vaswani et al. (2017) \cite{vaswani2017attention}.}
+\caption{A arquitetura do modelo Transformer, destacando os blocos de codificador e decodificador, as camadas de atenção multi-cabeças e as redes feed-forward. Fonte: Adaptado de Vaswani \textit{et al.} (2017) \cite{vaswani2017attention}.}
 \label{fig:arquitetura-transformer}
 \end{figure}
 

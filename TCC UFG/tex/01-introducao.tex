@@ -2,13 +2,13 @@
 
 As bolsas de valores são infraestruturas de mercado onde compradores e vendedores negociam valores mobiliários sob regras claras e supervisão, promovendo formação de preços, liquidez e alocação eficiente de recursos \cite{MishkinEakins2018, FabozziModigliani2009}. No Brasil, esse papel é desempenhado pela B3 — Brasil, Bolsa, Balcão —, que integra ambientes de negociação, registro, compensação e liquidação, operando sob marcos legais como a Lei do Mercado de Valores Mobiliários e a Lei das Sociedades por Ações \cite{b3_quem_somos,Lei6385,Lei6404}. Em mercados acionários, os preços refletem expectativas sobre fluxos de caixa futuros e risco, mas também exibem forte volatilidade e variação de liquidez \cite{BodieKaneMarcus2021}. 
 
-No horizonte intradiário, emergem problemas clássicos de microestrutura — periodicidades sistemáticas ao longo do dia, espaçamento irregular entre negócios e impacto de ordens (inclusive via spread\footnote{Diferença entre o preço de compra (bid) e o de venda (ask) de um ativo.} e custo de imediatismo) — que condicionam a dinâmica de preços e a interpretação de sinais de curto prazo \cite{andersen1997intraday,engle1998acd,hasbrouck2007empirical,amihud2002illiquidity,dufour2000time}. Além disso, choques macroeconômicos e eventos exógenos podem deslocar rapidamente as cotações, elevando a incerteza \cite{WorldBank2020}. Esse contexto motiva a investigação de métodos preditivos sensíveis ao tempo e às nuances operacionais do ambiente de negociação brasileiro.
+No horizonte intradiário, emergem problemas clássicos de microestrutura — periodicidades sistemáticas ao longo do dia, espaçamento irregular entre negócios e impacto de ordens (inclusive via \textit{spread}\footnote{Diferença entre o preço de compra (bid) e o de venda (ask) de um ativo.} e custo de imediatismo) — que condicionam a dinâmica de preços e a interpretação de sinais de curto prazo \cite{andersen1997intraday,engle1998acd,hasbrouck2007empirical,amihud2002illiquidity,dufour2000time}. Além disso, choques macroeconômicos e eventos exógenos podem deslocar rapidamente as cotações, elevando a incerteza \cite{WorldBank2020}. Esse contexto motiva a investigação de métodos preditivos sensíveis ao tempo e às nuances operacionais do ambiente de negociação brasileiro.
 
 Com os avanços da tecnologia, a complexidade e a volatilidade dos ativos negociados em bolsa de valores aumentaram de forma significativa. Embora o mercado de ações não seja teoricamente previsível, muitos investidores identificam padrões que motivam a busca por estratégias de previsão\cite{lo2017}. No mundo, ativos fortemente correlacionados com mercados internacionais e fluxo de notícias, bem como a crescente participação de investidores individuais e institucionais, reforçam a necessidade de ferramentas que esclareçam sinais de curto, médio e longo prazo.
 
-Neste estudo, considera-se explicitamente um modelo híbrido baseado em redes recorrentes do tipo LSTM combinadas a convoluções unidimensionais (CNN+LSTM), visando capturar simultaneamente dependências de longo prazo e padrões locais em séries intradiárias da B3. Essa escolha se apoia em evidências de que LSTMs representam melhor relações não lineares e dependências temporais prolongadas, enquanto camadas convolucionais extraem motivos de curto prazo a partir de janelas deslizantes; em conjunto, busca-se maior robustez frente a ruído e a mudanças de regime de mercado. Para assegurar comparabilidade, os resultados serão confrontados com modelos de referência (baselines) estatísticos e de regras simples: Naive, Drift, ARIMA e Prophet \cite{ding2020, nascimento2023bwaif, box_2015, taylor_2018}. O debate sobre variantes baseadas em Transformers em séries temporais é retomado na fundamentação e em trabalhos relacionados \cite{zeng2022effectiveness, wen2022survey}, mas a comparação empírica deste estudo restringe-se aos baselines acima.
+Neste estudo, considera-se explicitamente um modelo híbrido baseado em redes recorrentes do tipo LSTM combinadas a convoluções unidimensionais (CNN+LSTM), visando capturar simultaneamente dependências de longo prazo e padrões locais em séries intradiárias da B3. Essa escolha se apoia em evidências de que LSTMs representam melhor relações não lineares e dependências temporais prolongadas, enquanto camadas convolucionais extraem motivos de curto prazo a partir de janelas deslizantes; em conjunto, busca-se maior robustez frente a ruído e a mudanças de regime de mercado. Para assegurar comparabilidade, os resultados serão confrontados com modelos de referência (\textit{baselines}) estatísticos e de regras simples: Naive, Drift, ARIMA e Prophet \cite{ding2020, nascimento2023bwaif, box_2015, taylor_2018}. O debate sobre variantes baseadas em Transformers em séries temporais é retomado na fundamentação e em trabalhos relacionados \cite{zeng2022effectiveness, wen2022survey}, mas a comparação empírica deste estudo restringe-se aos baselines acima.
 
-No entanto, como Zvi Bodie and Alex Kane and Alan J. Marcus \cite{BodieKaneMarcus2021} dizem em seu livro, o mercado de ações é impulsionado por variáveis econômicas (taxas de juros, taxas de câmbio, indicadores de inflação), fatores corporativos (demonstrações financeiras da empresa e mudanças na governança) e também eventos externos (crises políticas, pandemias, choques de oferta) como diz \cite{WorldBank2020}. Estes quesitos permitem que, em cada série temporal, sejam produzidas componentes como tendência, sazonalidade e ciclos, conforme a decomposição tradicional proposta em Box e Jenkins \cite{box_2015} e amplamente discutida em Hyndman e Athanasopoulos \cite{hyndman_2018}:
+No entanto, como Zvi Bodie e Alex Kane e Alan J. Marcus \cite{BodieKaneMarcus2021} dizem em seu livro, o mercado de ações é impulsionado por variáveis econômicas (taxas de juros, taxas de câmbio, indicadores de inflação), fatores corporativos (demonstrações financeiras da empresa e mudanças na governança) e também eventos externos (crises políticas, pandemias, choques de oferta) como diz \cite{WorldBank2020}. Estes quesitos permitem que, em cada série temporal, sejam produzidas componentes como tendência, sazonalidade e ciclos, conforme a decomposição tradicional proposta em Box e Jenkins \cite{box_2015} e amplamente discutida em Hyndman e Athanasopoulos \cite{hyndman_2018}:
 
 \begin{itemize}
       \item Tendência: define se os preços atuais estão subindo ou caindo a curto prazo.
@@ -17,7 +17,7 @@ No entanto, como Zvi Bodie and Alex Kane and Alan J. Marcus \cite{BodieKaneMarcu
       \item Ruído aleatório: variações imprevisíveis, que não podem ser explicadas por tendência, sazonalidade ou ciclos, geralmente decorrentes de choques ou flutuações aleatórias.
 \end{itemize}
 
-A figura \ref{fig:series-temporais2} apresenta diferentes combinações dos componentes básicos de uma série temporal: tendência, ciclos e ruído. Cada gráfico mostra isoladamente ou em conjunto esses elementos, evidenciando como eles moldam o comportamento dos dados ao longo do tempo. A tendência representa o movimento de longo prazo (aumento ou queda contínua), os ciclos mostram padrões repetitivos de médio prazo ligados a fatores econômicos ou sazonais, e o ruído corresponde a flutuações aleatórias sem padrão definido. Assim, ao combinar esses elementos, observamos séries mais complexas e realistas, aproximando-se do que ocorre em dados empíricos.
+A Figura \ref{fig:series-temporais2} apresenta combinações dos componentes básicos de uma série temporal: tendência, ciclos e ruído. Cada gráfico mostra isoladamente ou em conjunto esses elementos, evidenciando como eles moldam o comportamento dos dados ao longo do tempo. A tendência representa o movimento de longo prazo (aumento ou queda contínua), os ciclos mostram padrões repetitivos de médio prazo ligados a fatores econômicos ou sazonais, e o ruído corresponde a flutuações aleatórias sem padrão definido. Assim, ao combinar esses elementos, observamos séries mais complexas e realistas, aproximando-se do que ocorre em dados empíricos.
 
 
 \begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
@@ -34,9 +34,9 @@ A própria natureza do comércio, marcada por negociações frequentes e pelo us
 
 Outras pesquisas já propuseram modelos híbridos para previsão de preços de ações — por exemplo, o modelo proposto por \cite{marcondes2013modelo}, que combina redes neurais, técnicas estatísticas e indicadores técnicos via comitê de aprendizado. Entretanto, tais propostas, em geral, não exploram esquemas de agregação mais sofisticados (como metaclassificação em dois estágios) nem avaliam de forma sistemática a robustez a mudanças súbitas de regime \cite{assis2022predicao,tsay2010}. 
 
-Coerente com o título desta monografia, explicitamos os \textbf{alvos preditivos (indicativos financeiros)} a serem modelados: direção do retorno na próxima barra,  medida de volatilidade intradiária (p.ex., amplitude/variância realizada) e sinais de liquidez, como volume negociado e spread efetivo \cite{tsay2010,dacorogna2001,wood1985,MishkinEakins2018,rotela2014arima,nascimento2023bwaif}. 
+Coerente com o título desta monografia, explicitamos os \textbf{alvos preditivos (indicativos financeiros)} a serem modelados: direção do retorno na próxima barra,  medida de volatilidade intradiária (p.ex., amplitude/variância realizada) e sinais de liquidez, como volume negociado e \textit{spread} efetivo \cite{tsay2010,dacorogna2001,wood1985,MishkinEakins2018,rotela2014arima,nascimento2023bwaif}. 
 
-Portanto, este trabalho avança a linha dos híbridos ao empregar um modelo CNN+LSTM com camadas convolucionais para padrões locais, validação temporal deslizante (walk-forward) e uma avaliação realista pós-custos no contexto da B3, com foco em estabilidade e reprodutibilidade dos resultados.
+Portanto, este trabalho avança a linha dos híbridos ao empregar um modelo CNN+LSTM com camadas convolucionais para padrões locais, validação temporal deslizante (\textit{walk-forward}) e uma avaliação realista pós-custos no contexto da B3, com foco em estabilidade e reprodutibilidade dos resultados.
 
 
 
@@ -54,36 +54,36 @@ Embora vários estudos tenham afirmado precisões acima de 90\% no caso de previ
 
 \section{Problema de Pesquisa}
 
-Resultados de previsão intradiária frequentemente não se sustentam em uso real porque violam a ordem temporal \cite{bergmeir2012,lopezdeprado2018}, ignoram regimes de liquidez/volatilidade \cite{hasbrouck2007empirical,andersen1997intraday,amihud2002illiquidity} e desconsideram custos de transação \cite{lopezdeprado2018,sharpe1994}. Nesse cenário, permanece incerto se modelos de aprendizado profundo — em especial arquiteturas híbridas CNN+LSTM — geram sinais direcionais realmente utilizáveis (horizonte +1 barra/15 min) para ações líquidas da B3 entre 2020–2025, quando avaliados sob um protocolo rigoroso de validação temporal deslizante (walk-forward) e comparados a modelos de referência (baselines) clássicos e arquiteturas com atenção.
+Resultados de previsão intradiária frequentemente não se sustentam em uso real porque violam a ordem temporal \cite{bergmeir2012,lopezdeprado2018}, ignoram regimes de liquidez/volatilidade \cite{hasbrouck2007empirical,andersen1997intraday,amihud2002illiquidity} e desconsideram custos de transação \cite{lopezdeprado2018,sharpe1994}. Nesse cenário, permanece incerto se modelos de aprendizado profundo — em especial arquiteturas híbridas CNN+LSTM — geram sinais direcionais realmente utilizáveis (horizonte +1 barra/15 min) para ações líquidas da B3 entre 2020–2025, quando avaliados sob um protocolo rigoroso de validação temporal deslizante (\textit{walk-forward}) e comparados a modelos de referência (\textit{baselines}) clássicos e arquiteturas com atenção.
 
 \textbf{Delimitação do escopo:}
 
-Este estudo situa-se no universo de bolsas de valores e mercados organizados, em que a negociação se dá sob regras de listagem, leilões, formação de preço e procedimentos operacionais definidos (no caso brasileiro, pela B3) \cite{b3_manual_negociacao}. Em janelas intradiárias, o comportamento do preço é influenciado por aspectos de microestrutura (ex.: liquidez, spread, intensidade de ordens, periodicidades intradiárias), o que afeta diretamente a previsibilidade e a avaliação de modelos \cite{hasbrouck2007empirical,andersen1997intraday,dufour2000time,engle1998acd}. À luz dessa dinâmica, explicitamos a seguir as delimitações adotadas.
+Este estudo situa-se no universo de bolsas de valores e mercados organizados, em que a negociação acontece sob regras de listagem, leilões, formação de preço e procedimentos operacionais definidos (no caso brasileiro, pela B3) \cite{b3_manual_negociacao}. Em janelas intradiárias, o comportamento do preço é influenciado por aspectos de microestrutura (ex.: liquidez, \textit{spread}, intensidade de ordens, periodicidades intradiárias), o que afeta diretamente a previsibilidade e a avaliação de modelos \cite{hasbrouck2007empirical,andersen1997intraday,dufour2000time,engle1998acd}. À luz dessa dinâmica, explicitamos a seguir as delimitações adotadas.
 
 
 
 \begin{itemize}
-    \item \textbf{Ativos}: Consideramos três ações negociadas na B3 — PETR4 (Petrobras), VALE3 (Vale) e ITUB4 (Itaú Unibanco) — selecionadas por estarem entre as de maior relevância e volume de negociação na bolsa (participação relevante no Ibovespa e em indicadores de liquidez). A escolha por esses ativos de alta liquidez visa mitigar efeitos de microestrutura adversos (como deslizamento de preço (slippage) e spread amplos) que distorcem sinais intradiários \cite{hasbrouck2007empirical}; quando pertinente, a carteira do Ibovespa é usada como referência de mercado.
+    \item \textbf{Ativos}: Consideramos três ações negociadas na B3 — PETR4 (Petrobras), VALE3 (Vale) e ITUB4 (Itaú Unibanco) — selecionadas por estarem entre as de maior relevância e volume de negociação na bolsa (participação relevante no Ibovespa e em indicadores de liquidez). A escolha por esses ativos de alta liquidez visa mitigar efeitos de microestrutura adversos (como deslizamento de preço (\textit{slippage}) e \textit{spread} amplos) que distorcem sinais intradiários \cite{hasbrouck2007empirical}; quando pertinente, a carteira do Ibovespa é usada como referência de mercado.
     
     \item \textbf{Período e granularidade}: Os experimentos cobrem out/2020–out/2025 em barras de 15 minutos, com análises de sensibilidade em 5 e 30 minutos. Essa granularidade equilibra ruído e sinal em alta frequência e captura periodicidades intradiárias conhecidas (picos de volatilidade na abertura/fechamento, padrões de almoço, etc.) \cite{andersen1997intraday,hyndman_2018}. 
     
     \item \textbf{Tarefa}: Prever a \textbf{direção do movimento de preço} na próxima vela (horizonte $+1$ barra), formulada como classificação probabilística. Tal formulação permite avaliar calibração e qualidade probabilística, não apenas acerto bruto \cite{brier1950,guo2017} — ver também a interpretação visual da tarefa na Figura~\ref{fig:delimitacao-tarefa}.
 
-    \item \textbf{Validação e treinamento}: Para evitar viés temporal (look-ahead) e superestimação de desempenho, adotamos validação temporal deslizante (walk-forward) com janelas sequenciais, seleção de hiperparâmetros por otimização Bayesiana e controle de sementes/versionamento para reprodutibilidade. Esse arranjo segue boas práticas de validação em séries temporais e testes retrospectivos (backtesting) \cite{bergmeir2012,lopezdeprado2018}.
+    \item \textbf{Validação e treinamento}: Para evitar viés temporal (\textit{look-ahead}) e superestimação de desempenho, adotamos validação temporal deslizante (\textit{walk-forward}) com janelas sequenciais, seleção de hiperparâmetros por otimização Bayesiana e controle de sementes/versionamento para reprodutibilidade. Esse arranjo segue boas práticas de validação em séries temporais e testes retrospectivos (\textit{backtesting}) \cite{bergmeir2012,lopezdeprado2018}.
 
-\item \textbf{Métricas}: Aferimos: 
+\item \textbf{Métricas}: São definidos:
 \begin{enumerate}[label=\Roman*.]
     \item \emph{acurácia direcional com banda morta}, para robustez a microvariações;
     \item Brier Score e Log-Loss, para qualidade das probabilidades e calibração \cite{brier1950,guo2017};
-    \item métricas pós-custos de negociação (trading) (retorno líquido, queda máxima (drawdown) e índice de Sharpe), refletindo utilidade prática sob custos de transação \cite{sharpe1994}
+    \item métricas pós-custos de negociação (trading) (retorno líquido, queda máxima (\textit{drawdown}) e índice de Sharpe), refletindo utilidade prática sob custos de transação \cite{sharpe1994}
 \end{enumerate}
 Para comparar previsores quando necessário, usamos testes de acurácia preditiva como Diebold–Mariano \cite{diebold1995}.
 
 
-\item \textbf{Comparadores (modelos de referência)}: Contrastamos o modelo proposto com os seguintes baselines, efetivamente avaliados nos experimentos: 
+\item \textbf{Comparadores (modelos de referência)}: Contrastamos o modelo proposto com os seguintes \textit{baselines}, efetivamente avaliados nos experimentos: 
 \begin{enumerate}[label=\Roman*.]
     \item Naive e Drift, como pisos de desempenho (regras simples sem modelo);
-    \item ARIMA/Box–Jenkins como modelo de referência (baseline) estatístico canônico \cite{box_2015,hyndman_2018,rotela2014arima}; 
+    \item ARIMA/Box–Jenkins como modelo de referência (\textit{baseline}) estatístico canônico \cite{box_2015,hyndman_2018,rotela2014arima}; 
     \item Prophet, representando um decompositor aditivo com sazonalidades e mudanças de nível \cite{taylor_2018}.
 \end{enumerate}
 Arquiteturas com atenção (Transformers) são discutidas na fundamentação e na seção de trabalhos relacionados \cite{wen2022survey,zeng2022effectiveness}, mas ficam fora do escopo empírico desta monografia.
@@ -91,7 +91,7 @@ Arquiteturas com atenção (Transformers) são discutidas na fundamentação e n
 \end{itemize}
 
 
-A figura \ref{fig:delimitacao-tarefa} sintetiza a tarefa: em uma série de preços intradiária (barras de 15 min), cada ponto no tempo gera um vetor de atributos (características) (preço, volume, indicadores técnicos e variáveis de contexto) e o modelo estima a probabilidade de a próxima barra encerrar acima (ou abaixo) da atual. O horizonte é de +1 barra (curto prazo), e as janelas de treino/teste avançam sequencialmente no tempo (esquema de validação temporal deslizante (walk-forward)), refletindo o fluxo real de mercado e evitando contaminação temporal.
+A Figura \ref{fig:delimitacao-tarefa} sintetiza a tarefa: em uma série de preços intradiária (barras de 15 min), cada ponto no tempo gera um vetor de atributos (características) (preço, volume, indicadores técnicos e variáveis de contexto) e o modelo estima a probabilidade de a próxima barra encerrar acima (ou abaixo) da atual. O horizonte é de +1 barra (curto prazo), e as janelas de treino/teste avançam sequencialmente no tempo (esquema de validação temporal deslizante (\textit{walk-forward})), refletindo o fluxo real de mercado e evitando contaminação temporal.
 
 
 \begin{figure}[H] % h=aqui, t=topo, b=base, p=página de floats, !=relaxa limites
@@ -106,30 +106,31 @@ A figura \ref{fig:delimitacao-tarefa} sintetiza a tarefa: em uma série de preç
 \textbf{Pergunta central do estudo:}
 
 \begin{quote}
-Em que condições (janelas, regimes de volatilidade e custo) um modelo CNN+LSTM supera os comparadores adotados (Naive, Drift, ARIMA e Prophet) na tarefa de previsão direcional intradiária (+1 barra/15 min) em algumas ações líquidas da B3 (2020–2025), sob avaliação temporal deslizante (walk-forward) e métricas pós-custos?
+Em que condições (janelas, regimes de volatilidade e custo) um modelo CNN+LSTM supera os comparadores adotados (Naive, Drift, ARIMA e Prophet) na tarefa de previsão direcional intradiária (+1 barra/15 min) em algumas ações líquidas da B3 (2020–2025), sob avaliação temporal deslizante (\textit{walk-forward}) e métricas pós-custos?
 
 \end{quote}
 
 
 
 \subsection{Justificativa}
-A previsão intradiária de movimentos de preços na B3 apresenta relevância prática para apoio à decisão em ambientes voláteis e com custos de transação não desprezíveis. Do ponto de vista acadêmico, persiste uma lacuna entre resultados reportados em ambientes controlados e o desempenho sob validação temporal deslizante (walk-forward)\footnote{Método em que o treino e o teste avançam em janelas sequenciais, mantendo a ordem temporal.}, com avaliação pós-custos e controle de deriva de conceito. Este estudo busca reduzir essa lacuna ao (i) delimitar um cenário intradiário realista, (ii) empregar validação temporal adequada e (iii) comparar um modelo híbrido (CNN+LSTM) a modelos de referência (baselines) consolidados. O potencial impacto inclui melhores critérios de avaliação para tarefas direcionais, evidências sobre robustez em diferentes regimes de volatilidade e um pipeline reprodutível que pode ser replicado e estendido por outros pesquisadores.
+A previsão intradiária de movimentos de preços na B3 apresenta relevância prática para apoio à decisão em ambientes voláteis e com custos de transação não desprezíveis. Do ponto de vista acadêmico, persiste uma lacuna entre resultados reportados em ambientes controlados e o desempenho sob validação temporal deslizante (\textit{walk-forward})\footnote{Método em que o treino e o teste avançam em janelas sequenciais, mantendo a ordem temporal.}, com avaliação pós-custos e controle de deriva de conceito. Este estudo busca reduzir essa lacuna ao (i) delimitar um cenário intradiário realista, (ii) empregar validação temporal adequada e (iii) comparar um modelo híbrido (CNN+LSTM) a modelos de referência (\textit{baselines}) consolidados. O potencial impacto inclui melhores critérios de avaliação para tarefas direcionais, evidências sobre robustez em diferentes regimes de volatilidade e um \textit{pipeline} reprodutível que pode ser replicado e estendido por outros pesquisadores.
 
 
 
 \section{Objetivos}
 
 \subsection{Objetivo geral}
-Avaliar de forma quantitativa e reprodutível, a capacidade de modelos de aprendizado de máquina sensíveis ao tempo em prever o comportamento direcional de indicadores financeiros intradiários, comparando seu desempenho a modelos de referência (baselines) estatísticos e neurais sob um protocolo experimental realista (validação temporal deslizante (walk-forward) e teste retrospectivo (backtest)\footnote{Simulação histórica de uma estratégia sob regras e dados passados.}) pós-custos.
+Avaliar de forma quantitativa e reprodutível, a capacidade de modelos de aprendizado de máquina sensíveis ao tempo em prever o comportamento direcional de indicadores financeiros intradiários, comparando seu desempenho a modelos de referência (\textit{baselines}) estatísticos e neurais sob um protocolo experimental realista validação temporal deslizante (\textit{walk-forward}) e teste retrospectivo (\textit{backtest})\footnote{Simulação histórica de uma estratégia sob regras e dados passados.} pós-custos.
 
 \subsection{Objetivos específicos}
+Os objetivos específicos são:
 \begin{enumerate}
   \item Construir e documentar o conjunto de dados intradiários (OHLCV e indicadores técnicos) para o período definido (2020--2025) e frequência fixa (15 minutos), especificando fontes, regras de limpeza, critérios de inclusão de ativos e prevenção de vazamento temporal.
-  \item Definir o desenho experimental com validação temporal deslizante (walk-forward) (janelas deslizantes, embargo temporal e padronização dentro de cada janela), estratégia de seleção de hiperparâmetros e controle de variáveis (sementes, versões e ambiente).
-  \item Treinar e comparar modelos de referência (baselines) representativos com o(s) modelo(s) proposto(s) sensíveis à ordem temporal, mantendo critérios comparáveis de otimização.
+  \item Definir o desenho experimental com validação temporal deslizante (\textit{walk-forward}) (janelas deslizantes, embargo temporal e padronização dentro de cada janela), estratégia de seleção de hiperparâmetros e controle de variáveis (sementes, versões e ambiente).
+  \item Treinar e comparar modelos de referência (\textit{baselines}) representativos com o(s) modelo(s) proposto(s) sensíveis à ordem temporal, mantendo critérios comparáveis de otimização.
   \item Mensurar a qualidade preditiva por múltiplas métricas: acurácia direcional com banda morta, F1/recall para a classe positiva, Brier score e AUC-PR, incluindo análise de calibração das probabilidades.
-  \item Avaliar desempenho operacional convertendo sinais em regras simples de negociação e realizando testes retrospectivos (backtests) com custos de transação e deslizamento de preço (slippage), reportando retorno, Sharpe, queda máxima (max drawdown) e rotatividade (turnover), além de cortes por regimes de volatilidade.
-  \item Testar significância e robustez dos resultados por meio do teste de Diebold-Mariano, bootstrap em blocos e análises de sensibilidade (janelas temporais, subconjuntos de ativos, horizonte de previsão e conjuntos de características (feature sets)).
+  \item Avaliar desempenho operacional convertendo sinais em regras simples de negociação e realizando testes retrospectivos (\textit{backtests}) com custos de transação e deslizamento de preço (\textit{slippage}), reportando retorno, Sharpe, queda máxima (\textit{max drawdown}) e rotatividade (\textit{turnover}), além de cortes por regimes de volatilidade.
+  \item Testar significância e robustez dos resultados por meio do teste de Diebold-Mariano, bootstrap em blocos e análises de sensibilidade (janelas temporais, subconjuntos de ativos, horizonte de previsão e conjuntos de características (\textit{feature sets})).
   \item Garantir reprodutibilidade com repositório versionado, manifesto de dependências, scripts de preparo/treino/avaliação, diários de experimento e registro explícito de ameaças à validade interna e externa.
 \end{enumerate}
 
@@ -143,8 +144,8 @@ Este trabalho busca contribuir em quatro frentes principais:
 
 Primeiro, com o desenvolvimento de um modelo híbrido, realizado em python (CNN+LSTM), capaz de combinar padrões locais e dependências de longo prazo em séries temporais financeiras, adequando-se às particularidades do mercado intradiário da B3. 
 
-Em segundo lugar, ao realizar uma avaliação empírica comparativa com modelos de referência (baselines) estabelecidos (Naive, Drift, ARIMA e Prophet), sob um protocolo realista de validação temporal deslizante (walk-forward) e testes retrospectivos (backtests) pós-custos. 
+Em segundo lugar, ao realizar uma avaliação empírica comparativa com modelos de referência (\textit{baselines}) estabelecidos (Naive, Drift, ARIMA e Prophet), sob um protocolo realista de validação temporal deslizante (\textit{walk-forward}) e testes retrospectivos (\textit{backtests}) pós-custos. 
 
 A terceira contribuição está na análise da robustez do modelo em diferentes condições de mercado, explorando regimes de volatilidade e choques pontuais. 
 
-Por fim, o trabalho inclui um pipeline reprodutível, com código-fonte organizado e documentação detalhada, para apoiar a replicação dos experimentos e a adaptação ou extensão por outros pesquisadores. O material disponibilizado reduz barreiras técnicas e favorece a co-construção do conhecimento; a natureza aberta do pipeline permite que novas metodologias sejam testadas em condições equivalentes, tornando os resultados mais comparáveis e contribuindo para conclusões mais robustas.
+Por fim, o trabalho inclui um \textit{pipeline} reprodutível, com código-fonte organizado e documentação detalhada, para apoiar a replicação dos experimentos e a adaptação ou extensão por outros pesquisadores. O material disponibilizado reduz barreiras técnicas e favorece a co-construção do conhecimento; a natureza aberta do \textit{pipeline} permite que novas metodologias sejam testadas em condições equivalentes, tornando os resultados mais comparáveis e contribuindo para conclusões mais robustas.

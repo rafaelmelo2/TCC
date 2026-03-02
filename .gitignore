@@ -42,3 +42,6 @@ TCC UFG/*.run.xml
 TCC UFG/*.synctex.gz
 TCC UFG/*.toc
 
+# Editor/AI configs locais
+.cursor/
+.vscode/
